@@ -1,3 +1,12 @@
+/*
+	Use Turbo C++ to compile 16bit obj file, then tdump the file to BootCpp.txt
+	tdump BootCpp.obj > BootCpp.txt
+	the _TEXT segment is the MBR code. Remember to add 55 AA in sector end.
+
+	Author:Sharp.Cao
+	Date:2025/1/25
+*/
+
 class FDD
 {
 public:
