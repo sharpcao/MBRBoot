@@ -26,7 +26,7 @@ void load_to_ram(FDD& from_dev, unsigned sector_start, unsigned num_of_sectors, 
 void main()
 {
 	FDD dev;
-	load_to_ram(dev,1u,2u,0x8000); //read to ram address
+	load_to_ram(dev,1u,63u,0x8000); //read to ram address, num_of_sectors belong to 1~63
 	asm{
 		mov ax, 0x8000 //jump to entry pointer
 		jmp ax
