@@ -1,0 +1,1 @@
+copy ..\bootcpp.obj .
