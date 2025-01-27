@@ -5,8 +5,8 @@
 ;	Author:Sharp.Cao
 ;	Date:2025/1/26
 ;-----------------------------------------------------------------------------------------
-				org	7e00h
-PE_Base			equ 0x10000
+				org	0x8000
+PE_Base			equ 0x8000
 PE_Head 		equ	PE_Base + 0x200
 EntryPoint		equ PE_Head + 0x28
 ImageBase		equ PE_Head + 0x34 
