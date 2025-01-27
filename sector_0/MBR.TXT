@@ -1,0 +1,49 @@
+Turbo Dump  Version 3.01 Copyright (c) 1988, 1992 Borland International
+                      Display of File MBR.OBJ
+
+000000 THEADR  mbr.cpp
+00000C COMENT  Purge: Yes, List: Yes, Class: 0   (000h)
+    Translator: TC86 Borland Turbo C++ 3.00
+00002E COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
+    Dependency File: mbr.cpp               01/26/125  10:46 am
+000040 COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
+    End of Dependency List
+000046 COMENT  Purge: Yes, List: Yes, Class: 234 (0EAh)
+    Compiler Parameters
+      Source Language:     C++
+      Leading Underscores: Yes
+      Memory Model:	      Small
+00004E LNAMES
+    Name  1: ''
+    Name  2: '_TEXT'
+    Name  3: 'CODE'
+    Name  4: '_DATA'
+    Name  5: 'DATA'
+    Name  6: '_BSS'
+    Name  7: 'BSS'
+    Name  8: 'DGROUP'
+000079 SEGDEF 1 : _TEXT           BYTE  PUBLIC  Class 'CODE'	 Length: 00a9
+000083 SEGDEF 2 : _DATA           WORD  PUBLIC  Class 'DATA'	 Length: 0000
+00008D SEGDEF 3 : _BSS            WORD  PUBLIC  Class 'BSS'	 Length: 0000
+000097 GRPDEF Group: DGROUP
+    Segment: _DATA          
+    Segment: _BSS           
+0000A0 PUBDEF  '_main'                 Segment: _TEXT:0000
+0000AF PUBDEF  'load_to_ram(FDD near&,unsigned int,unsigned int,unsigned int)'    Segment: _TEXT:0081
+0000D2 PUBDEF  'FDD::read_sector(unsigned int,unsigned int)'    Segment: _TEXT:0025
+0000F2 LEDATA  Segment: _TEXT          Offset: 0000  Length: 00A9
+    0000: 55 8B EC 83 EC 02 B8 00  80 50 B8 3F 00 50 B8 01   U........P.?.P..
+    0010: 00 50 8D 46 FE 50 E8 68  00 83 C4 08 B8 00 80 FF   .P.F.P.h........
+    0020: E0 8B E5 5D C3 55 8B EC  83 EC 0A 56 8B 76 04 8B   ...].U.....V.v..
+    0030: C6 BB 12 00 33 D2 F7 F3  42 89 56 FE 8B C6 BB 12   ....3...B.V.....
+    0040: 00 33 D2 F7 F3 25 01 00  89 46 FC 8B C6 BB 24 00   .3...%...F....$.
+    0050: 33 D2 F7 F3 89 46 FA 8B  46 FA B1 08 D3 E0 0B 46   3....F..F......F
+    0060: FE 89 46 F8 8B 46 FC B1  08 D3 E0 89 46 F6 B8 01   ..F..F......F...
+    0070: 02 8B 4E F8 8B 56 F6 8B  5E 06 CD 13 5E 8B E5 5D   ..N..V..^...^..]
+    0080: C3 55 8B EC 56 33 F6 EB  18 8B C6 B1 09 D3 E0 8B   .U..V3..........
+    0090: 56 0A 03 D0 52 8B 46 06  03 C6 50 E8 87 FF 59 59   V...R.F...P...YY
+    00A0: 46 3B 76 08 75 E3 5E 5D  C3                        F;v.u.^].
+0001A2 COMENT  Purge: Yes, List: Yes, Class: 232 (0E8h)
+    Source File 1: mbr.cpp               01/26/125  10:46 am
+0001B5 MODEND
+
