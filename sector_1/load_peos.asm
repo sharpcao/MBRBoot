@@ -5,17 +5,17 @@
 ;	Author:Sharp.Cao
 ;	Date:2025/1/26
 ;-----------------------------------------------------------------------------------------
-				org	8000h
-PE_Base			equ 0x8000
-PE_Head 		equ	0x200
-EntryPoint		equ PE_Base + PE_Head + 0x28
-ImageBase		equ PE_Base + PE_Head + 0x34 
-CodeVirtualAddr equ PE_Base + PE_Head + 0x104 
-CodeRawSize		equ PE_Base + PE_Head + 0x108 
-CodeRawPointer	equ PE_Base + PE_Head + 0x10c 
-DataVirtualAddr equ PE_Base + PE_Head + 0x12c 
-DataRawSize		equ PE_Base + PE_Head + 0x130 
-DataRawPointer	equ PE_Base + PE_Head + 0x134 
+				org	7e00h
+PE_Base			equ 0x10000
+PE_Head 		equ	PE_Base + 0x200
+EntryPoint		equ PE_Head + 0x28
+ImageBase		equ PE_Head + 0x34 
+CodeVirtualAddr equ PE_Head + 0x104 
+CodeRawSize		equ PE_Head + 0x108 
+CodeRawPointer	equ PE_Head + 0x10c 
+DataVirtualAddr equ PE_Head + 0x12c 
+DataRawSize		equ PE_Head + 0x130 
+DataRawPointer	equ PE_Head + 0x134 
 
 ;-----------------------------------------------------------------------------------------
 [bits 16]
