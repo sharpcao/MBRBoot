@@ -12,6 +12,14 @@
 #define PE_MEM_LOCATION  	0x8000
 #define LOAD_SECTS			  128u
 
+#define CYLS 	0x0ff0
+#define	LEDS 	0x0ff1
+#define VMODE	0x0ff2
+#define SCRNX  	0x0ff4
+#define SCRNY	0x0ff6
+#define VRAM	0x0ff8
+
+
 class FDD
 {
 public:
@@ -23,10 +31,12 @@ public:
 
 void load_to_ram(FDD& from_dev, unsigned sector_start, unsigned num_of_sectors, long to_ram_address);
 void load();
+void config_video();
+
 void main()
 {
 	asm{
-		mov sp, PE_MEM_LOCATION
+		mov sp, 0x7c00
 	}
 	load();
 }
@@ -35,11 +45,12 @@ void load()
 	FDD dev;
 
 	load_to_ram(dev,1u,LOAD_SECTS,PE_MEM_LOCATION); 
-	asm{
+	config_video();
 
+
+	asm{
 		mov ax, PE_MEM_LOCATION //jump to entry pointer
 		jmp ax
-
 	}
 }
 
@@ -73,6 +84,23 @@ void load_to_ram(FDD& from_dev, unsigned sector_start, unsigned num_of_sectors, 
 
 	for(unsigned i = 0; i != num_of_sectors; ++i){
 		from_dev.read_sector(sector_start + i, to_ram_address + i * 0x200);
+	}
+}
+
+void config_video()
+{
+	asm{
+		mov al, 0x13
+		mov ah,	0x0
+		int 0x10
+		mov BYTE [VMODE],8
+		mov WORD [SCRNX],320
+		mov WORD [SCRNY],200
+		mov WORD [VRAM], 0x0000
+		mov WORD [VRAM+2],0x000a
+		mov ah,0x02
+		int 0x16
+		mov [LEDS],al
 	}
 }
 

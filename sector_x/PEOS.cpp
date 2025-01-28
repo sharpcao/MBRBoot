@@ -2,9 +2,8 @@ int main()
 {
 
 
-	for (int i = 0xb8000; i<=0xbffff;){
-		*((char*)i++) = 'C';
-		*((char*)i++) = 0x1c;
+	for (int i = 0xa0000; i<=0xaffff;++i){
+		*((char*)i) = i & 0x0f;
 
 	}
 

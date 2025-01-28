@@ -27,7 +27,7 @@ CPU type                 80386
 Flags                    30E [ executable backwards 32bit nodebug ]
 DLL flags                0000 [ ]
 Linker Version           5.0
-Time stamp               67973142 : Mon Jan 27 15:09:54 2025
+Time stamp               6797606C : Mon Jan 27 18:31:08 2025
 O/S Version              4.0
 User Version             0.0
 Subsystem Version        4.0
@@ -107,7 +107,7 @@ Exports from peos.exe
 Section:             Resources
 File Offset:         00000A00 (2560)
   Flags:             00000000
-  Time Stamp:        5A3B793C : Thu Dec 21 17:05:00 2017
+  Time Stamp:        5A3B93E5 : Thu Dec 21 18:58:45 2017
   Major Version:     0000
   Minor Version:     0000
 

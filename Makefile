@@ -1,11 +1,12 @@
-DD = bin\dd.exe
+DD=bin\dd.exe
+sector_x_dir=day4
 
 
 defualt:
 	make fdimage.img
 
-fdimage.img : sector_0/sector_0.bin sector_1/sector_1.bin sector_x/sector_x.bin
-	copy /b sector_0\sector_0.bin+sector_x\sector_x.bin peos.bin
+fdimage.img : sector_0/sector_0.bin sector_1/sector_1.bin $(sector_x_dir)/sector_x.bin
+	copy /b sector_0\sector_0.bin+$(sector_x_dir)\sector_x.bin peos.bin
 	$(DD) if=sector_1/sector_1.bin of=peos.bin seek=1
 	$(DD) if=/dev/zero of=fdimage.img bs=1440k count=1
 	$(DD) if=peos.bin of=fdimage.img 
@@ -16,15 +17,15 @@ sector_1/sector_1.bin: sector_1/load_peos.asm
 	make sector_1.bin 
 	cd ..
 
-sector_x/sector_x.bin: sector_x/peos.cpp
-	cd sector_x
+$(sector_x_dir)/sector_x.bin: 
+	cd $(sector_x_dir)
 	make sector_x.bin
 	cd ..
 
 clean:
 	del fdimage.img peos.bin
-	del sector_1\*.bin
-	del sector_x\*.bin
+	del sector_1\sector_1.bin  $(sector_x_dir)\sector_x.bin
+
 
 
 
