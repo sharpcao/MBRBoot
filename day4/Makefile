@@ -17,6 +17,6 @@ sector_x.bin : bootpack.cpp Makefile
 
 
 clean:
-	del *.il* *.tds *.map *.obj *.tds *.exe *.bin
+	del *.il* *.tds *.map *.obj *.tds *.exe *.bin peos.txt
 
 
