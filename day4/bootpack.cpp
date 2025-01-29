@@ -1,8 +1,6 @@
 #include "bootpack.h"
 
-
-
-int os_main()
+void os_main()
 {
 
     CPalette pal;
@@ -33,11 +31,11 @@ int os_main()
 
     for(;;)
     {
-        asm{
+        __asm{
             hlt;
         }
     }
 
 }
 
-int (*jump)()  = os_main;
+void (*jump)()  = os_main;

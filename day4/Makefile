@@ -1,7 +1,7 @@
 #-v for Debug
 
-CFLAGS = -q -c -v
-IFLAGS = -q -b:0x100000 -v
+CFLAGS = -q -c -v 
+IFLAGS = -q -b:0x100000 -v 
  
 
 default:

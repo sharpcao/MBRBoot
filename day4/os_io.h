@@ -36,7 +36,7 @@ void io_cli()
 __declspec(naked) 
 void io_store_eflags(uint eflags)
 {
-	asm{
+	__asm{
 		push dword ptr [esp+4] 
 		popfd
 		ret
