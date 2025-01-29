@@ -2,36 +2,44 @@
 #define OS_IO_H
 
 using uint = unsigned int;
-inline void io_out8(uint port, uint data)
+
+__declspec(naked) 
+void io_out8(uint port, uint data)
 {
-	asm{
+	__asm{
 		mov edx, port
 		mov eax, data
 		out dx, al 
+		ret
 	}
 }
 
-inline uint io_load_eflags()
+__declspec(naked) 
+uint io_load_eflags()
 {
-	uint eflags;
-	asm{
+	__asm{
 		pushfd 
-		pop eflags 
-	}
-	return eflags;
-}
-inline void io_cli()
-{
-	asm {
-		cli
+		pop eax
+		ret
 	}
 }
 
-inline void io_store_eflags(uint eflags)
+__declspec(naked) 
+void io_cli()
+{
+	__asm {
+		cli
+		ret
+	}
+}
+
+__declspec(naked) 
+void io_store_eflags(uint eflags)
 {
 	asm{
-		push eflags 
+		push dword ptr [esp+4] 
 		popfd
+		ret
 	}
 }
 

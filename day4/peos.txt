@@ -3,7 +3,7 @@ Turbo Dump  Version 6.5.4.0 Copyright (c) 1988-2016 Embarcadero Technologies, In
 
 Old Executable Header
 
-DOS File Size                                        E00h  (  3584. )
+DOS File Size                                       1000h  (  4096. )
 Load Image Size                                      210h  (   528. )
 Relocation Table entry count                          0000h  (     0. )
 Relocation Table address                              0040h  (    64. )
@@ -27,7 +27,7 @@ CPU type                 80386
 Flags                    30E [ executable backwards 32bit nodebug ]
 DLL flags                0000 [ ]
 Linker Version           5.0
-Time stamp               6797606C : Mon Jan 27 18:31:08 2025
+Time stamp               679A02BC : Wed Jan 29 18:28:12 2025
 O/S Version              4.0
 User Version             0.0
 Subsystem Version        4.0
@@ -59,7 +59,7 @@ Imports             00000000  00000000
 Resources           00004000  00000200
 Exceptions          00000000  00000000
 Security            00000000  00000000
-Fixups              00005000  0000000C
+Fixups              00005000  00000010
 Debug               00000000  00000000
 Description         00000000  00000000
 Global Ptr          00000000  00000000
@@ -75,10 +75,10 @@ Object table:
 #   Name              VirtSize    RVA     PhysSize  Phys off  Flags   
 --  --------          --------  --------  --------  --------  --------
 01  .text             00001000  00001000  00000200  00000600  60000020 [CER]
-02  .data             00001000  00002000  00000000  00000800  C0000040 [IRW]
-03  .edata            00001000  00003000  00000200  00000800  40000040 [IR]
-04  .rsrc             00001000  00004000  00000200  00000A00  40000040 [IR]
-05  .reloc            00001000  00005000  00000200  00000C00  50000040 [IRS]
+02  .data             00001000  00002000  00000200  00000800  C0000040 [IRW]
+03  .edata            00001000  00003000  00000200  00000A00  40000040 [IR]
+04  .rsrc             00001000  00004000  00000200  00000C00  40000040 [IR]
+05  .reloc            00001000  00005000  00000200  00000E00  50000040 [IRS]
 
 Key to section flags:
   C - contains code
@@ -90,7 +90,7 @@ Key to section flags:
 
 ******************************************************************************
 Section:             Exports
-File Offset:         00000800 (2048)
+File Offset:         00000A00 (2560)
   Flags:             00000000
   Time Stamp:        00000000
   Major Version:     0000
@@ -101,13 +101,13 @@ Exports from peos.exe
   Sorted by Name:
     RVA      Ord. Hint Name
     -------- ---- ---- ----
-    00002000    1 0000 ___CPPdebugHook
+    00002030    1 0000 ___CPPdebugHook
 
 ******************************************************************************
 Section:             Resources
-File Offset:         00000A00 (2560)
+File Offset:         00000C00 (3072)
   Flags:             00000000
-  Time Stamp:        5A3B93E5 : Thu Dec 21 18:58:45 2017
+  Time Stamp:        5A3D9387 : Sat Dec 23 07:21:43 2017
   Major Version:     0000
   Minor Version:     0000
 
