@@ -2,8 +2,8 @@
 #CFLAGS = -q -c -v
 #IFLAGS = -q -v 
 
-CFLAGS = -q -c 
-IFLAGS = -q -b:0x100000 
+CFLAGS = -q -c
+IFLAGS = -q -b:0x100000
  
 
 default:

@@ -3,18 +3,18 @@
 
 using uint = unsigned int;
 
-__declspec(naked) 
+//__declspec(naked) 
 void io_out8(uint port, uint data)
 {
 	__asm{
 		mov edx, port
 		mov eax, data
 		out dx, al 
-		ret
+		//ret
 	}
 }
 
-__declspec(naked) 
+__declspec(naked)  
 uint io_load_eflags()
 {
 	__asm{
