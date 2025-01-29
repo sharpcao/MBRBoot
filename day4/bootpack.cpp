@@ -1,6 +1,6 @@
 #include "bootpack.h"
 
-int main()
+int os_main()
 {
 
     CPalette pal;
@@ -21,3 +21,5 @@ int main()
     }
 
 }
+
+int (*jump)()  = os_main;

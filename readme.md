@@ -14,6 +14,7 @@ Dependency Software
 * bochs https://bochs.sourceforge.io/getcurrent.html
 * qemu  https://www.qemu.org/
 * dd for windows http://www.chrysocome.net/dd
+* Powerful debug tools https://ollydbg.net/download.htm
 
 Reference
 * zhuhu https://zhuanlan.zhihu.com/p/99461924

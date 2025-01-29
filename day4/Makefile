@@ -1,9 +1,7 @@
-#for Debug
-#CFLAGS = -q -c -v
-#IFLAGS = -q -v 
+#-v for Debug
 
-CFLAGS = -q -c
-IFLAGS = -q -b:0x100000
+CFLAGS = -q -c -v
+IFLAGS = -q -b:0x100000 -v
  
 
 default:
