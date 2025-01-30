@@ -3,7 +3,7 @@
 void os_main(BOOTINFO *pbi)
 {
 
-    CPalette pal;
+    CPalette pal(pbi);
     pal.init_palette();
     // pal.boxfill(Color8::COL8_FF0000,20, 20, 120, 120);
     // pal.boxfill(Color8::COL8_00FF00,70, 50, 170, 150);
