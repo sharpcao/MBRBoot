@@ -1,6 +1,6 @@
 #include "bootpack.h"
 
-void os_main()
+void os_main(BOOTINFO *pbi)
 {
 
     CPalette pal;
@@ -38,4 +38,4 @@ void os_main()
 
 }
 
-void (*jump)()  = os_main;
+void (*jump)(BOOTINFO *pbi)  = os_main;

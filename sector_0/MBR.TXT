@@ -5,7 +5,7 @@ Turbo Dump  Version 3.01 Copyright (c) 1988, 1992 Borland International
 00000C COMENT  Purge: Yes, List: Yes, Class: 0   (000h)
     Translator: TC86 Borland Turbo C++ 3.00
 00002E COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
-    Dependency File: mbr.cpp               01/27/125  06:19 pm
+    Dependency File: mbr.cpp               01/30/125  07:18 pm
 000040 COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
     End of Dependency List
 000046 COMENT  Purge: Yes, List: Yes, Class: 234 (0EAh)
@@ -22,37 +22,38 @@ Turbo Dump  Version 3.01 Copyright (c) 1988, 1992 Borland International
     Name  6: '_BSS'
     Name  7: 'BSS'
     Name  8: 'DGROUP'
-000079 SEGDEF 1 : _TEXT           BYTE  PUBLIC  Class 'CODE'	 Length: 0117
+000079 SEGDEF 1 : _TEXT           BYTE  PUBLIC  Class 'CODE'	 Length: 012e
 000083 SEGDEF 2 : _DATA           WORD  PUBLIC  Class 'DATA'	 Length: 0000
 00008D SEGDEF 3 : _BSS            WORD  PUBLIC  Class 'BSS'	 Length: 0000
 000097 GRPDEF Group: DGROUP
     Segment: _DATA          
     Segment: _BSS           
 0000A0 PUBDEF  '_main'                 Segment: _TEXT:0000
-0000AF PUBDEF  'configVedio()'         Segment: _TEXT:00E8
-0000C8 PUBDEF  'load()'                Segment: _TEXT:000B
-0000DA PUBDEF  'load_to_ram(FDD near&,unsigned int,unsigned int,long)'    Segment: _TEXT:00B8
-0000FC PUBDEF  'FDD::read_sector(unsigned int,long)'    Segment: _TEXT:0036
-00011B LEDATA  Segment: _TEXT          Offset: 0000  Length: 0117
+0000AF PUBDEF  'config_video()'        Segment: _TEXT:00EB
+0000C9 PUBDEF  'load_to_ram(FDD near&,unsigned int,unsigned int,long)'    Segment: _TEXT:0039
+0000EB PUBDEF  'load()'                Segment: _TEXT:000B
+0000FD PUBDEF  'FDD::read_sector(unsigned int,long)'    Segment: _TEXT:0069
+00011C LEDATA  Segment: _TEXT          Offset: 0000  Length: 012E
     0000: 55 8B EC BC 00 7C E8 02  00 5D C3 55 8B EC 83 EC   U....|...].U....
     0010: 02 33 C0 BA 00 80 50 52  B8 80 00 50 B8 01 00 50   .3....PR...P...P
-    0020: 8D 46 FE 50 E8 91 00 83  C4 0A E8 BB 00 B8 00 80   .F.P............
-    0030: FF E0 8B E5 5D C3 55 8B  EC 83 EC 0E 56 57 8B 7E   ....].U.....VW.~
-    0040: 04 8B C7 BB 12 00 33 D2  F7 F3 42 89 56 FE 8B C7   ......3...B.V...
-    0050: BB 12 00 33 D2 F7 F3 25  01 00 89 46 FC 8B C7 BB   ...3...%...F....
-    0060: 24 00 33 D2 F7 F3 89 46  FA 8B 46 FA B1 08 D3 E0   $.3....F..F.....
-    0070: 0B 46 FE 89 46 F8 8B 46  FC B1 08 D3 E0 89 46 F6   .F..F..F......F.
-    0080: 8D 46 06 8B F0 8B 04 25  0F 00 89 46 F4 8B 44 02   .F.....%...F..D.
-    0090: B1 0C D3 E0 8B 14 B1 04  D3 EA 0B C2 89 46 F2 8B   .............F..
-    00A0: 5E F2 8E C3 8B 5E F4 B8  01 02 8B 4E F8 8B 56 F6   ^....^.....N..V.
-    00B0: CD 13 5F 5E 8B E5 5D C3  55 8B EC 56 33 F6 EB 20   .._^..].U..V3.. 
-    00C0: 8B C6 B1 09 D3 E0 8B 56  0C 8B 5E 0A 03 D8 83 D2   .......V..^.....
-    00D0: 00 52 53 8B 46 06 03 C6  50 E8 5A FF 83 C4 06 46   .RS.F...P.Z....F
-    00E0: 3B 76 08 75 DB 5E 5D C3  55 8B EC B0 13 B4 00 CD   ;v.u.^].U.......
-    00F0: 10 C6 06 F2 0F 08 C7 06  F4 0F 40 01 C7 06 F6 0F   ..........@.....
-    0100: C8 00 C7 06 F8 0F 00 00  C7 06 FA 0F 0A 00 B4 02   ................
-    0110: CD 16 A2 F1 0F 5D C3                               .....].
-000239 COMENT  Purge: Yes, List: Yes, Class: 232 (0E8h)
-    Source File 1: mbr.cpp               01/27/125  06:19 pm
-00024C MODEND
+    0020: 8D 46 FE 50 E8 12 00 83  C4 0A E8 BE 00 BA F0 0F   .F.P............
+    0030: B8 00 80 FF E0 8B E5 5D  C3 55 8B EC 56 33 F6 EB   .......].U..V3..
+    0040: 20 8B C6 B1 09 D3 E0 8B  56 0C 8B 5E 0A 03 D8 83    .......V..^....
+    0050: D2 00 52 53 8B 46 06 03  C6 50 E8 0C 00 83 C4 06   ..RS.F...P......
+    0060: 46 3B 76 08 75 DB 5E 5D  C3 55 8B EC 83 EC 0E 56   F;v.u.^].U.....V
+    0070: 57 8B 7E 04 8B C7 BB 12  00 33 D2 F7 F3 42 89 56   W.~......3...B.V
+    0080: FE 8B C7 BB 12 00 33 D2  F7 F3 25 01 00 89 46 FC   ......3...%...F.
+    0090: 8B C7 BB 24 00 33 D2 F7  F3 89 46 FA 8B 46 FA B1   ...$.3....F..F..
+    00A0: 08 D3 E0 0B 46 FE 89 46  F8 8B 46 FC B1 08 D3 E0   ....F..F..F.....
+    00B0: 89 46 F6 8D 46 06 8B F0  8B 04 25 0F 00 89 46 F4   .F..F.....%...F.
+    00C0: 8B 44 02 B1 0C D3 E0 8B  14 B1 04 D3 EA 0B C2 89   .D..............
+    00D0: 46 F2 8B 5E F2 8E C3 8B  5E F4 B8 01 02 8B 4E F8   F..^....^.....N.
+    00E0: 8B 56 F6 CD 13 5F 5E 8B  E5 5D C3 55 8B EC 83 EC   .V..._^..].U....
+    00F0: 02 C7 46 FE F0 0F 8B 5E  FE C6 47 02 08 8B 5E FE   ..F....^..G...^.
+    0100: C7 47 04 40 01 8B 5E FE  C7 47 06 C8 00 8B 5E FE   .G.@..^..G....^.
+    0110: C7 47 0A 0A 00 C7 47 08  00 00 B0 13 B4 00 CD 10   .G....G.........
+    0120: B4 02 CD 16 8B 5E FE 88  47 01 8B E5 5D C3         .....^..G...].
+000251 COMENT  Purge: Yes, List: Yes, Class: 232 (0E8h)
+    Source File 1: mbr.cpp               01/30/125  07:18 pm
+000264 MODEND
 

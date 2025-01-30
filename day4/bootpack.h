@@ -25,19 +25,28 @@ enum Color8 {
 
 };
 
+struct BOOTINFO{
+    char cyls,leds,vmode,reserve;
+    short scrnx, scrny;
+    char *vram;
+};
+
+
+
 
 class CPalette
 {
 public:
-    CPalette() : _vram((char*)0xa0000), _xsize(320), _ysize(200) {}
+    CPalette(BOOTINFO *pbi) : _pboot_info(pbi), _vram(_pboot_info->vram) {}
+                
     void init_palette();
     void boxfill(Color8 color, uint x0, uint y0, uint x1, uint y1);
-    uint get_xsize() {return _xsize;}
-    uint get_ysize() {return _ysize;}
+    uint get_xsize() {return _pboot_info->scrnx;}
+    uint get_ysize() {return _pboot_info->scrny;}
 
 private:
+    BOOTINFO* _pboot_info;
     char* _vram;
-    uint _xsize, _ysize;
 
     static unsigned char table_rgb[] ;
 
@@ -63,6 +72,7 @@ void CPalette::init_palette()
 
 void CPalette::boxfill(Color8 color, uint x0, uint y0, uint x1, uint y1)
 {
+    uint _xsize = get_xsize();
     for(uint y = y0; y <= y1; ++y)
         for(uint x = x0; x <= x1; ++x)
             _vram[y*_xsize + x] = color;

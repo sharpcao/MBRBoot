@@ -29,10 +29,10 @@ GDT_0:          dd 0h, 0h
 GDT_1_CS:       dd 0x0000ffff, 0x00cf9a00
 GDT_2_DS:       dd 0x0000ffff, 0x00cf9200
 GDT_3_SS:       dd 0x00000000, 0x00409600
-
+PBOOTINFO:      dd 0h
 
 _start:
-
+            mov     [PBOOTINFO],dx      ;BootInfo transfered by dx
     ;Load 48bit GDT
             lgdt    [gdt_size]                      
 
@@ -101,9 +101,11 @@ _copy_image:
             shr     ecx, 2
             rep     movsd
 ;jump to EntryPoint
+            mov     edx, [PBOOTINFO]
+            push    edx
             mov     eax, [EntryPoint]       
             add     eax, ebx
-            jmp     eax
+            call    eax
 
 times  512 -($-$$) db 0
     
