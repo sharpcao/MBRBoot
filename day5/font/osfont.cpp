@@ -1,8 +1,8 @@
 /* 
     useage: osfont <font file> <options>
-                -b <bin file>  : output bin file
-                -c <cpp file>  : output C++ file
-                -d <index>     : display index char
+                -b <bin file>       : output bin file
+                -c:xxx <cpp file>  : output C++ file with variable name xxx
+                -d <index>          : display index char
 
     Author:Sharp.Cao
     Date:2025/1/31

@@ -25,7 +25,7 @@ void CPalette::draw_rect(uint x, uint y,uint width, uint height, char* buf)
 
 void CPalette::draw_cursor(uint x, uint y)
 {
-	draw_rect(x,y,16,16,_cursor_image);
+    draw_rect(x,y,16,16,_cursor_image);
 }
 
 void CPalette::init_palette()
@@ -83,7 +83,7 @@ void CPalette::xyprint(uint x, uint y, const char* str, Color8 col)
 
 void CPalette::draw_desktop()
 {
-	boxfill(Color8::COL8_008484, 0, 0, _xsize - 1, _ysize - 29);
+    boxfill(Color8::COL8_008484, 0, 0, _xsize - 1, _ysize - 29);
     boxfill(Color8::COL8_E6E6E6, 0, _ysize - 28, _xsize - 1, _ysize - 28);
     boxfill(Color8::COL8_FFFFFF, 0, _ysize - 27, _xsize - 1, _ysize - 27);
     boxfill(Color8::COL8_E6E6E6, 0, _ysize - 26, _xsize - 1, _ysize - 1);
