@@ -38,15 +38,15 @@ class CPalette
 {
 public:
     CPalette(BOOTINFO *pbi) : _pboot_info(pbi), _vram(_pboot_info->vram) {}
-                
+    CPalette() {};
     void init_palette();
     void boxfill(Color8 color, uint x0, uint y0, uint x1, uint y1);
     uint get_xsize() {return _pboot_info->scrnx;}
     uint get_ysize() {return _pboot_info->scrny;}
 
 private:
-    BOOTINFO* _pboot_info;
-    char* _vram;
+    static BOOTINFO* _pboot_info;
+    static char* _vram;
 
     static unsigned char table_rgb[] ;
 
