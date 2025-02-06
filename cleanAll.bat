@@ -5,6 +5,6 @@ cd ..
 cd day4
 make clean 
 cd ..
-cd day6
+cd day7
 make clean 
 cd ..

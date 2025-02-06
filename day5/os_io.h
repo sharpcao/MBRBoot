@@ -14,7 +14,7 @@ void io_out8(uint port, uint data)
 	}
 }
 
-__declspec(naked)  
+__declspec(naked)  __forceinline
 uint io_load_eflags()
 {
 	__asm{
