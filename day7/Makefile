@@ -6,9 +6,9 @@ IFLAGS = -q -b:0x100000 -v
 default:
 	make sector_x.bin
 
-sector_x.bin : bootpack.obj vga.obj hankaku.obj int.obj input_device.obj
+sector_x.bin : bootpack.obj vga.obj hankaku.obj int.obj input_device.obj handler.obj
 	ilink32 $(IFLAGS) ..\common\c0x32_mini.obj bootpack.obj vga.obj int.obj input_device.obj \
-			hankaku.obj, peos.exe,,cw32.lib import32.lib
+			handler.obj hankaku.obj, peos.exe,,cw32.lib import32.lib
 	copy peos.exe sector_x.bin
 	del *.il*  
 
@@ -24,6 +24,8 @@ int.obj: int.cpp int.h
 input_device.obj : input_device.cpp input_device.h
 	bcc32c $(CFLAGS) input_device.cpp
 
+handler.obj : handler.cpp
+	bcc32c $(CFLAGS) handler.cpp
 hankaku.obj :
 	bcc32c $(CFLAGS) ..\common\hankaku.cpp
 

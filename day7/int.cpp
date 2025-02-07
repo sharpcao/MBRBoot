@@ -2,7 +2,7 @@
 #include "os_io.h"
 
 
-void GDTIDT::init_pic()
+void CPIC::init_pic()
 {
 	io_out8(PIC::PIC0_IMR, 0xff ); /* 禁止所有中断 */
 	io_out8(PIC::PIC1_IMR, 0xff ); /* 禁止所有中断 */
@@ -17,7 +17,11 @@ void GDTIDT::init_pic()
 	io_out8(PIC::PIC0_IMR, 0xfb ); /* 11111011 PIC1以外全部禁止 */
 	io_out8(PIC::PIC1_IMR, 0xff ); /* 11111111 禁止所有中断 */
 }
-
+void CPIC::enable_key_mouse()
+{
+	io_out8(PIC::PIC0_IMR, 0xf9); 
+    io_out8(PIC::PIC1_IMR, 0xef); 
+}
 
 void GDTIDT::init_gdt_idt()
 {

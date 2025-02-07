@@ -2,20 +2,19 @@
 #define OS_IO_H
 using uint=unsigned int;
 enum PIC {
-	PIC0_ICW1=0x0020,
-	PIC0_OCW2=0x0020,
-	PIC0_IMR=0x0021,
-	PIC0_ICW2=0x0021,
-	PIC0_ICW3=0x0021,
-	PIC0_ICW4=0x0021,
-	PIC1_ICW1=0x00a0,
-	PIC1_OCW2=0x00a0,
-	PIC1_IMR=0x00a1,
-	PIC1_ICW2=0x00a1,
-	PIC1_ICW3=0x00a1,
-	PIC1_ICW4=0x00a1
-};
-
+		PIC0_ICW1=0x0020,
+		PIC0_OCW2=0x0020,
+		PIC0_IMR=0x0021,
+		PIC0_ICW2=0x0021,
+		PIC0_ICW3=0x0021,
+		PIC0_ICW4=0x0021,
+		PIC1_ICW1=0x00a0,
+		PIC1_OCW2=0x00a0,
+		PIC1_IMR=0x00a1,
+		PIC1_ICW2=0x00a1,
+		PIC1_ICW3=0x00a1,
+		PIC1_ICW4=0x00a1
+	};
 
 //__declspec(naked) 
 void io_out8(uint port, uint value)

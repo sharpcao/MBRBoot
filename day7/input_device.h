@@ -11,15 +11,12 @@ enum PORT{
 	 KEYCMD_SENDTO_MOUSE= 0xd4,
 	 MOUSECMD_ENABLE= 0xf4
 };
+
 class CInput_Device
 {
 public:
-
-
 	void init_keyboard();
 	void enable_mouse();
-
-
 private:
 	void wait_KBC_sendready();
 
