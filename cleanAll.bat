@@ -2,6 +2,6 @@ make clean
 cd sector_1  
 make clean
 cd ..
-cd day9
+cd day10
 make clean 
 cd ..

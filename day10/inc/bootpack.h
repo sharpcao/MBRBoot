@@ -1,0 +1,14 @@
+#ifndef BOOTPACH_H
+#define BOOTPACH_H
+
+#include "vga.h"
+#include "int.h"
+#include "input_device.h"
+#include "handler.h"
+#include "functions.h"
+#include "memtest.h"
+#include "layer.h"
+
+
+
+#endif
