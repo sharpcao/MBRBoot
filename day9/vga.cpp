@@ -1,5 +1,5 @@
 #include "vga.h"
-
+#include "functions.h"
 
 void CPalette::init_cursor()
 {

@@ -13,7 +13,7 @@ public:
 			{}
 	CLayer(const CLayer&) = default;
 
-	void load_img() {if(_img_data) fill(Color8::COL8_TP);}
+	void load_img( Color8 color = Color8::COL8_TP ) {if(_img_data) fill(color);}
 
 	bool set_pos_color(uint x, uint y, Color8 color);
 	void fill(Color8 color);	
@@ -42,7 +42,7 @@ public:
 protected:
 	uint _width = 0, _height = 0;
 	uint _offset_x = 0, _offset_y = 0;
-	bool _visible = false;
+	bool _visible = true;
 	char* _img_data = 0;  // _width * _height 
 };
 
@@ -67,6 +67,7 @@ public:
 	const uint _max_width, _max_height;	
 	const uint _max_layers;
 	uint _last = 0;
+	uint _bottom_idx = 1;
 	CLayer** _layers;			// CLayer* _layers[]
 
 public:
@@ -91,6 +92,14 @@ public:
 	CLayer* add_layer(const CLayer& ly);
 	bool remove_layer(CLayer* alayer);
 	void move_layer_by(uint id, int dx, int dy);
+
+	uint get_layer_idx(const CLayer& ly);
+	void set_bottom_idx(uint v) { _bottom_idx = v;}
+	void set_to_top(uint layer_idx);
+	void set_to_top(const CLayer& ly);
+	void set_to_bottom(uint layer_idx);
+	void set_to_bottom(const CLayer& ly);
+
 
 	char* update(uint x0,uint y0, uint w, uint h);
 	char* update(const CRect& rt){

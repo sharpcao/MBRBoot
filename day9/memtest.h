@@ -58,5 +58,34 @@ uint memtest(uint start, uint end)
 	return (uint)p;
 }
 
+class CMEM_FREE_INFO{
+public:
+	uint get_size(){return _size;}
+	bool in_mem(uint m_addr)
+	 	{ return ((m_addr>=_addr) & (m_addr < _addr + _size))?true:false ;}
+	uint reduce(uint size){
+		if(size <= _size){
+			_addr+=size; _size-=size;
+			return (_size==0)?1: _addr - size; 
+		}else{
+			return 0;
+		}
+	};
+	bool enlarge(const CMEM_FREE_INFO& mfi){
+		if(_addr + _size == mfi._addr){
+			_size += mfi._size;
+			return true;
+		}else if(mfi._addr + mfi._size == _addr){
+			_addr -= mfi._size;
+			_size += mfi._size;
+			return true;
+		}else{
+			return false;
+		}
+	}
+private:
+	uint _addr, _size;
+};
+
 
 #endif

@@ -124,28 +124,12 @@ DEBUG_BUILD(
 
 }
 
-// char* CLayer_Mgr::update(uint x0,uint y0, uint w, uint h)
-// {
-// 	uint xlim = min(x0 + w, _max_width);
-// 	uint ylim = min(y0 + h, _max_height);
-// 	for(uint y = y0; y<ylim;++y){
-// 		for(uint x = x0; x <xlim; ++x)
-// 		{
-// 			Color8 col;
-// 			for(uint z = 1; z<_last ;++z){
-// 				Color8 lc = _layers[z]->get_abspos_color(x,y);
-// 				if (lc!=Color8::COL8_TP) col = lc;
-// 			}			 
-// 			_layers[0]->set_pos_color(x,y,col);
-// 		}
-// 	}
-// 	return (char*)_layers[0]->get_mem();
-// }
 
 char* CLayer_Mgr::update(uint x0,uint y0, uint w, uint h)
 {
 	for(uint z = 1; z<_last ;++z){
 		auto layer = _layers[z];
+		if (!layer->_visible) continue;
 		uint x_s = max(layer->_offset_x,x0);
 		uint x_lim = min(layer->_offset_x + layer->_width, min(x0 + w, _max_width));
 		uint y_s = max(layer->_offset_y, y0);
@@ -195,3 +179,36 @@ void CLayer_Mgr::move_layer_by(uint id, int dx, int dy)
 	}
 }
 
+void CLayer_Mgr::set_to_top(uint layer_idx)
+{
+	if (layer_idx >=_bottom_idx && layer_idx < _last - 1){
+		CLayer* ly = _layers[layer_idx];
+		for(uint i = layer_idx; i < _last - 1; ++i) _layers[i] = _layers[i+1];
+		_layers[_last - 1] = ly;
+	}
+}
+
+void CLayer_Mgr::set_to_bottom(uint layer_idx)
+{
+	if (layer_idx >_bottom_idx && layer_idx <= _last-1){
+		CLayer* ly = _layers[layer_idx];
+		for(uint i = layer_idx; i > _bottom_idx; --i) _layers[i] = _layers[i-1];
+		_layers[_bottom_idx] = ly;
+	}
+}
+void CLayer_Mgr::set_to_top(const CLayer& ly)
+{
+	set_to_top(get_layer_idx(ly));
+}
+
+void CLayer_Mgr::set_to_bottom(const CLayer& ly)
+{
+	set_to_bottom(get_layer_idx(ly));
+}
+
+uint CLayer_Mgr::get_layer_idx(const CLayer& ly)
+{
+	uint i = _last;
+	for(; i > 0 ; --i) if (_layers[i] == &ly) break;
+	return i; 
+}

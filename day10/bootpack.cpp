@@ -16,6 +16,7 @@ void os_main(BOOTINFO *pbi)
     CDesktopLayer* p_desktop = (CDesktopLayer*)ly_mgr.add_layer(CDesktopLayer(pbi->scrnx,pbi->scrny));
     p_desktop->load_img();  
     vga.map(ly_mgr.refresh());
+    
 
     uint mem_size = memtest(0x400000,0xbfffffff);
     stringbuf<50> mem_max_str;
@@ -26,6 +27,18 @@ void os_main(BOOTINFO *pbi)
     p_text->load_img();
     p_text->xyprint(5,5,mem_max_str.c_str());
     vga.map(ly_mgr.update(p_text->get_area()),p_text->get_area());
+
+    auto p_rect = ly_mgr.add_layer(CLayer(150,30,20,20));
+    p_rect->load_img(Color8::COL8_000084);
+
+    //p_rect->hide();
+    //ly_mgr.set_to_top(*p_text);
+    ly_mgr.set_bottom_idx(2);
+    ly_mgr.set_to_bottom(*p_rect);
+    vga.map(ly_mgr.update(p_rect->get_area()),p_text->get_area());
+    
+
+
 
     GDTIDT gdtidt;
     gdtidt.init_gdt_idt();  

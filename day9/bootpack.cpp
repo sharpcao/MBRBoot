@@ -1,8 +1,9 @@
-#include <cstdio>
+//#include <cstdio>
 #include "vga.h"
 #include "int.h"
 #include "input_device.h"
 #include "handler.h"
+#include "functions.h"
 #include "memtest.h"
 
 void os_main(BOOTINFO *pbi)
