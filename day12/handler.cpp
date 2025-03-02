@@ -4,14 +4,24 @@
 #include "inc\os_io.h"
 #include "inc\CEventBuf.h"
 #include "inc\layer.h"
+#include "inc\global.h"
+#include "inc\timer.h"
 
 
 
 CEventBuf<64> KeyBuf;
 CEventBuf<128> MouseBuf;
+CEventBuf<64> TimerBuf; 
 
 extern C_WOS OS;
 
+void int20_handler()
+{
+
+    io_out8(PIC::PIC0_OCW2,0x60);
+    OS.timer_ctrl.inc();
+
+}
 void int21_handler()
 {
     io_out8(PIC::PIC0_OCW2,0x61);
@@ -30,7 +40,7 @@ void int2c_handler()
 void mouse_event(const CMouseDecode& md)
 {
     CVGA vga;
-    //static CCursor cursor(vga.get_xsize()/2 ,vga.get_ysize()/2, vga.get_xsize(),vga.get_ysize());
+
     CLayer_Mgr& ly_mgr = *OS.p_layerMgr;
     CCursor& cursor = *OS.p_Cursor;
 
@@ -49,23 +59,9 @@ void handle_message()
     CVGA vga;
     uchar c;
     static CMouseDecode mdec;
-    CLayer_Mgr& ly_mgr = *OS.p_layerMgr;
-    uint count = 0;
-    //stringbuf<> s;
-    char s[10];
 
-    CTextLayer* p_count = (CTextLayer* )ly_mgr.add_layer(CTextLayer(50,20,0,20));
-    p_count->set_text("Count");
-    p_count->hide();
-    ly_mgr.update(p_count->get_area());
-    
     for(;;){
 
-        uint2str(s,++count);
-         p_count->set_text(s,Color8::COL8_FFFF00);
-        // ly_mgr.update(p_count->get_area());
-         //vga.map(ly_mgr[0]->get_mem(),p_count->get_area());
-        vga.map(ly_mgr[0]->get_mem(),p_count->get_mem(),p_count->get_area());
 
         io_cli();
         
@@ -79,8 +75,14 @@ void handle_message()
             if (mdec.push_char(c)){
                 mouse_event(mdec);           
             }
-        }else
-        {
+        }else if(TimerBuf.get_char((char*)&c)){
+            io_sti();
+
+            OS.timer_ctrl.timeout((uint)c);
+
+
+        }
+        else{
             //io_stihlt();
             io_sti();
         }

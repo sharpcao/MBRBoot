@@ -1,6 +1,7 @@
 #include "inc\vga.h"
 #include "inc\layer.h"
 #include "inc\functions.h"
+#include "inc\global.h"
 
 const char* RES_CUROSR[16] = {
         "*11111111111*...",
