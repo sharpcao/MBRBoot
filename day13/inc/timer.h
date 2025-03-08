@@ -11,7 +11,7 @@ class CTimerCtrl;
 class CTimer{
 public:
 
-	using Timeout_Func = void(*)();
+	using Timeout_Func = void(*)(uint tmr);
 	void set_timeout(uint timeout, Timeout_Func p_fn = 0);
 		
 	bool is_timeout() { return _is_timeout;}
@@ -58,13 +58,10 @@ public:
 	}
 	void call_hander(uint idx){
 		if(idx >0 && idx <_last ){
-			if(_timers[idx]._p_fn) _timers[idx]._p_fn();
+			if(_timers[idx]._p_fn) _timers[idx]._p_fn(idx);
 		}
 	}
 };
-
-
-
 
 
 

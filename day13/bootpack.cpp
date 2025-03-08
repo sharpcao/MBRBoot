@@ -1,27 +1,30 @@
 #include "inc\bootpack.h"
 
 
-C_WOS OS;
+CWinOS OS;
+void tick_timeout(uint tmr);
+void timer5_timeout(uint tmr);
+void timer10_timeout(uint tmr);
 
 
 void os_main(BOOTINFO *pbi)
 {
 
-    CVGA vga(pbi);
-    vga.init_palette();
+    OS.vga.init(pbi);
 
     CMEM_MGR mem_mgr(0x200000,0x100000);
 
-    init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
-    OS.init();
+    OS.init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
+    OS.init_timers();
    
 
     uint mem_size = memtest(0x400000,0xbfffffff);
     stringbuf<> mem_max_str;
     mem_max_str <<"memory:" << mem_size/(1024*1024) <<" MB";
     OS.layers.p_window1->xyprint(5,30,mem_max_str.c_str(),Color8::COL8_000000);
+    OS.p_layerMgr->refresh();
 
-    vga.map(OS.p_layerMgr->refresh());  
+  
 
     GDTIDT gdtidt;
     gdtidt.init_gdt_idt();  
@@ -35,8 +38,8 @@ void os_main(BOOTINFO *pbi)
     pic.init_pic();
     pic.set_interrupt();
 
-    OS.timer_ctrl.add_timer(100,timer0_timeout);
-    OS.timer_ctrl.add_timer(1000,timer1_timeout);
+    OS.timer_ctrl.add_timer(100,tick_timeout);
+    OS.timer_ctrl.add_timer(500, timer5_timeout);
     
     CPIT pit;
     pit.init_pit();
@@ -50,70 +53,37 @@ void os_main(BOOTINFO *pbi)
 
 }
 
-void timer0_timeout()
+void tick_timeout(uint tmr)
 {
-    static CVGA vga;
     static uint count = 0;
     count++;
     stringbuf<10> s;
-    s << (uint)count << " s";
-    // char s[10];
-    // uint2str(s,++count);
-    //OS.debug_print(s.c_str());
-    auto pd = OS.layers.p_txt_tcnt;
-    pd->set_text(s.c_str());
-    vga.map((*OS.p_layerMgr)[0]->get_mem(),pd->get_mem(),pd->get_area());
-    OS.timer_ctrl.set_timer(1,100,timer0_timeout);
+    s << (uint)count << "s";
+    auto pd = OS.layers.p_txt_tick;
+    pd->set_text(s.c_str(),*OS.p_layerMgr,Color8::COL8_000000);
+    OS.timer_ctrl.set_timer(tmr,100,tick_timeout);
 }
-void timer1_timeout()
+
+void timer5_timeout(uint tmr)
 {
-    static CVGA vga;
     auto p_timer = OS.layers.p_txt_timer;
-    p_timer->set_text("Timer1 out",Color8::COL8_FFFF00);
-    vga.map((*OS.p_layerMgr)[0]->get_mem(),p_timer->get_mem(),p_timer->get_area());
+    p_timer->set_text("@5s Start", *OS.p_layerMgr, Color8::COL8_FFFF00);
+    OS._count = 0;
+    OS.timer_ctrl.add_timer(1000,timer10_timeout);
+
 }
 
-void init_layers(CMEM_MGR& mem_mgr, uint width, uint height)
+void timer10_timeout(uint tmr)
 {
-    
-    OS.p_Cursor = (CCursor*) mem_mgr.malloc(sizeof(CCursor));
-    new(OS.p_Cursor) CCursor(width / 2, height/2,width,height);
-
-    OS.p_layerMgr = (CLayer_Mgr*)mem_mgr.malloc(sizeof(CLayer_Mgr));
-    new(OS.p_layerMgr) CLayer_Mgr(mem_mgr, width, height);
-
-    CLayer_Mgr& ly_mgr = *OS.p_layerMgr;
-
-    OS.layers.p_desktop =  (CDesktopLayer*)ly_mgr.add_layer(CDesktopLayer(width,height));
-    OS.layers.p_desktop->load_img();
-    OS.p_layerMgr->update(0,0,200,200);
-
-    OS.p_layerMgr->set_bottom_idx(2);
-
-    OS.layers.p_txt_hello = (CTextLayer* )ly_mgr.add_layer(CTextLayer(150,30,0,0));
-    OS.layers.p_txt_hello->set_text("Hello OS!");
-
-    OS.layers.p_txt_counter = (CTextLayer* )ly_mgr.add_layer(CTextLayer(100,20,0,20));
-    OS.layers.p_txt_counter->set_text("Count");
-    OS.layers.p_txt_counter->hide();
-    
-    OS.layers.p_txt_timer = (CTextLayer* )ly_mgr.add_layer(CTextLayer(120,20,0,40));
-    OS.layers.p_txt_timer->set_text("Timer");
-    OS.layers.p_txt_timer->hide();
-
-    OS.layers.p_txt_tcnt = (CTextLayer* )ly_mgr.add_layer(CTextLayer(120,20,0,100));
-    OS.layers.p_txt_tcnt->set_text("tcnt",Color8::COL8_FF0000);
-    OS.layers.p_txt_tcnt->hide();
-
-    OS.layers.p_debug = (CTextLayer* )ly_mgr.add_layer(CTextLayer(120,20,0,120));
-    OS.layers.p_debug->set_text("DEBUG",Color8::COL8_FF0000);
-    OS.layers.p_debug->hide();
-
-
-    OS.layers.p_window1 = (CWindowLayer*)ly_mgr.add_layer(CWindowLayer(150,100,100,40));
-    OS.layers.p_window1->load_img("Window");
+    auto p_timer = OS.layers.p_txt_timer;
+    auto p_speed = OS.layers.p_txt_speedcnt;
+    p_timer->set_text("10s is out", *OS.p_layerMgr, Color8::COL8_FFFF00);
+    stringbuf<> s;
+    s << OS._count;
+    p_speed->set_text(s.c_str(), *OS.p_layerMgr);
     
 }
+
 
 void (*jump)(BOOTINFO *pbi)  = os_main;
 uint _hInstance =0;

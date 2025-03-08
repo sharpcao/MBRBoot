@@ -60,17 +60,17 @@ private:
 class CVGA
 {
 public:
-    CVGA(BOOTINFO *pbi) 
+    void init(BOOTINFO *pbi) 
     {
         _pboot_info = pbi;
         _vram = _pboot_info->vram;
         _xsize = _pboot_info->scrnx;
         _ysize = _pboot_info->scrny;
+        _init_palette();
 
     }
                 
     CVGA() {};
-    void init_palette();
     
     void fill(uint x, uint y,uint width, uint height, 
                                 Color8 color=Color8::COL8_008484, char* buf=0);
@@ -97,6 +97,7 @@ public:
     static uchar* get_font()  { return _pfont;}
     
 private:
+    void _init_palette();
     void _map(uint x, uint y, uint width, uint height, const char* back, const char* buf=0);
     static BOOTINFO* _pboot_info;
     static char* _vram;

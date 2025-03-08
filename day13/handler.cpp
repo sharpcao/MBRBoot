@@ -13,7 +13,7 @@ CEventBuf<64> KeyBuf;
 CEventBuf<128> MouseBuf;
 CEventBuf<64> TimerBuf; 
 
-extern C_WOS OS;
+extern CWinOS OS;
 
 void int20_handler()
 {
@@ -62,9 +62,8 @@ void handle_message()
 
     for(;;){
 
-
-        io_cli();
-        
+        OS._count++;
+        io_cli();        
         if ( KeyBuf.get_char((char*)&c))
         {
             io_sti();

@@ -13,33 +13,36 @@ public:
     CDesktopLayer* p_desktop =0;
     CWindowLayer*  p_window1 =0;
     CTextLayer* p_txt_hello =0;
-    CTextLayer* p_txt_counter=0;
     CTextLayer* p_txt_timer=0;
-    CTextLayer* p_txt_tcnt=0;
+    CTextLayer* p_txt_tick=0;
+    CTextLayer* p_txt_speedcnt=0;
     CTextLayer* p_debug =0;
-
 
 };
 
-class C_WOS {
+class CWinOS{
 public:
     CCursor* p_Cursor = 0;    
     CLayer_Mgr* p_layerMgr = 0;
     CWinLayers layers;
-   // CTimer	timer;
     CTimerCtrl timer_ctrl;
-    void init(){
+    uint _count = 0;
+    static CVGA vga;
+
+    void init_timers(){
         timer_ctrl.init(&TimerBuf);
     }
-    void debug_print(const char* s){
-        static CVGA vga;
-        auto pd = layers.p_debug;
-        if(pd){
-            pd->set_text(s);
-            vga.map((*p_layerMgr)[0]->get_mem(),pd->get_mem(),pd->get_area());
-        }
-    }
+    void init_layers(CMEM_MGR& mem_mgr, uint width, uint height);
+
+    void debug_print(const char* s);
+
 };
+
+CVGA CWinOS::vga;
+
+
+
+
 
 
 

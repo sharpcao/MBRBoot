@@ -39,7 +39,7 @@ const char* RES_BTN_CLOSE[14] ={
         "@@@@@@@@@@@@@@@@"
 };
 
-extern C_WOS OS;
+extern CWinOS OS;
 
 void CVGA::fill(uint x, uint y,uint width, uint height, Color8 color, char* buf)
 {
@@ -86,7 +86,7 @@ set_color:
 
 }
 
-void CVGA::init_palette()
+void CVGA::_init_palette()
 {
     constexpr uint start = 0;
     constexpr uint size = 16; 

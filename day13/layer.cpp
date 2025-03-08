@@ -153,7 +153,7 @@ char* CLayer_Mgr::update(uint x0,uint y0, uint w, uint h)
 		}
 
 	}
-
+	updateEvent(CRect(x0,y0,w,h));
 	return (char*)_layers[0]->get_mem();
 }
 
@@ -221,6 +221,12 @@ void CTextLayer::set_text(const char* p_text, Color8 font_color)
 {
 	fill(Color8::COL8_TP);
 	xyprint(0,0,p_text,font_color);
+
+}
+void CTextLayer::set_text(const char* p_text, CLayer_Mgr& lymgr, Color8 font_color)
+{
+	set_text(p_text, font_color);
+	lymgr.update(get_area());
 }
 
 

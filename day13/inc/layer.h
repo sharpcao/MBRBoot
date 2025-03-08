@@ -6,10 +6,17 @@
 #include "mem_mgr.h"
 #include "functions.h"
 
+class CLayer_Mgr;
+
 class CLayer{
+protected:
+	uint _offset_x = 0, _offset_y = 0;
+	uint _width = 0, _height = 0;
+	bool _visible = true;
+	char* _img_data = 0;  // _width * _height 
 public:
-	CLayer(uint width=0, uint height=0, uint offset_x=0, uint offset_y=0)
-			:_width(width), _height(height),_offset_x(offset_x), _offset_y(offset_y)
+	CLayer(uint offset_x, uint offset_y, uint width, uint height)
+			:_offset_x(offset_x), _offset_y(offset_y),_width(width),_height(height)
 			{}
 	CLayer(const CLayer&) = default;
 
@@ -41,18 +48,14 @@ public:
 	
 	friend class CLayer_Mgr;
 
-protected:
-	uint _width = 0, _height = 0;
-	uint _offset_x = 0, _offset_y = 0;
-	bool _visible = true;
-	char* _img_data = 0;  // _width * _height 
+
 };
 
 
 class CDesktopLayer: public CLayer
 {
 public:
-	CDesktopLayer(uint scrnx, uint scrny): CLayer(scrnx,scrny) {}
+	CDesktopLayer(uint scrnx, uint scrny): CLayer(0,0,scrnx,scrny) {}
 	void load_img();
 	static uint class_size()   
 		{ return sizeof(CDesktopLayer);}
@@ -68,8 +71,8 @@ private:
 	//static char close_btn = [14][16];
 	stringbuf<> _title;
 public:
-	CWindowLayer(uint width, uint height, uint offset_x=0,uint offset_y =0)
-						: CLayer(width,height,offset_x,offset_y) {}
+	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height)
+						: CLayer(offset_x,offset_y, width,height) {}
 	void load_img(const char* title = "");
 	static uint class_size()   
 		{ return sizeof(CWindowLayer);}
@@ -83,10 +86,11 @@ class CTextLayer: public CLayer
 {
 
 public:
-	CTextLayer(uint width, uint height, uint offset_x=0,uint offset_y =0)
-						: CLayer(width,height,offset_x,offset_y) {}
+	CTextLayer(uint offset_x, uint offset_y, uint width, uint height)
+						: CLayer(offset_x,offset_y, width,height) {}
 
 	void set_text(const char* p_text, Color8 col = Color8::COL8_FFFFFF);
+	void set_text(const char* p_text, CLayer_Mgr& lymgr, Color8 col = Color8::COL8_FFFFFF);
 
 	static uint class_size()   
 		{ return sizeof(CTextLayer);}
@@ -103,8 +107,9 @@ public:
 	const uint _max_width, _max_height;	
 	const uint _max_layers;
 	uint _last = 0;
-	uint _bottom_idx = 1;
-	CLayer** _layers;			// CLayer* _layers[]
+	uint _bottom_idx = 1;			// 0 is the buffer layer
+	CLayer** _layers =0;			// CLayer* _layers[]
+	void (*_updateEvent)(const CLayer_Mgr& lymgr, const CRect& rect) =0;
 
 public:
 
@@ -113,9 +118,9 @@ public:
 	{		
 		_layers = (CLayer**)_mmgr.malloc(sizeof(CLayer*)*_max_layers);
 
-		add_layer(CLayer(_max_width,_max_height,0,0)); //add buf layer
+		add_layer(CLayer(0,0, _max_width,_max_height)); //add buf layer
 	}
-	CLayer* operator[](uint idx) {
+	CLayer* operator[](uint idx) const {
 		return (idx < _last)? _layers[idx] : 0;
 	}
 
@@ -143,8 +148,12 @@ public:
 	}
 	char* refresh() {
 		return update(0,0,_max_width,_max_height); 
+		
 	}
 
+	void updateEvent(const CRect& rect) const {
+		if(_updateEvent) _updateEvent(*this, rect);
+	}
 	void print();
 	void print_mem(){_mmgr.print();}
 
