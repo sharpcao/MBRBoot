@@ -17,7 +17,7 @@ public:
     //CTextLayer* p_txt_speedcnt=0;
     CTextLayer* p_txt_timer=0;
     CTextLayer* p_txt_tick=0;
-
+    CInputLayer* p_input = 0;
     CTextLayer* p_debug =0;
 
 };

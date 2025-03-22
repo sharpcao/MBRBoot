@@ -16,8 +16,8 @@ void CTimer::set_timeout(uint timeout,Timeout_Func p_fn)
 
 void CTimerCtrl::inc() 
 {
-	++_count;
-	if(_count <_next_timer->_timeout) return;
+	
+	if(++_count <_next_timer->_timeout) return;
 
 	for(CTimer* p = _next_timer; p->_next!=0; p=p->_next)
 	{

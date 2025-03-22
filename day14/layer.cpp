@@ -1,5 +1,8 @@
 #include "inc\layer.h"
 #include "inc\functions.h"
+#include "inc\global.h"
+
+
 
 
 CLayer* CLayer::class_new_at(char* addr) const 
@@ -228,6 +231,30 @@ void CTextLayer::set_text(const char* p_text, CLayer_Mgr& lymgr, Color8 font_col
 	set_text(p_text, font_color);
 	lymgr.update(get_area());
 }
+
+
+void CInputLayer::add_key(uint keycode,CLayer_Mgr& lymgr)
+{
+	extern CWinOS OS;
+	extern char keytable[];	
+	stringbuf<> s;
+
+	
+	if(keycode < 0x54) {
+		char c = keytable[keycode];
+		s << _cursor_x << " " << _cursor_y << " " << c;
+		
+		if (_cursor_x < _width){
+			OS.debug_print(s.c_str());
+			putfont8(_cursor_x,_cursor_y,c,Color8::COL8_000000);
+			//lymgr.update(_cursor_x,_cursor_y,8,20);
+
+			lymgr.update(get_area());
+			_cursor_x+=8;
+		}
+	}
+}
+
 
 
 void CLayer_Mgr::move_layer_by(uint id, int dx, int dy)

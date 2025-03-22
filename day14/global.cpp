@@ -1,5 +1,16 @@
 #include "inc\global.h"
 
+
+char keytable[0x54] = {
+0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0, 0,
+'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '@', '[', 0, 0, 'A', 'S',
+'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', ':', 0, 0, ']', 'Z', 'X', 'C', 'V',
+'B', 'N', 'M', ',', '.', '/', 0, '*', 0, ' ', 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, '7', '8', '9', '-', '4', '5', '6', '+', '1',
+'2', '3', '0', '.'
+};
+
+
 void lymgr_update(const CLayer_Mgr& lymgr, const CRect& rect);
 
 void CWinOS::debug_print(const char* s)
@@ -45,11 +56,14 @@ void CWinOS::init_layers(CMEM_MGR& mem_mgr, uint width, uint height)
 
     layers.p_txt_tick = (CTextLayer* )ly_mgr.add_layer(CTextLayer(width - 40,height-20,120,20));
     layers.p_txt_tick->set_text("tick",Color8::COL8_000000);
+
+    layers.p_input = (CInputLayer*)ly_mgr.add_layer(CInputLayer(70,20,100,20));
+    layers.p_input->load_img(Color8::COL8_FFFFFF);
     
 
-    layers.p_debug = (CTextLayer* )ly_mgr.add_layer(CTextLayer(0,120,120,20));
+    layers.p_debug = (CTextLayer* )ly_mgr.add_layer(CTextLayer(100,0,120,20));
     layers.p_debug->set_text("DEBUG",Color8::COL8_FF0000);
-    layers.p_debug->hide();
+    //layers.p_debug->hide();
 
 
     layers.p_window1 = (CWindowLayer*)ly_mgr.add_layer(CWindowLayer(width/4,height/4,width/2,height/2));

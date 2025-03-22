@@ -43,7 +43,7 @@ public:
 	void fill_box(Color8 color, uint x0, uint y0, uint x1, uint y1);
 	CRect get_area() const { return CRect(_offset_x,_offset_y,_width,_height);}
 
-	static uint class_size()   { return sizeof(CLayer);}
+	virtual uint class_size() const  { return sizeof(CLayer);}
 	virtual CLayer* class_new_at(char* addr) const ;
 	
 	friend class CLayer_Mgr;
@@ -57,7 +57,7 @@ class CDesktopLayer: public CLayer
 public:
 	CDesktopLayer(uint scrnx, uint scrny): CLayer(0,0,scrnx,scrny) {}
 	void load_img();
-	static uint class_size()   
+	virtual uint class_size ()  const
 		{ return sizeof(CDesktopLayer);}
 	virtual CDesktopLayer* class_new_at(char* addr) const {
 		return new(addr) CDesktopLayer(*this); 
@@ -74,7 +74,7 @@ public:
 	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height)
 						: CLayer(offset_x,offset_y, width,height) {}
 	void load_img(const char* title = "");
-	static uint class_size()   
+	virtual uint class_size  ()  const 
 		{ return sizeof(CWindowLayer);}
 	virtual CWindowLayer* class_new_at(char* addr) const {
 		return new(addr) CWindowLayer(*this); 
@@ -92,7 +92,7 @@ public:
 	void set_text(const char* p_text, Color8 col = Color8::COL8_FFFFFF);
 	void set_text(const char* p_text, CLayer_Mgr& lymgr, Color8 col = Color8::COL8_FFFFFF);
 
-	static uint class_size()   
+	virtual uint class_size ()  const
 		{ return sizeof(CTextLayer);}
 	virtual CTextLayer* class_new_at(char* addr) const {
 		return new(addr) CTextLayer(*this); 
@@ -100,6 +100,28 @@ public:
 
 };
 
+class CInputLayer: public CLayer
+{
+private:
+	uint _cursor_x = 0;
+	uint _cursor_y = 0;
+	//stringbuf<> _text;
+	
+public:
+	CInputLayer(uint offset_x, uint offset_y, uint width, uint height)
+		: CLayer(offset_x,offset_y, width,height){
+			_cursor_y = _cursor_x = 0;
+		}
+	void clear() {};
+	void add_key(uint keycode,CLayer_Mgr& lymgr);
+
+	virtual uint class_size () const
+		{ return sizeof(CInputLayer);}
+	virtual CInputLayer* class_new_at(char* addr) const {
+		return new(addr) CInputLayer(*this); 
+	}
+
+};
 
 class CLayer_Mgr {
 public:

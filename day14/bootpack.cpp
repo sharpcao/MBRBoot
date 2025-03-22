@@ -80,7 +80,7 @@ void timer10_timeout(uint tmr)
     //auto p_speed = OS.layers.p_txt_speedcnt;
 
     stringbuf<> s;
-    s << "count:" << OS._speedcnt;
+    s << "c:" << OS._speedcnt;
     p_win->xyprint(5,50,s.c_str(),Color8::COL8_000000);
     OS.p_layerMgr->update(p_win->get_area());
     p_timer->set_text("10s passed", *OS.p_layerMgr, Color8::COL8_FFFF00);

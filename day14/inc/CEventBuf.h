@@ -40,16 +40,15 @@ bool CEventBuf<N>::push_message(uint p1, uint p2)
 template<uint N>
 bool CEventBuf<N>::get_message(uint& p1, uint& p2)
 {
-	p1 = p2 = 0;
-	if(_i1 != _i2){
-		p1 = _param1[_i1];
-		p2 = _param2[_i1];
-		++_i1;
-		if(_i1 == N) _i1 = 0;
-		if(_i1 == _i2) {_i1 = _i2 = 0;}
-		return true;
-	}
-	return false;
+	//p1 = p2 = 0;
+	if(_i1 == _i2) return false;
+	
+	p1 = _param1[_i1];
+	p2 = _param2[_i1];
+	++_i1;
+	if(_i1 == N) _i1 = 0;
+	if(_i1 == _i2) {_i1 = _i2 = 0;}
+	return true;
 
 }
 
