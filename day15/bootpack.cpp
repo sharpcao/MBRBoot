@@ -100,7 +100,7 @@ void timer10_timeout(uint tmr)
     p_win->xyprint(5,50,s.c_str(),Color8::COL8_000000);
     OS.p_layerMgr->update(p_win->get_area());
     p_timer->set_text("10s passed", *OS.p_layerMgr, Color8::COL8_FFFF00);
-    task_switch((uint)task_b_main,0x28);
+    task_switch((uint)task_b_main,5*8);
 
 }
 
