@@ -7,8 +7,10 @@ TSS32 tss_a, tss_b;
 
 void init_tss_b(uint task_b_esp);
 void tick_timeout(uint tmr);
+void tt_timeout(uint tmr);
 void timer5_timeout(uint tmr);
 void timer10_timeout(uint tmr);
+void task_b_main(void);
 
 
 void os_main(BOOTINFO *pbi)
@@ -54,6 +56,7 @@ void os_main(BOOTINFO *pbi)
 
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
+    OS.timer_ctrl.add_timer(2,tt_timeout);
     
     CPIT pit;
     pit.init_pit();
@@ -84,11 +87,16 @@ void timer5_timeout(uint tmr)
     p_timer->set_text("@5s Start", *OS.p_layerMgr, Color8::COL8_FFFF00);
     OS._speedcnt = 0 ;
     //OS.timer_ctrl.add_timer(1000,timer10_timeout);
-    OS.timer_ctrl.add_timer(300,timer10_timeout);
+    OS.timer_ctrl.add_timer(500,timer10_timeout);
 
 }
+void tt_timeout(uint tmr)
+{
+    task_switch((uint)task_b_main,5*8);
+    OS.timer_ctrl.set_timer(tmr,2,tt_timeout);
+}
 
-void task_b_main(void);
+
 void timer10_timeout(uint tmr)
 {
     auto p_timer = OS.layers.p_txt_timer;
@@ -100,27 +108,41 @@ void timer10_timeout(uint tmr)
     p_win->xyprint(5,50,s.c_str(),Color8::COL8_000000);
     OS.p_layerMgr->update(p_win->get_area());
     p_timer->set_text("10s passed", *OS.p_layerMgr, Color8::COL8_FFFF00);
-    task_switch((uint)task_b_main,5*8);
+    
 
 }
 
 
 CEventBuf<> task_b_event_list;
 CTimerCtrl task_b_timectl;
-void task_b_timeout(uint tmr)
+void task_b_tt_timeout(uint tmr)
 {
     task_switch(0,4*8);
+    task_b_timectl.set_timer(tmr,2,task_b_tt_timeout);
 }
+
+void task_b_timer1_timeout(uint tmr)
+{
+    stringbuf<> s;
+    s << "c:" << OS._speedcnt_task2;
+    auto p_txt = OS.layers.p_txt_task2;
+    p_txt->set_text(s.c_str(),*OS.p_layerMgr,Color8::COL8_FFFF00);
+    task_b_timectl.set_timer(tmr,100, task_b_timer1_timeout);
+}
+
 
 void task_b_main(void)
 {
     task_b_timectl.init(&task_b_event_list);
-    task_b_timectl.add_timer(500, task_b_timeout);
+    task_b_timectl.add_timer(2, task_b_tt_timeout);
+    task_b_timectl.add_timer(100,task_b_timer1_timeout);
+
     uint p1,p2;
     for(;;){
+        OS._speedcnt_task2++;
         io_cli();
         if(!task_b_event_list.get_message(p1,p2)){
-            io_stihlt();
+            io_sti();
 
         }else{
             io_sti();
@@ -128,7 +150,6 @@ void task_b_main(void)
                 task_b_timectl.call_hander((uint)p2);
             }
         }
-
     }
 }
 

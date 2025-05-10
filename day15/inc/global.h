@@ -19,6 +19,7 @@ public:
     CTextLayer* p_txt_tick=0;
     CInputLayer* p_input = 0;
     CTextLayer* p_debug =0;
+    CTextLayer* p_txt_task2 = 0;
 
 };
 
@@ -32,6 +33,7 @@ public:
     CWinLayers layers;
     CTimerCtrl timer_ctrl;
     uint _speedcnt = 0;
+    uint _speedcnt_task2  = 0;
 
     static CVGA vga;
 

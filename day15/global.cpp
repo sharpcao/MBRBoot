@@ -65,6 +65,9 @@ void CWinOS::init_layers(CMEM_MGR& mem_mgr, uint width, uint height)
     layers.p_debug->set_text("DEBUG",Color8::COL8_FF0000);
     //layers.p_debug->hide();
 
+    layers.p_txt_task2 = (CTextLayer* )ly_mgr.add_layer(CTextLayer(0,150,120,20));
+    layers.p_txt_task2->set_text("task2",Color8::COL8_FF0000);
+
 
     layers.p_window1 = (CWindowLayer*)ly_mgr.add_layer(CWindowLayer(width/4,height/4,width/2,height/2));
     layers.p_window1->load_img("Window");

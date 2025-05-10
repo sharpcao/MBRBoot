@@ -67,28 +67,21 @@ void handle_message()
     OS._speedcnt = 0;
     for(;;){
 
-        OS._speedcnt++;
-  
+        OS._speedcnt++; 
         io_cli();        
         if ( !EventList.get_message(p1,p2))
         {
-            //io_stihlt();
             io_sti();
-            continue;
         }else{
             io_sti();
             if( p1 == EVENT::Timer){
                 OS.timer_ctrl.call_hander((uint)p2);
-            }else if(p1 == EVENT::Key){
+            }
+            else if(p1 == EVENT::Key){
                 char s1[5];
                 uint2str(s1,p2);
                 OS.layers.p_txt_key->set_text(s1,*OS.p_layerMgr);
-                // if(p2 < 0x54) {
-                //     stringbuf<> skey ;
-                //     skey << keytable[p2];
-                //     OS.layers.p_txt_hello->set_text(skey.c_str(),*OS.p_layerMgr);
-                // }
-                OS.layers.p_input->add_key(p2,*OS.p_layerMgr );
+                OS.layers.p_input->add_key(p2,*OS.p_layerMgr);
 
             }else if (p1 == EVENT::Mouse){
                 if(mdec.push_char((char)p2)){
@@ -98,4 +91,7 @@ void handle_message()
         }
     }
 }
+
+
+
 
