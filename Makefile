@@ -1,5 +1,5 @@
 DD=bin\dd.exe
-sector_x_dir=day14
+sector_x_dir=day15
 
 
 defualt:
