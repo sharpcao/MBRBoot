@@ -2,25 +2,30 @@
 
 
 CWinOS OS;
-TSS32 tss_a, tss_b;
 
 
-void init_tss_b(uint task_b_esp);
 void tick_timeout(uint tmr);
-void tt_timeout(uint tmr);
 void timer5_timeout(uint tmr);
 void timer10_timeout(uint tmr);
-void task_b_main(void);
 
+
+void task_b_main(void);
+void task_b_timer1_timeout(uint tmr);
 
 void os_main(BOOTINFO *pbi)
 {
+
+
+    GDTIDT gdtidt;
+    gdtidt.init_gdt_idt();      
+
 
     OS.vga.init(pbi);
 
     CMEM_MGR mem_mgr(0x200000,0x100000);
 
     OS.init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
+    OS.init_task_mgr(mem_mgr);
     OS.init_timers();
    
 
@@ -30,25 +35,14 @@ void os_main(BOOTINFO *pbi)
     OS.layers.p_window1->xyprint(5,30,mem_max_str.c_str(),Color8::COL8_000000);
     OS.p_layerMgr->refresh();
 
-  
-
-    GDTIDT gdtidt;
-    gdtidt.init_gdt_idt();  
-
-
-    init_tss_b(mem_mgr.malloc(1024) + 1024);
-    gdtidt.add_gdt_task(4, &tss_a);
-    gdtidt.add_gdt_task(5, &tss_b);
-    
 
     gdtidt.add_idt_handler(0x20, handler_wrap<int20_handler>);
     gdtidt.add_idt_handler(0x21, handler_wrap<int21_handler>);
     gdtidt.add_idt_handler(0x2c, handler_wrap<int2c_handler>);
-    gdtidt.load_gdt();
-    gdtidt.load_idt();
-    io_load_tr(4*8);
 
-   
+
+
+
     
     CPIC pic;
     pic.init_pic();
@@ -56,8 +50,7 @@ void os_main(BOOTINFO *pbi)
 
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
-    OS.timer_ctrl.add_timer(2,tt_timeout);
-    
+  
     CPIT pit;
     pit.init_pit();
 
@@ -65,6 +58,10 @@ void os_main(BOOTINFO *pbi)
     dev.init_keyboard();
     dev.enable_mouse();
     pic.enable_key_mouse();
+
+    Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(1024) + 1024 - 8);
+    OS.p_task_mgr->set_active(pt);
+
 
     handle_message();
 
@@ -90,11 +87,7 @@ void timer5_timeout(uint tmr)
     OS.timer_ctrl.add_timer(500,timer10_timeout);
 
 }
-void tt_timeout(uint tmr)
-{
-    task_switch((uint)task_b_main,5*8);
-    OS.timer_ctrl.set_timer(tmr,2,tt_timeout);
-}
+
 
 
 void timer10_timeout(uint tmr)
@@ -115,11 +108,7 @@ void timer10_timeout(uint tmr)
 
 CEventBuf<> task_b_event_list;
 CTimerCtrl task_b_timectl;
-void task_b_tt_timeout(uint tmr)
-{
-    task_switch(0,4*8);
-    task_b_timectl.set_timer(tmr,2,task_b_tt_timeout);
-}
+
 
 void task_b_timer1_timeout(uint tmr)
 {
@@ -130,13 +119,12 @@ void task_b_timer1_timeout(uint tmr)
     task_b_timectl.set_timer(tmr,100, task_b_timer1_timeout);
 }
 
-
 void task_b_main(void)
 {
     task_b_timectl.init(&task_b_event_list);
-    task_b_timectl.add_timer(2, task_b_tt_timeout);
     task_b_timectl.add_timer(100,task_b_timer1_timeout);
-
+    //task_b_timectl.add_timer(2, task_b_tt_timeout);
+    
     uint p1,p2;
     OS._speedcnt_task2 = 0;
 
@@ -155,31 +143,6 @@ void task_b_main(void)
     }
 }
 
-void init_tss_b(uint task_b_esp)
-{
-    tss_a.ldtr = 0;
-    tss_a.iomap = 0x40000000;
-    tss_b.ldtr = 0;
-    tss_b.iomap = 0x40000000;
-
-    tss_b.eip = (int) &task_b_main;
-    tss_b.eflags = 0x00000202;
-    tss_b.eax = 0;
-    tss_b.ecx = 0;
-    tss_b.edx = 0;
-    tss_b.ebx = 0;
-    tss_b.esp = task_b_esp;
-    tss_b.ebp = 0;
-    tss_b.esi = 0;
-    tss_b.edi = 0;
-    tss_b.es = 2*8;
-    tss_b.cs = 1*8;
-    tss_b.ss = 3*8;
-    tss_b.ds = 2*8;
-    tss_b.fs = 2*8;
-    tss_b.gs = 2*8;
-
-}
 
 void (*jump)(BOOTINFO *pbi)  = os_main;
 uint _hInstance =0;

@@ -7,7 +7,6 @@ TSS32 tss_a, tss_b;
 
 void init_tss_b(uint task_b_esp);
 void tick_timeout(uint tmr);
-void tt_timeout(uint tmr);
 void timer5_timeout(uint tmr);
 void timer10_timeout(uint tmr);
 void task_b_main(void);
@@ -56,8 +55,7 @@ void os_main(BOOTINFO *pbi)
 
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
-    OS.timer_ctrl.add_timer(2,tt_timeout);
-    
+  
     CPIT pit;
     pit.init_pit();
 
@@ -90,11 +88,7 @@ void timer5_timeout(uint tmr)
     OS.timer_ctrl.add_timer(500,timer10_timeout);
 
 }
-void tt_timeout(uint tmr)
-{
-    task_switch((uint)task_b_main,5*8);
-    OS.timer_ctrl.set_timer(tmr,2,tt_timeout);
-}
+
 
 
 void timer10_timeout(uint tmr)
@@ -115,11 +109,7 @@ void timer10_timeout(uint tmr)
 
 CEventBuf<> task_b_event_list;
 CTimerCtrl task_b_timectl;
-void task_b_tt_timeout(uint tmr)
-{
-    task_switch(0,4*8);
-    task_b_timectl.set_timer(tmr,2,task_b_tt_timeout);
-}
+
 
 void task_b_timer1_timeout(uint tmr)
 {
@@ -130,13 +120,12 @@ void task_b_timer1_timeout(uint tmr)
     task_b_timectl.set_timer(tmr,100, task_b_timer1_timeout);
 }
 
-
 void task_b_main(void)
 {
     task_b_timectl.init(&task_b_event_list);
-    task_b_timectl.add_timer(2, task_b_tt_timeout);
     task_b_timectl.add_timer(100,task_b_timer1_timeout);
-
+    //task_b_timectl.add_timer(2, task_b_tt_timeout);
+    
     uint p1,p2;
     OS._speedcnt_task2 = 0;
 
