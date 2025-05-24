@@ -5,6 +5,9 @@
 #include "vga.h"
 #include "timer.h"
 #include "task_kit.h"
+#include "int.h"
+#include "input_device.h"
+#include "handler.h"
 
 //extern CEventBuf<64> TimerBuf; 
 
@@ -36,9 +39,12 @@ public:
     CMTTimerCtrl timer_ctrl;
     uint _speedcnt = 0;
     uint _speedcnt_task2  = 0;
-
     static CVGA vga;
 
+    void init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr);
+    void debug_print(const char* s);
+
+private:
     void init_task_mgr(CMEM_MGR& mem_mgr) {
         p_task_mgr = (Task_mgr*) mem_mgr.malloc(sizeof(Task_mgr));
         new(p_task_mgr) Task_mgr;
@@ -49,7 +55,7 @@ public:
     }
     void init_layers(CMEM_MGR& mem_mgr, uint width, uint height);
 
-    void debug_print(const char* s);
+    
 
 };
 

@@ -19,15 +19,9 @@ void os_main(BOOTINFO *pbi)
     GDTIDT gdtidt;
     gdtidt.init_gdt_idt();      
 
-
-    OS.vga.init(pbi);
-
     CMEM_MGR mem_mgr(0x200000,0x100000);
+    OS.init(pbi, mem_mgr);
 
-    OS.init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
-    OS.init_task_mgr(mem_mgr);
-    OS.init_timers();
-   
 
     uint mem_size = memtest(0x400000,0xbfffffff);
     stringbuf<> mem_max_str;
@@ -35,29 +29,8 @@ void os_main(BOOTINFO *pbi)
     OS.layers.p_window1->xyprint(5,30,mem_max_str.c_str(),Color8::COL8_000000);
     OS.p_layerMgr->refresh();
 
-
-    gdtidt.add_idt_handler(0x20, handler_wrap<int20_handler>);
-    gdtidt.add_idt_handler(0x21, handler_wrap<int21_handler>);
-    gdtidt.add_idt_handler(0x2c, handler_wrap<int2c_handler>);
-
-
-
-
-    
-    CPIC pic;
-    pic.init_pic();
-    pic.set_interrupt();
-
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
-  
-    CPIT pit;
-    pit.init_pit();
-
-    CInput_Device dev;
-    dev.init_keyboard();
-    dev.enable_mouse();
-    pic.enable_key_mouse();
 
     Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(1024) + 1024 - 8);
     OS.p_task_mgr->set_active(pt);

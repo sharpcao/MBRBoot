@@ -60,7 +60,7 @@ private:
 class CVGA
 {
 public:
-    void init(BOOTINFO *pbi) 
+    void init(const BOOTINFO *pbi) 
     {
         _pboot_info = pbi;
         _vram = _pboot_info->vram;
@@ -99,7 +99,7 @@ public:
 private:
     void _init_palette();
     void _map(uint x, uint y, uint width, uint height, const char* back, const char* buf=0);
-    static BOOTINFO* _pboot_info;
+    static const BOOTINFO* _pboot_info;
     static char* _vram;
     static uint _xsize, _ysize;  
     static uchar* _pfont;   
@@ -107,7 +107,7 @@ private:
 
 };
 
-BOOTINFO* CVGA::_pboot_info = 0;
+const BOOTINFO* CVGA::_pboot_info = 0;
 char* CVGA::_vram =0;
 uint CVGA::_xsize =0, CVGA::_ysize=0;
 extern uchar hankaku_font[];

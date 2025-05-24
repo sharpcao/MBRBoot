@@ -23,6 +23,36 @@ void CWinOS::debug_print(const char* s)
     }
 }
 
+void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
+{
+
+    vga.init(pbi);
+    init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
+    init_task_mgr(mem_mgr);
+    init_timers();
+
+    GDTIDT gdtidt;
+    gdtidt.add_idt_handler(0x20, handler_wrap<int20_handler>);
+    gdtidt.add_idt_handler(0x21, handler_wrap<int21_handler>);
+    gdtidt.add_idt_handler(0x2c, handler_wrap<int2c_handler>);
+
+    
+    CPIC pic;
+    pic.init_pic();
+    pic.set_interrupt();
+
+  
+    CPIT pit;
+    pit.init_pit();
+
+    CInput_Device dev;
+    dev.init_keyboard();
+    dev.enable_mouse();
+    pic.enable_key_mouse();
+
+
+
+}
 
 void CWinOS::init_layers(CMEM_MGR& mem_mgr, uint width, uint height)
 {
