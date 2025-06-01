@@ -1,5 +1,5 @@
 DD=bin\dd.exe
-sector_x_dir=day16
+sector_x_dir=day16_1/build
 
 
 defualt:
@@ -18,8 +18,10 @@ sector_1/sector_1.bin: sector_1/load_peos.asm
     cd ..
 
 $(sector_x_dir)/sector_x.bin: 
+    pushd .
     cd $(sector_x_dir)
     make sector_x.bin
+    popd
     cd ..
 
 clean:
