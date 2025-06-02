@@ -58,7 +58,7 @@ Task* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 
 void Task_mgr::set_active(Task* p_task)
 {
-	if(p_task){
+	if( p_task && (p_task->flag != Task_flag::actived)){
 		p_task->flag = Task_flag::actived;
 		
 		for(uint i =0; i < _running_end; ++i){
@@ -160,7 +160,7 @@ begin:
 
 void CMTTimerCtrl::mt_inc()
 {
-	inc<Task_Message_mgr>();
+	inc<Task_Message_mgr*,Task_Message_mgr* >();
 	if (_count % 2){
 		mt_taskswitch();
 	}

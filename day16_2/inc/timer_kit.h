@@ -50,7 +50,10 @@ public:
 		_next_timer = &_timers[_last++];
 
 	}
-	template <typename TEvent = Message_mgr<>> void inc();
+
+	template <typename T1 = decltype(p_event_buf), typename T2 = decltype(CTimer::_p_tm_evt) > 
+	void inc();
+
 	bool add_timer(uint timeout, CTimer::Timeout_Func p_fn = 0, Message_mgr<>* p_evt = 0);
 	void set_timer(uint idx, uint timeout, CTimer::Timeout_Func p_fn = 0);
 
@@ -66,6 +69,30 @@ public:
 	}
 };
 
+template <typename T1,typename T2>
+void CTimerCtrl::inc() 
+{
+	if(++_count <_next_timer->_timeout) return;
+
+	for(CTimer* p = _next_timer; p->_next!=0; p=p->_next)
+	{
+		if( _count >= p->_timeout  ){
+			if (!p->is_timeout()) {
+				_next_timer = p->next();
+				p->timeout();
+				if(p->_p_tm_evt){
+					static_cast<T2>(p->_p_tm_evt)->push_message(EVENT::Timer, p->_id);
+				}else{
+					static_cast<T1>(p_event_buf)->push_message(EVENT::Timer, p->_id);
+				}
+			}
+		}else{
+			break;
+		}
+	}
+
+
+}
 
 
 

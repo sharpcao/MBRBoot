@@ -118,7 +118,7 @@ void task_b_main(uint param)
 {
 
     auto ptext = (CTextLayer*)param;
-     Message_mgr<> task_b_event_list;
+    Task_Message_mgr task_b_event_list;
     // task_b_timectl.init(&task_b_event_list);
     //task_b_timectl.add_timer(100,task_b_timer1_timeout);
     OS.timer_ctrl.add_timer(100,task_b_timer1_timeout,&task_b_event_list);

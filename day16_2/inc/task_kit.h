@@ -100,29 +100,6 @@ public:
 };
 
 
-template <typename TEvent>
-void CTimerCtrl::inc() 
-{
-	if(++_count <_next_timer->_timeout) return;
 
-	for(CTimer* p = _next_timer; p->_next!=0; p=p->_next)
-	{
-		if( _count >= p->_timeout  ){
-			if (!p->is_timeout()) {
-				_next_timer = p->next();
-				p->timeout();
-				if(p->_p_tm_evt){
-					p->_p_tm_evt->push_message(EVENT::Timer, p->_id);
-				}else{
-					static_cast<TEvent*>(p_event_buf)->push_message(EVENT::Timer, p->_id);
-				}
-			}
-		}else{
-			break;
-		}
-	}
-
-
-}
 
 #endif
