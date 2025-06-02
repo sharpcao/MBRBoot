@@ -2,6 +2,6 @@ make clean
 cd sector_1  
 make clean
 cd ..
-cd day16_1\build
+cd day16_2\build
 make clean 
 cd ..\..\
