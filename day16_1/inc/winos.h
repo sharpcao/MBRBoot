@@ -27,7 +27,7 @@ public:
 };
 
 
-extern Message_mgr<> EventList;
+extern Task_Message_mgr EventList;
 
 class CWinOS{
 public:

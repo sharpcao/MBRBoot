@@ -3,6 +3,7 @@
 
 #include "gdtidt.h"
 #include "timer_kit.h"
+#include "message_kit.h"
 
 
 struct TSS32 {
@@ -35,14 +36,19 @@ private:
 	Task  _tasks[max_tasks];
 	int _running_end = 0;
 	int _cur = 0;
+	bool _need_clean = false;
+	void _clean_inactive();
 public:
 	using  Task_func = void (*)() ;
 
 	Task_mgr();
-	Task* add_task(Task_func task_func=0, uint esp_addr=0);
+	Task* add_task(Task_func task_func = 0, uint esp_addr = 0);
 	void set_active(Task* p_task);
-	void switch_next();
+	void set_inactive(Task* p_task);
 
+	void switch_next();
+	Task* get_task(uint id) {return &_tasks[id]; }
+	
 
 };
 
@@ -59,6 +65,60 @@ public:
 	
 };
 
+class Task_Message_mgr : public Message_mgr<>
+{
+private:
+	Task* _p_msg_task = 0;
+	Task_mgr* _p_task_mgr = 0;
 
+public:
+	bool push_message(uint p1, uint p2){
+		bool result = Message_mgr<>::push_message(p1,p2);
+		act_msg_task();
+		return result;
+	}
+	void set_msg_task(Task* ptask, Task_mgr* ptmgr){
+		_p_msg_task = ptask;
+		_p_task_mgr = ptmgr;
+	}
+
+
+	void act_msg_task()
+	{
+		if(_p_msg_task && _p_task_mgr){
+			_p_task_mgr->set_active(_p_msg_task);
+		}
+	}
+	void deact_msg_task()
+	{
+		if(_p_msg_task && _p_task_mgr)
+		{
+			_p_task_mgr->set_inactive(_p_msg_task);
+		}
+	}
+
+};
+
+
+template <typename TEvent>
+void CTimerCtrl::inc() 
+{
+	if(++_count <_next_timer->_timeout) return;
+
+	for(CTimer* p = _next_timer; p->_next!=0; p=p->_next)
+	{
+		if( _count >= p->_timeout  ){
+			if (!p->is_timeout()) {
+				_next_timer = p->next();
+				p->timeout();
+				static_cast<TEvent*>(p_event_buf)->push_message(EVENT::Timer, p->_id);
+			}
+		}else{
+			break;
+		}
+	}
+
+
+}
 
 #endif

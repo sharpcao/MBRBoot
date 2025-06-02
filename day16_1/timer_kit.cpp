@@ -13,25 +13,7 @@ void CTimer::set_timeout(uint timeout,Timeout_Func p_fn)
 
 }
 
-void CTimerCtrl::inc() 
-{
-	if(++_count <_next_timer->_timeout) return;
 
-	for(CTimer* p = _next_timer; p->_next!=0; p=p->_next)
-	{
-		if( _count >= p->_timeout  ){
-			if (!p->is_timeout()) {
-				_next_timer = p->next();
-				p->timeout();
-				p_event_buf->push_message(EVENT::Timer, p->_id);
-			}
-		}else{
-			break;
-		}
-	}
-
-
-}
 
 
 

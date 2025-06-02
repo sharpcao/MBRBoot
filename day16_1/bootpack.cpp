@@ -32,7 +32,7 @@ void os_main(BOOTINFO *pbi)
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
 
-    Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(1024) + 1024 - 8);
+    Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(1024) + 1024 - 8);  
     OS.p_task_mgr->set_active(pt);
 
 

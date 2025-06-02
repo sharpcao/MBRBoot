@@ -52,15 +52,96 @@ Task* Task_mgr::add_task(Task_func task_func, uint esp_addr)
 
 void Task_mgr::set_active(Task* p_task)
 {
-	p_task->flag = Task_flag::actived;
-	_task_ptrs[_running_end++] = p_task;
+	if(p_task){
+		p_task->flag = Task_flag::actived;
+		
+		for(uint i =0; i < _running_end; ++i){
+			if(_task_ptrs[i] == p_task) return;
+		}
+
+		if (_need_clean) _clean_inactive();
+
+		if(_running_end < max_tasks){
+			_task_ptrs[_running_end++] = p_task;
+		}
+	}
+}
+
+void Task_mgr::set_inactive(Task* p_task)
+{
+	if (p_task) {
+		p_task->flag = Task_flag::used;
+		for(uint i = 0; i < _running_end; ++i)
+		{
+			if (_task_ptrs[i] == p_task){
+				_task_ptrs[i] = 0;
+				_need_clean = true;
+				break;
+			}
+		}
+	}
+}
+
+void Task_mgr::_clean_inactive()
+{
+	Task** p_start = &_task_ptrs[0], **p_end = &_task_ptrs[_running_end];
+	bool need_fix_cur = (_task_ptrs[_cur])? true : false;
+
+	Task** p1 = p_start;
+
+	for(; p1 != p_end; ++p1){
+		if (*p1 == 0) break;			
+	}
+
+	if (p1 != p_end){
+
+		Task** p2 = p1 + 1;
+		for(;p2 != p_end; ++p2)
+		{
+			if(*p2 != 0) break;
+		}
+
+		while(p2 != p_end){
+			if(need_fix_cur && (p2 == &_task_ptrs[_cur])) {
+				_cur = p1 - p_start;
+				need_fix_cur = false;
+			}
+			*p1++ = *p2++;
+			while((*p2 == 0) && p2 !=p_end) ++p2;
+		}
+		
+	}
+	_running_end = p1 - p_start;
+	_need_clean = false;
 }
 
 void Task_mgr::switch_next()
 {
+	// if(_need_clean && (_cur == 0) ){
+	//  	_clean_inactive();
+	// }
+
+
 	if (_running_end > 1){
-		if( ++_cur == _running_end) _cur = 0;
-		task_switch(0, _task_ptrs[_cur]->sel);
+		uint next = _cur + 1;
+
+		for(;;){
+			if (next >= _running_end) {
+				next = 0;
+				if(_need_clean) _clean_inactive();
+				if(_running_end == 0) break;
+			}
+			if( _task_ptrs[next] ){
+				if( next != _cur ){
+					_cur = next;
+					task_switch(0, _task_ptrs[_cur]->sel);
+				}
+				break;
+			}else{
+				++next;
+			}
+		}
+
 	}
 }
 
@@ -68,8 +149,9 @@ void Task_mgr::switch_next()
 
 void CMTTimerCtrl::mt_inc()
 {
-	inc();
+	inc<Task_Message_mgr>();
 	if (_count % 2){
 		mt_taskswitch();
 	}
 }
+

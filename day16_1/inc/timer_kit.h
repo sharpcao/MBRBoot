@@ -48,7 +48,7 @@ public:
 		_next_timer = &_timers[_last++];
 
 	}
-	void inc();
+	template <typename TEvent = Message_mgr<>> void inc();
 	bool add_timer(uint timeout, CTimer::Timeout_Func p_fn = 0);
 	void set_timer(uint idx, uint timeout, CTimer::Timeout_Func p_fn = 0);
 

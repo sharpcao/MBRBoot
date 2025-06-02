@@ -29,6 +29,7 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
     vga.init(pbi);
     init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
     init_task_mgr(mem_mgr);
+    EventList.set_msg_task(p_task_mgr->get_task(0),p_task_mgr);
     init_timers();
 
     GDTIDT gdtidt;

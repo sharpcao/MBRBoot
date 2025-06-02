@@ -2,14 +2,14 @@
 #include "inc\device.h"
 #include "inc\vga.h"
 #include "inc\os_io.h"
-#include "inc\message_kit.h"
+#include "inc\task_kit.h"
 #include "inc\decode_kit.h"
 #include "inc\layer.h"
 #include "inc\winos.h"
 #include "inc\timer_kit.h"
 
 
-Message_mgr<> EventList;
+Task_Message_mgr EventList;
 
 
 extern CWinOS OS;
@@ -70,6 +70,7 @@ void handle_message()
         io_cli();        
         if ( !EventList.get_message(p1,p2))
         {
+            EventList.deact_msg_task();
             io_sti();
         }else{
             io_sti();
