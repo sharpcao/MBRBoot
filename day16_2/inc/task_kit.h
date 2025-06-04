@@ -21,8 +21,9 @@ enum Task_flag{
 };
 
 struct Task {
-	int sel;
+	uint sel;
 	Task_flag flag;
+	uint priority;
 	TSS32 tss;
 
 };
@@ -43,11 +44,12 @@ public:
 
 	Task_mgr();
 	Task* add_task(Task_func task_func = 0, uint esp_addr = 0, uint param = 0);
-	void set_active(Task* p_task);
+	void set_active(Task* p_task, uint priority = 0);
 	void set_inactive(Task* p_task);
 
 	void switch_next();
 	Task* get_task(uint id) {return &_tasks[id]; }
+	uint get_cur_priority() { return _tasks[_cur].priority;}
 	
 
 };

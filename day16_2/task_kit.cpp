@@ -20,12 +20,14 @@ Task_mgr::Task_mgr()
 
 Task* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 {
-	for(uint i = 0; i < max_tasks;++i)
+	for(uint i = 0; i < max_tasks; ++i)
 	{
 		if(_tasks[i].flag == Task_flag::unused)
 		{
 			Task& t = _tasks[i];
 			t.flag = Task_flag::used;
+			t.priority = 2;
+
 			t.tss.eflags = 0x00000202;
 			t.tss.eax = 0;
 			t.tss.ecx = 0;
@@ -56,19 +58,24 @@ Task* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 	return 0;
 }
 
-void Task_mgr::set_active(Task* p_task)
+void Task_mgr::set_active(Task* p_task, uint priority)
 {
-	if( p_task && (p_task->flag != Task_flag::actived)){
-		p_task->flag = Task_flag::actived;
-		
-		for(uint i =0; i < _running_end; ++i){
-			if(_task_ptrs[i] == p_task) return;
-		}
+	if( p_task ){
 
-		if (_need_clean) _clean_inactive();
+		if (priority > 0 ) p_task->priority = priority;
 
-		if(_running_end < max_tasks){
-			_task_ptrs[_running_end++] = p_task;
+		if((p_task->flag != Task_flag::actived)){
+			p_task->flag = Task_flag::actived;
+			
+			for(uint i =0; i < _running_end; ++i){
+				if(_task_ptrs[i] == p_task) return;
+			}
+
+			if (_need_clean) _clean_inactive();
+
+			if(_running_end < max_tasks){
+				_task_ptrs[_running_end++] = p_task;
+			}
 		}
 	}
 }
@@ -160,8 +167,11 @@ begin:
 
 void CMTTimerCtrl::mt_inc()
 {
+	static uint cnt = 0;
+	uint p = _ptask_mgr->get_cur_priority();
 	inc<Task_Message_mgr*,Task_Message_mgr* >();
-	if (_count % 2){
+	if ((++cnt % p) == 0){
+		cnt = 0;
 		mt_taskswitch();
 	}
 }
