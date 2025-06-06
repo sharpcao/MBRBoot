@@ -13,7 +13,7 @@ Task_mgr::Task_mgr()
 	}		
 	Task* p_task = add_task();
 
-	set_active(p_task);
+	set_active(p_task,10);
 	io_load_tr(p_task->sel);
 
 }

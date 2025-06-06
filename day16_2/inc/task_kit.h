@@ -49,7 +49,7 @@ public:
 
 	void switch_next();
 	Task* get_task(uint id) {return &_tasks[id]; }
-	uint get_cur_priority() { return _tasks[_cur].priority;}
+	uint get_cur_priority() { return _task_ptrs[_cur]->priority;}
 	
 
 };
