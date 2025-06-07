@@ -21,7 +21,6 @@ void int20_handler()
 
     io_out8(PIC::PIC0_OCW2,0x60);
     OS.timer_ctrl.mt_inc();
-    //task_b_timectl.inc();
 
 }
 void int21_handler()

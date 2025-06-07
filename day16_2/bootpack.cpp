@@ -30,6 +30,9 @@ void os_main(BOOTINFO *pbi)
 
     CWindowLayer* p_win_b[3];
     CTextLayer* p_text_b[3];
+    uint pa[] = {2,4,6};
+
+
     for(uint i = 0; i < 3; ++i){
         uint width = OS.screen_width * 0.32;
         uint height = OS.screen_height * 0.38;
@@ -37,7 +40,9 @@ void os_main(BOOTINFO *pbi)
         uint offset_y = OS.screen_height * 0.36;
         p_win_b[i] = (CWindowLayer*)OS.p_layerMgr->create_layer(
                                                  CWindowLayer(offset_x,offset_y,width,height));
-        p_win_b[i]->load_img("win_b");
+        stringbuf<> s("win_b_");
+        s << pa[i];
+        p_win_b[i]->load_img(s.c_str());
 
         p_text_b[i] = (CTextLayer*)OS.p_layerMgr->create_layer(
                                                 CTextLayer(offset_x,offset_y+25,width,height -25));
@@ -51,11 +56,14 @@ void os_main(BOOTINFO *pbi)
 
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
-    uint pa[] = {1,2,4};
+    
     for(uint i = 0; i<3;++i){
         Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(8*1024) + 8*1024,(uint)p_text_b[i]);  
         OS.p_task_mgr->set_active(pt,pa[i]);
+
+
     }
+
 
 
     handle_message();
@@ -110,7 +118,7 @@ void task_b_timer1_timeout(uint tmr)
     // s << "c:" << OS._speedcnt_task2;
     // auto p_txt = OS.layers.p_txt_task2;
     // p_txt->set_text(s.c_str(),*OS.p_layerMgr,Color8::COL8_FFFF00);
-    // task_b_timectl.set_timer(tmr,100, task_b_timer1_timeout);
+    //task_b_timectl.set_timer(tmr,100, task_b_timer1_timeout);
 }
 
 //CTimerCtrl task_b_timectl;
@@ -119,8 +127,6 @@ void task_b_main(uint param)
 
     auto ptext = (CTextLayer*)param;
     Task_Message_mgr task_b_event_list;
-    // task_b_timectl.init(&task_b_event_list);
-    //task_b_timectl.add_timer(100,task_b_timer1_timeout);
     OS.timer_ctrl.add_timer(100,task_b_timer1_timeout,&task_b_event_list);
 
     
@@ -137,8 +143,9 @@ void task_b_main(uint param)
             if(p1 == EVENT::Timer){
                 OS.timer_ctrl.call_hander((uint)p2);
                 stringbuf<> s;
-                s << "c:" << speedcnt_b;
-                
+                auto mgr = OS.p_task_mgr;
+                s << mgr->get_cur_priority() << ":" << speedcnt_b;
+ 
                 ptext->set_text(s.c_str(),*OS.p_layerMgr,Color8::COL8_000000);
           
                 OS.timer_ctrl.set_timer(p2,100, task_b_timer1_timeout);

@@ -1,5 +1,6 @@
 #include "inc\task_kit.h"
 #include "inc\os_io.h"
+#include "inc\functions.h"
 
 Task_mgr::Task_mgr()
 {
@@ -13,7 +14,7 @@ Task_mgr::Task_mgr()
 	}		
 	Task* p_task = add_task();
 
-	set_active(p_task);
+	set_active(p_task, PT::highest);
 	io_load_tr(p_task->sel);
 
 }
@@ -67,9 +68,9 @@ void Task_mgr::set_active(Task* p_task, uint priority)
 		if((p_task->flag != Task_flag::actived)){
 			p_task->flag = Task_flag::actived;
 			
-			for(uint i =0; i < _running_end; ++i){
-				if(_task_ptrs[i] == p_task) return;
-			}
+			// for(uint i =0; i < _running_end; ++i){
+			// 	if(_task_ptrs[i] == p_task) return;
+			// }
 
 			if (_need_clean) _clean_inactive();
 
@@ -168,11 +169,14 @@ begin:
 void CMTTimerCtrl::mt_inc()
 {
 	static uint cnt = 0;
-	uint p = _ptask_mgr->get_cur_priority();
+	uint p =  _ptask_mgr->get_cur_priority();
+
 	inc<Task_Message_mgr*,Task_Message_mgr* >();
 	if ((++cnt % p) == 0){
 		cnt = 0;
 		mt_taskswitch();
 	}
+
+	
 }
 

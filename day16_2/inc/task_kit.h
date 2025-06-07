@@ -1,9 +1,11 @@
 #ifndef TASK_KIT_H
 #define TASK_KIT_H
 
+#include "common.h"
 #include "gdtidt.h"
 #include "timer_kit.h"
 #include "message_kit.h"
+
 
 
 struct TSS32 {
@@ -49,8 +51,16 @@ public:
 
 	void switch_next();
 	Task* get_task(uint id) {return &_tasks[id]; }
-	uint get_cur_priority() { return _tasks[_cur].priority;}
-	
+	uint get_cur_priority() { return _task_ptrs[_cur]? _task_ptrs[_cur]->priority : 1;}
+
+	enum PT {
+		 low = 1,
+		 normal = 2,
+		 medium = 4,
+		 high = 6,
+		 highest = 10
+	};
+
 
 };
 
