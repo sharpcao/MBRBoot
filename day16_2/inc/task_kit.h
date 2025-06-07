@@ -51,6 +51,7 @@ public:
 
 	void switch_next();
 	Task* get_task(uint id) {return &_tasks[id]; }
+
 	uint get_cur_priority() { return _task_ptrs[_cur]? _task_ptrs[_cur]->priority : 1;}
 
 	enum PT {
@@ -60,6 +61,7 @@ public:
 		 high = 6,
 		 highest = 10
 	};
+
 
 
 };

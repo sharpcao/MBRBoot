@@ -14,7 +14,9 @@ Task_mgr::Task_mgr()
 	}		
 	Task* p_task = add_task();
 
+
 	set_active(p_task, PT::highest);
+
 	io_load_tr(p_task->sel);
 
 }
