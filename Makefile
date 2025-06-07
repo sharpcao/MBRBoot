@@ -1,5 +1,5 @@
 DD=bin\dd.exe
-sector_x_dir=day16_2\build
+sector_x_dir=day16_3\build
 
 
 defualt:
