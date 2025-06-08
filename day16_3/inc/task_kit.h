@@ -45,6 +45,10 @@ private:
 	void _clean_inactive();
 	void _insert_active(Task* p_task);
 
+
+	enum Reorder{ no, up, down};
+	void _reorder(Task* p_task, Reorder direction);
+
 public:
 	using  Task_func = void (*)(uint param) ;
 
@@ -63,8 +67,8 @@ public:
 		 low = 1,
 		 normal = 2,
 		 medium = 4,
-		 high = 6,
-		 highest = 10
+		 high = 8,
+		 highest = 20
 	};
 	enum LV {		//Level
 		level_1 = 1,

@@ -66,7 +66,6 @@ Task* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 void Task_mgr::_insert_active(Task* p_task)
 {
 		if(_running_end >= max_tasks) return;
-		//if (_need_clean) _clean_inactive();	
 
 		uint i = 0, score = p_task->level * 100 + p_task->priority;
 		for(; i < _running_end; ++i)
@@ -87,29 +86,78 @@ void Task_mgr::_insert_active(Task* p_task)
 		p_task->flag = Task_flag::actived;
 }
 
+void Task_mgr::_reorder(Task* p_task, Reorder direction)
+{
+	Task** begin = &_task_ptrs[0];
+	Task** end = &_task_ptrs[_running_end];
+	Task** pos = begin;
+	for(; pos < end; ++pos){
+		if ( *pos == p_task) break;
+	}
+	if (pos != end){
+		if(direction == Reorder::down) {
+			Task** new_pos = pos + 1;
+			for(; new_pos < end; ++new_pos){
+				if ( (*new_pos)->level <= (*pos)->level) break;
+			}
 
-void Task_mgr::set_active(Task* p_task, uint priority, uint level )
+			for(auto p = pos + 1; p < new_pos; ++p) *(p-1) = *p;
+
+			*(new_pos -1) = p_task;
+
+		}else if( direction == Reorder::up){
+			Task** new_pos = pos -1;
+			for(; new_pos > 0; --new_pos){
+				if( (*new_pos)->level >= (*pos)->level) break;
+			}
+	
+			for(auto p = pos -1; p > new_pos; --p) *(p+1) = *p;
+
+			*(new_pos + 1) = p_task;
+		}
+
+		// fix _cur index
+		for(uint i = 0; i< _running_end; ++i){
+			if(_task_ptrs[i] == _cur_ptask){
+				_cur = i;
+				break;
+			}
+		}
+
+	}
+}
+
+
+
+void Task_mgr::set_active(Task* p_task, uint priority, uint level)
 {
 	
+
 	if( p_task == 0) return;
 
-	bool need_reorder = false;
+	if (priority) p_task->priority = priority;
 
-	if ( priority + level > 0) {
-		if (priority) p_task->priority = priority;
-		if (level) p_task->level = level;
-		need_reorder = true;
+	Reorder reorder = Reorder::no;
+	if (level) {
+		if (level > p_task->level){
+			reorder = Reorder::up;
+			p_task->level = level;
+		}else if(level < p_task->level){
+			reorder = Reorder::down;
+			p_task->level = level;
+		}
 	}
 
+
 	if (p_task->flag == Task_flag::actived) {
-		if(need_reorder)	{
-			set_inactive(p_task);
-			_insert_active(p_task);
+		if(reorder != Reorder::no)	{
+			// set_inactive(p_task);
+			// _insert_active(p_task);
+			_reorder(p_task, reorder);
 		}
 	}else{
 		_insert_active(p_task);
 	}
-
 	
 	
 }

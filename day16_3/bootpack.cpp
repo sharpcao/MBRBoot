@@ -62,16 +62,12 @@ void os_main(BOOTINFO *pbi)
         Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(8*1024) + 8*1024,(uint)p_text_b[i]); 
     
         if(i == 0){
-            OS.p_task_mgr->set_active(pt,pa[i],3);
+            OS.p_task_mgr->set_active(pt,pa[i],2);
         }else{
             OS.p_task_mgr->set_active(pt,pa[i],3);
         }
-     
-    
 
     }
-
-
 
     handle_message();
 
@@ -95,6 +91,9 @@ void timer5_timeout(uint tmr)
     OS._speedcnt = 0 ;
     //OS.timer_ctrl.add_timer(1000,timer10_timeout);
     OS.timer_ctrl.add_timer(500,timer10_timeout);
+    OS.p_task_mgr->set_active(OS.p_task_mgr->get_task(1),0,3);
+    OS.p_task_mgr->set_active(OS.p_task_mgr->get_task(2),0,2);
+
 
 }
 
