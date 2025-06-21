@@ -65,6 +65,16 @@ void io_sti()
 		ret
 	}
 }
+
+__declspec(naked) 
+void io_hlt()
+{
+	__asm{
+		hlt
+		ret
+	}
+}
+
 __declspec(naked) 
 void io_stihlt()
 {

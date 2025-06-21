@@ -23,12 +23,26 @@ void CWinOS::debug_print(const char* s)
     }
 }
 
+void CWinOS::init_task_mgr(CMEM_MGR& mem_mgr) 
+{
+    p_task_mgr = (Task_mgr*) mem_mgr.malloc(sizeof(Task_mgr));
+    new(p_task_mgr) Task_mgr;
+
+    Task* ptask = p_task_mgr->add_task(_idle_task, mem_mgr.malloc(8*1024) + 8*1024);
+    p_task_mgr->set_active(ptask, Task_mgr::PT::low, Task_mgr::LV::level_1);
+    
+}
+
 void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
 {
 
     vga.init(pbi);
     init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
     init_task_mgr(mem_mgr);
+
+
+
+
     EventList.set_msg_task(p_task_mgr->get_task(0),p_task_mgr);
     init_timers();
 
@@ -53,6 +67,14 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
 
 
 
+}
+
+void CWinOS::_idle_task(uint param)
+{
+    for(;;)
+    {
+        io_hlt();
+    }
 }
 
 void CWinOS::init_layers(CMEM_MGR& mem_mgr, uint width, uint height)

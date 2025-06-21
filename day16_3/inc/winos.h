@@ -47,15 +47,13 @@ public:
     void debug_print(const char* s);
 
 private:
-    void init_task_mgr(CMEM_MGR& mem_mgr) {
-        p_task_mgr = (Task_mgr*) mem_mgr.malloc(sizeof(Task_mgr));
-        new(p_task_mgr) Task_mgr;
-    }
+    void init_task_mgr(CMEM_MGR& mem_mgr);
     void init_timers(){
         timer_ctrl.init(&EventList);
         timer_ctrl.set_task_mgr(p_task_mgr);
     }
     void init_layers(CMEM_MGR& mem_mgr, uint width, uint height);
+    static void _idle_task(uint param);
 
     
 

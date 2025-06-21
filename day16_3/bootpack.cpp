@@ -57,6 +57,7 @@ void os_main(BOOTINFO *pbi)
     OS.timer_ctrl.add_timer(100,tick_timeout);
     OS.timer_ctrl.add_timer(500, timer5_timeout);
 
+    /*
 
     for(uint i = 0; i<3;++i){
         Task* pt = OS.p_task_mgr->add_task(task_b_main, mem_mgr.malloc(8*1024) + 8*1024,(uint)p_text_b[i]); 
@@ -68,6 +69,7 @@ void os_main(BOOTINFO *pbi)
         }
 
     }
+    */
 
     handle_message();
 

@@ -15,10 +15,9 @@ Task_mgr::Task_mgr()
 
 	Task* p_task = add_task();
 	_cur_ptask = p_task;
-
 	set_active(p_task, PT::high, LV::level_4);
-
 	io_load_tr(p_task->sel);
+
 
 }
 
