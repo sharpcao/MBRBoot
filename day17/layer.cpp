@@ -108,6 +108,11 @@ inline void Layer::fill_box(Color8 color,uint x0, uint y0, uint x1, uint y1)
 	draw_rect(x0,y0,x1-x0+1,y1-y0+1,color);
 }
 
+void Layer::fill_box(Color8 color,  CRect& rect)
+{
+	fill_box(color, rect._x,rect._y, rect._x + rect._w, rect._y+rect._h);
+}
+
 bool Layer_mgr::remove_layer(Layer* p_layer)
 {
 	for(uint i = 0; i <_end ;++i)
@@ -182,6 +187,26 @@ void CDesktopLayer::load_img()
     xyprint(10,_height -22,"Start",Color8::COL8_848484);
 }
 
+void CWindowLayer::_draw_button()
+{
+	extern const char* RES_BTN_CLOSE[14];
+	
+	for(uint y = 0; y<14;++y){
+		for(uint x = 0; x<16;++x){
+			char c = RES_BTN_CLOSE[y][x];
+			Color8 color = Color8::COL8_FFFFFF;
+			if (c == '@'){
+				color = Color8::COL8_000000;
+			}else if( c== '$'){
+				color = Color8::COL8_848484;
+			}else if (c == 'Q'){
+				color = Color8::COL8_E6E6E6;
+			}
+			set_pos_color(_width - 21 + x, y+5,color);
+		}
+	}
+}
+
 void CWindowLayer::load_img(const char* title, Color8 client_color)
 {
 
@@ -204,35 +229,34 @@ void CWindowLayer::load_img(const char* title, Color8 client_color)
 
 	//标题栏
 	fill_box(Color8::COL8_E6E6E6,2,2,_width -3,22);
-	fill_box(Color8::COL8_000084, 3, 3, _width - 4, 20 );
+	//fill_box(Color8::COL8_000084, 3, 3, _width - 4, 20 );
+	fill_box(Color8::COL8_000084, _title_box._x, _title_box._y, _title_box._w, _title_box._h);
 
 	//客户区
-	fill_box(client_color, 2, 23, _width - 3, _height - 3);
+	//fill_box(client_color, 2, 23, _width - 3, _height - 3);
+	fill_box(client_color, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
+
+
+	// _title = title;
+	// xyprint(5,5,_title.c_str(),Color8::COL8_FFFFFF);
+	set_title(title);
 
 	
 
-
-
+}
+void CWindowLayer::set_title(const char* title, Color8 font_color)
+{
 	_title = title;
-	xyprint(5,5,_title.c_str(),Color8::COL8_FFFFFF);
+	fill_box(Color8::COL8_000084, _title_box._x, _title_box._y, _title_box._w, _title_box._h);
+	_draw_button();
+	xyprint(_title_box._x+2, _title_box._y+2, _title.c_str(), font_color);
 
-	extern const char* RES_BTN_CLOSE[14];
-	
-	for(uint y = 0; y<14;++y){
-		for(uint x = 0; x<16;++x){
-			char c = RES_BTN_CLOSE[y][x];
-			Color8 color = Color8::COL8_FFFFFF;
-			if (c == '@'){
-				color = Color8::COL8_000000;
-			}else if( c== '$'){
-				color = Color8::COL8_848484;
-			}else if (c == 'Q'){
-				color = Color8::COL8_E6E6E6;
-			}
-			set_pos_color(_width - 21 + x, y+5,color);
-		}
-	}
-	
+}
+
+void CWindowLayer::set_title(const char* title, Layer_mgr& lymgr, Color8 font_color)
+{
+	set_title(title, font_color);
+	lymgr.update(_title_box.to_vga_pos(_offset_x,_offset_y));
 
 }
 

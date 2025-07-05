@@ -3,6 +3,16 @@
 
 extern CWinOS OS;
 
+
+void ConsoleLayer::twinkle()
+{
+	static bool bshow = false;
+	Color8 col = bshow ? Color8::COL8_000000 : Color8::COL8_FFFFFF;
+	fill_box(col, _twinkle_box);
+	OS.p_layerMgr->update(_twinkle_box.to_vga_pos(_offset_x, _offset_y));
+	bshow = !bshow;
+}
+
 void ConsoleWindow::_create_layer(uint offset_x, uint offset_y, uint width, uint height)
 {
 	_consoleLayer = (ConsoleLayer*)OS.p_layerMgr->create_layer(
@@ -43,13 +53,15 @@ void ConsoleWindow::task_handler(uint param)
 
 void console_timeout(uint tmr)
 {
-	OS.layers.p_debug->set_text("console",*OS.p_layerMgr,Color8::COL8_FFFFFF);
+	//OS.layers.p_debug->set_text("console",*OS.p_layerMgr,Color8::COL8_FFFFFF);
+	OS.timer_ctrl.set_timer(tmr,80,console_timeout);
+
 }
 
 void ConsoleWindow::_task_handler()
 {
 	
-	OS.timer_ctrl.add_timer(1000,console_timeout, &task_event);
+	OS.timer_ctrl.add_timer(80,console_timeout, &task_event);
 	uint p1,p2;
 	for(;;)
 	{
@@ -61,6 +73,8 @@ void ConsoleWindow::_task_handler()
 		}else{
 			io_sti();
 			if( p1 == EVENT::Timer){
+				//_consoleLayer->set_title("OK", *OS.p_layerMgr);
+				_consoleLayer->twinkle();
                 OS.timer_ctrl.call_hander((uint)p2);
             }
 		}

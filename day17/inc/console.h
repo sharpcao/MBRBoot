@@ -8,9 +8,16 @@
 
 class ConsoleLayer : public CWindowLayer
 {
+private:
+	CRect _twinkle_box;
+	
 public:
+	void twinkle();
 	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height) :
-		CWindowLayer(offset_x, offset_y, width, height) {}
+		CWindowLayer(offset_x, offset_y, width, height), _twinkle_box(_client_box._x+2, _client_box._y+2, 10,18)
+
+	{}
+
 	void load_img(const char* title = "", Color8 client_color = Color8::COL8_000000){
 		CWindowLayer::load_img(title, client_color);
 	}

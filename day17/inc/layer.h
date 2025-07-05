@@ -41,6 +41,7 @@ public:
 	void set_mem(char* addr) { _img_data = addr; }
 	void draw_rect(uint x, uint y,uint width, uint height, Color8 color, char* buf =0);
 	void fill_box(Color8 color, uint x0, uint y0, uint x1, uint y1);
+	void fill_box(Color8 color,  CRect& rect);
 	CRect get_area() const { return CRect(_offset_x,_offset_y,_width,_height);}
 
 	virtual uint class_size() const  { return sizeof(Layer);}
@@ -64,15 +65,24 @@ public:
 		
 };
 
-class CWindowLayer: public Layer
+class CWindowLayer : public Layer
 {
-private:
-	//static char close_btn = [14][16];
+protected:
 	stringbuf<> _title;
+	CRect _title_box, _client_box;
+	void _draw_button();
 public:
 	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height)
-						: Layer(offset_x,offset_y, width, height) {}
+						: Layer(offset_x,offset_y, width, height),
+						 _title_box(3,3,_width - 4, 20), _client_box(2,23,_width -3, _height -3)
+	{}
+
+	void set_title(const char* title, Color8 font_color = Color8::COL8_FFFFFF);
+	void set_title(const char* title, Layer_mgr& lymgr, Color8 font_color = Color8::COL8_FFFFFF);
+
+
 	void load_img(const char* title = "", Color8 client_color = Color8::COL8_E6E6E6);
+
 	virtual uint class_size  ()  const 
 		{ return sizeof(CWindowLayer);}
 	virtual CWindowLayer* class_new(char* addr) const {
@@ -80,9 +90,6 @@ public:
 	}
 		
 };
-
-
-
 
 
 
