@@ -45,13 +45,12 @@ private:
 	void _clean_inactive();
 	void _insert_active(Task* p_task);
 
-
 	enum Reorder{ no, up, down};
 	void _reorder(Task* p_task, Reorder direction);
 	
 
 public:
-	using  Task_func = void (*)(uint param) ;
+	using  Task_func = void (*)(uint param);
 
 	Task_mgr();
 	Task* add_task(Task_func task_func = 0, uint esp_addr = 0, uint param = 0);
@@ -62,7 +61,7 @@ public:
 	Task* get_task(uint id) {return &_tasks[id]; }
 
 	uint get_cur_priority() { return _cur_ptask->priority;}
-	uint get_cur_level() {return  _cur_ptask->level ;}
+	uint get_cur_level() {return  _cur_ptask->level; }
 
 	enum PT {		// priority
 		 low = 1,

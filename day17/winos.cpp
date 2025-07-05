@@ -35,7 +35,7 @@ void CWinOS::init_task_mgr(CMEM_MGR& mem_mgr)
 
 void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
 {
-
+    p_mem_mgr = &mem_mgr;
     vga.init(pbi);
     init_layers(mem_mgr, pbi->scrnx,pbi->scrny);
     init_task_mgr(mem_mgr);

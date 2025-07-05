@@ -31,7 +31,8 @@ extern Task_Message_mgr EventList;
 
 class CWinOS{
 public:
-    CCursor* p_Cursor = 0;    
+    CCursor* p_Cursor = 0;
+    CMEM_MGR* p_mem_mgr = 0;    
     Layer_mgr* p_layerMgr = 0;
     CWinLayers layers;
     Task_mgr* p_task_mgr = 0;
