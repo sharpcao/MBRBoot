@@ -22,7 +22,7 @@ enum Task_flag{
 	actived
 };
 
-struct Task {
+struct TaskItem {
 	uint sel;
 	Task_flag flag;
 	uint priority;
@@ -36,29 +36,29 @@ class Task_mgr{
 private:
 	static constexpr int max_tasks = 1000;
 	static constexpr int task_gdt_start = 4;
-	Task* _task_ptrs[max_tasks];
-	Task  _tasks[max_tasks];
+	TaskItem* _task_ptrs[max_tasks];
+	TaskItem  _tasks[max_tasks];
 	int _running_end = 0;
 	int _cur = 0;
-	Task* _cur_ptask = 0;
+	TaskItem* _cur_ptask = 0;
 	bool _need_clean = false;
 	void _clean_inactive();
-	void _insert_active(Task* p_task);
+	void _insert_active(TaskItem* p_task);
 
 	enum Reorder{ no, up, down};
-	void _reorder(Task* p_task, Reorder direction);
+	void _reorder(TaskItem* p_task, Reorder direction);
 	
 
 public:
 	using  Task_func = void (*)(uint param);
 
 	Task_mgr();
-	Task* add_task(Task_func task_func = 0, uint esp_addr = 0, uint param = 0);
-	void set_active(Task* p_task, uint priority = 0, uint level = 0);
-	void set_inactive(Task* p_task);
+	TaskItem* add_task(Task_func task_func = 0, uint esp_addr = 0, uint param = 0);
+	void set_active(TaskItem* p_task, uint priority = 0, uint level = 0);
+	void set_inactive(TaskItem* p_task);
 
 	void switch_next();
-	Task* get_task(uint id) {return &_tasks[id]; }
+	TaskItem* get_task(uint id) {return &_tasks[id]; }
 
 	uint get_cur_priority() { return _cur_ptask->priority;}
 	uint get_cur_level() {return  _cur_ptask->level; }
@@ -82,6 +82,22 @@ public:
 
 };
 
+class Task {
+	Task_mgr* _task_mgr = 0;
+	TaskItem* _task = 0;
+public:
+	Task(Task_mgr* mgr, TaskItem* task) : _task_mgr(mgr), _task(task) {}
+	Task() = default;
+	void active(uint priority = 0, uint level = 0){
+		if(_task_mgr && _task) _task_mgr->set_active(_task, priority, level);
+	}
+	void inactive(){
+		if(_task_mgr && _task) _task_mgr->set_inactive(_task);
+	}
+
+};
+
+
 
 class CMTTimerCtrl : public CTimerCtrl
 {
@@ -98,8 +114,7 @@ public:
 class Task_Message_mgr : public Message_mgr<>
 {
 private:
-	Task* _p_msg_task = 0;
-	Task_mgr* _p_task_mgr = 0;
+	Task _task;
 
 public:
 	bool push_message(uint p1, uint p2){
@@ -107,25 +122,15 @@ public:
 		act_msg_task();
 		return result;
 	}
-	void set_msg_task(Task* ptask, Task_mgr* ptmgr){
-		_p_msg_task = ptask;
-		_p_task_mgr = ptmgr;
+	void set_msg_task(TaskItem* ptask, Task_mgr* ptmgr){
+		_task = Task(ptmgr, ptask);
+	}
+	void set_msg_task(const Task& task){
+		_task = task;
 	}
 
-
-	void act_msg_task()
-	{
-		if(_p_msg_task && _p_task_mgr){
-			_p_task_mgr->set_active(_p_msg_task);
-		}
-	}
-	void deact_msg_task()
-	{
-		if(_p_msg_task && _p_task_mgr)
-		{
-			_p_task_mgr->set_inactive(_p_msg_task);
-		}
-	}
+	void act_msg_task()   { _task.active(); }
+	void deact_msg_task() { _task.inactive(); }
 
 };
 

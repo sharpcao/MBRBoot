@@ -28,8 +28,10 @@ void CWinOS::init_task_mgr(CMEM_MGR& mem_mgr)
     p_task_mgr = (Task_mgr*) mem_mgr.malloc(sizeof(Task_mgr));
     new(p_task_mgr) Task_mgr;
 
-    Task* ptask = p_task_mgr->add_task(_idle_task, mem_mgr.malloc(8*1024) + 8*1024);
-    p_task_mgr->set_active(ptask, Task_mgr::PT::low, Task_mgr::LV::level_1);
+
+    p_task_mgr->set_active( p_task_mgr->add_task(_idle_task, mem_mgr.malloc(8*1024) + 8*1024), 
+                            Task_mgr::PT::low, Task_mgr::LV::level_1
+                           );
     
 }
 

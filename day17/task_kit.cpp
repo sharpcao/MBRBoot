@@ -13,7 +13,7 @@ Task_mgr::Task_mgr()
 		gdtidt.add_gdt_task(task_gdt_start + i, &_tasks[i].tss);
 	}		
 
-	Task* p_task = add_task();
+	TaskItem* p_task = add_task();
 	_cur_ptask = p_task;
 	set_active(p_task, PT::high, LV::level_4);
 	io_load_tr(p_task->sel);
@@ -21,13 +21,13 @@ Task_mgr::Task_mgr()
 
 }
 
-Task* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
+TaskItem* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 {
 	for(uint i = 0; i < max_tasks; ++i)
 	{
 		if(_tasks[i].flag == Task_flag::unused)
 		{
-			Task& t = _tasks[i];
+			TaskItem& t = _tasks[i];
 			t.flag = Task_flag::used;
 			t.priority = 2;
 			t.level = 2;
@@ -62,14 +62,14 @@ Task* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 	return 0;
 }
 
-void Task_mgr::_insert_active(Task* p_task)
+void Task_mgr::_insert_active(TaskItem* p_task)
 {
 		if(_running_end >= max_tasks) return;
 
 		uint i = 0, score = p_task->level * 100 + p_task->priority;
 		for(; i < _running_end; ++i)
 		{
-			Task* task_p = _task_ptrs[i];
+			TaskItem* task_p = _task_ptrs[i];
 			if( score > task_p->priority + task_p->level * 100) break;
 		}
 		if( i == _running_end ) {
@@ -85,17 +85,17 @@ void Task_mgr::_insert_active(Task* p_task)
 		p_task->flag = Task_flag::actived;
 }
 
-void Task_mgr::_reorder(Task* p_task, Reorder direction)
+void Task_mgr::_reorder(TaskItem* p_task, Reorder direction)
 {
-	Task** begin = &_task_ptrs[0];
-	Task** end = &_task_ptrs[_running_end];
-	Task** pos = begin;
+	TaskItem** begin = &_task_ptrs[0];
+	TaskItem** end = &_task_ptrs[_running_end];
+	TaskItem** pos = begin;
 	for(; pos < end; ++pos){
 		if ( *pos == p_task) break;
 	}
 	if (pos != end){
 		if(direction == Reorder::down) {
-			Task** new_pos = pos + 1;
+			TaskItem** new_pos = pos + 1;
 			for(; new_pos < end; ++new_pos){
 				if ( (*new_pos)->level <= (*pos)->level) break;
 			}
@@ -105,7 +105,7 @@ void Task_mgr::_reorder(Task* p_task, Reorder direction)
 			*(new_pos -1) = p_task;
 
 		}else if( direction == Reorder::up){
-			Task** new_pos = pos -1;
+			TaskItem** new_pos = pos -1;
 			for(; new_pos > 0; --new_pos){
 				if( (*new_pos)->level >= (*pos)->level) break;
 			}
@@ -128,7 +128,7 @@ void Task_mgr::_reorder(Task* p_task, Reorder direction)
 
 
 
-void Task_mgr::set_active(Task* p_task, uint priority, uint level)
+void Task_mgr::set_active(TaskItem* p_task, uint priority, uint level)
 {
 	
 
@@ -161,7 +161,7 @@ void Task_mgr::set_active(Task* p_task, uint priority, uint level)
 	
 }
 
-void Task_mgr::set_inactive(Task* p_task)
+void Task_mgr::set_inactive(TaskItem* p_task)
 {
 	if (p_task) {
 		p_task->flag = Task_flag::used;
@@ -186,10 +186,10 @@ void Task_mgr::set_inactive(Task* p_task)
 
 void Task_mgr::_clean_inactive()
 {
-	Task** p_start = &_task_ptrs[0], **p_end = &_task_ptrs[_running_end];
+	TaskItem** p_start = &_task_ptrs[0], **p_end = &_task_ptrs[_running_end];
 	bool need_fix_cur = (_task_ptrs[_cur])? true : false;
 
-	Task** p1 = p_start;
+	TaskItem** p1 = p_start;
 
 	for(; p1 != p_end; ++p1){
 		if (*p1 == 0) break;			
@@ -197,7 +197,7 @@ void Task_mgr::_clean_inactive()
 
 	if (p1 != p_end){
 
-		Task** p2 = p1 + 1;
+		TaskItem** p2 = p1 + 1;
 		for(;p2 != p_end; ++p2)
 		{
 			if(*p2 != 0) break;

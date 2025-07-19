@@ -37,22 +37,25 @@ public:
 class ConsoleWindow {
 private:
 	ConsoleLayer* _consoleLayer = 0;
-	Task* p_task = 0;
-	Task_Message_mgr task_event;
+	Task_Message_mgr message_mgr;
+	Task task;
 	
 	void _create_layer(uint offset_x, uint offset_y, uint width, uint height);
-	void _task_handler();
+	void _task_run();
 
 public:
 	ConsoleWindow() = default;
 	~ConsoleWindow();
 
 	static ConsoleWindow* CreateWindow(uint offset_x, uint offset_y, uint width, uint height);
-	static void task_handler(uint param);
+	static void task_entry(uint param);
 
 };
 
-
+void ConsoleWindow::task_entry(uint param)
+{
+	reinterpret_cast<ConsoleWindow*>(param)->_task_run();
+}
 
 
 #endif

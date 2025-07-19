@@ -7,10 +7,6 @@ CWinOS OS;
 
 void tick_timeout(uint tmr);
 
-
-//void task_b_main(uint);
-
-
 void os_main(BOOTINFO *pbi)
 {
 
@@ -35,10 +31,7 @@ void os_main(BOOTINFO *pbi)
     uint offset_y = OS.screen_height*0.2;
     ConsoleWindow* p_console = ConsoleWindow::CreateWindow(offset_x, offset_y, width,height);
 
-    
-
     OS.p_layerMgr->refresh();
-
 
     OS.timer_ctrl.add_timer(100,tick_timeout);
 
@@ -58,42 +51,6 @@ void tick_timeout(uint tmr)
 }
 
 
-
-
-
-//CTimerCtrl task_b_timectl;
-// void task_b_main(uint param)
-// {
-
-//     auto ptext = (CTextLayer*)param;
-//     Task_Message_mgr task_b_event_list;
-//     OS.timer_ctrl.add_timer(100,task_b_timer1_timeout,&task_b_event_list);
-
-    
-//     uint p1,p2;
-    
-
-//     for(uint speedcnt_b = 0;; ++speedcnt_b){
-//         io_cli();
-//         if(!task_b_event_list.get_message(p1,p2)){
-//             io_sti();
-
-//         }else{
-//             io_sti();
-//             if(p1 == EVENT::Timer){
-//                 OS.timer_ctrl.call_hander((uint)p2);
-//                 stringbuf<> s;
-//                 auto mgr = OS.p_task_mgr;
-//                 s << mgr->get_cur_level() << ":" << mgr->get_cur_priority() << ":" << speedcnt_b / 10000;
- 
-//                 ptext->set_text(s.c_str(),*OS.p_layerMgr,Color8::COL8_000000);
-          
-//                 OS.timer_ctrl.set_timer(p2,100, task_b_timer1_timeout);
-
-//             }
-//         }
-//     }
-// }
 
 
 void (*jump)(BOOTINFO *pbi)  = os_main;
