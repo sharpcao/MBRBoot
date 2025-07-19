@@ -46,6 +46,7 @@ private:
 public:
 	ConsoleWindow() = default;
 	~ConsoleWindow();
+	void active() { _consoleLayer->set_active(); }
 
 	static ConsoleWindow* CreateWindow(uint offset_x, uint offset_y, uint width, uint height);
 	static void task_entry(uint param);

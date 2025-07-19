@@ -58,6 +58,8 @@ void console_timeout(uint tmr)
 
 void ConsoleWindow::_task_run()
 {
+	active();
+	_consoleLayer->set_title(0, *OS.p_layerMgr);
 	
 	OS.timer_ctrl.add_timer(80,console_timeout, &message_mgr);
 	uint p1,p2;

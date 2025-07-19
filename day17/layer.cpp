@@ -228,27 +228,32 @@ void CWindowLayer::load_img(const char* title, Color8 client_color)
 	fill_box(Color8::COL8_000000, 0, _height - 1, _width - 1, _height - 1);
 
 	//标题栏
-	fill_box(Color8::COL8_E6E6E6,2,2,_width -3,22);
-	//fill_box(Color8::COL8_000084, 3, 3, _width - 4, 20 );
-	fill_box(Color8::COL8_000084, _title_box._x, _title_box._y, _title_box._w, _title_box._h);
+	fill_title_box();
 
 	//客户区
 	//fill_box(client_color, 2, 23, _width - 3, _height - 3);
 	fill_box(client_color, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
 
 
-	// _title = title;
-	// xyprint(5,5,_title.c_str(),Color8::COL8_FFFFFF);
 	set_title(title);
 
-	
+}
+
+void CWindowLayer::fill_title_box()
+{
+
+	fill_box(Color8::COL8_E6E6E6,2,2,_width -3,22);
+	//fill_box(Color8::COL8_000084, 3, 3, _width - 4, 20 );
+
+	Color8 background = (active_window == this) ? Color8::COL8_000084 : Color8::COL8_848484; 
+	fill_box(background, _title_box._x, _title_box._y, _title_box._w, _title_box._h);
+	_draw_button();
 
 }
 void CWindowLayer::set_title(const char* title, Color8 font_color)
 {
-	_title = title;
-	fill_box(Color8::COL8_000084, _title_box._x, _title_box._y, _title_box._w, _title_box._h);
-	_draw_button();
+	if(title) _title = title;
+	fill_title_box();
 	xyprint(_title_box._x+2, _title_box._y+2, _title.c_str(), font_color);
 
 }

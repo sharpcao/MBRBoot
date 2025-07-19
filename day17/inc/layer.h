@@ -71,6 +71,7 @@ protected:
 	stringbuf<> _title;
 	CRect _title_box, _client_box;
 	void _draw_button();
+	static CWindowLayer* active_window;
 public:
 	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height)
 						: Layer(offset_x,offset_y, width, height),
@@ -79,9 +80,11 @@ public:
 
 	void set_title(const char* title, Color8 font_color = Color8::COL8_FFFFFF);
 	void set_title(const char* title, Layer_mgr& lymgr, Color8 font_color = Color8::COL8_FFFFFF);
+	void set_active() { active_window = this;}
 
 
 	void load_img(const char* title = "", Color8 client_color = Color8::COL8_E6E6E6);
+	void fill_title_box();
 
 	virtual uint class_size  ()  const 
 		{ return sizeof(CWindowLayer);}
@@ -91,7 +94,7 @@ public:
 		
 };
 
-
+CWindowLayer* CWindowLayer::active_window = 0;
 
 class CTextLayer: public Layer
 {
