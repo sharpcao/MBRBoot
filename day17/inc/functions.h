@@ -93,5 +93,61 @@ private:
 
 
 
+template<typename T>
+class Array{
+	static constexpr uint _end = 64;
+	T _data[_end];
+	uint _last = 0;
+public:
+	bool push_back(const T& v);
+	uint size() { return _last;}
+	uint capacity(){return _end;}
+	bool erase(const T& v);
+	T operator[] (uint i) { return _data[i]; }
+	bool has(const T& v);
+
+};
+
+template<typename T>
+bool Array<T>::push_back(const T& v)
+{
+	if(_last == _end) {
+		return false;
+	}else{
+		_data[_last++] = v;
+	}
+	return true;
+}
+
+template<typename T>
+bool Array<T>::erase(const T& v)
+{
+	bool result = false;
+	for(uint i = 0; i < _last; ++i)
+	{
+		if(_data[i] == v){
+			for(uint j = i+1; j < _last; ++j)
+			{
+				_data[j-1] = _data[j];
+			}
+			--_last;
+			result = true;
+		}
+	}
+	return result;
+}
+
+template<typename T>
+bool Array<T>::has(const T& v)
+{
+	bool result = false;
+	for(uint i = 0; i < size(); ++i){
+		if(_data[i] == v) {
+			result = true;
+			break;
+		}
+	}
+	return result;
+}
 
 #endif

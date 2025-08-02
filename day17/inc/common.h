@@ -65,7 +65,9 @@ public:
 enum EVENT{
     Key = 1,
     Mouse = 2,
-    Timer = 3
+    Timer = 3,
+    Actived,
+    Deactived
 };
 
 

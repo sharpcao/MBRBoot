@@ -123,10 +123,32 @@ void CWinOS::init_layers(CMEM_MGR& mem_mgr, uint width, uint height)
     layers.p_txt_task2->set_text("task2",Color8::COL8_FF0000);
 
 
-    layers.p_window1 = (CWindowLayer*)ly_mgr.create_layer(CWindowLayer(width * 0.65, 2,width * 0.35,height *0.45));
-    layers.p_window1->load_img("Window");
+    // layers.p_window1 = (CWindowLayer*)ly_mgr.create_layer(CWindowLayer(width * 0.65, 2,width * 0.35,height *0.45,0));
+    // layers.p_window1->load_img("Window");
     
 }
+
+
+bool CWinOS::post_message(Window* wd, uint msg, uint param)
+{
+    bool result = false;
+    if(_windows.has(wd)) {
+        result = true;
+        if (msg == EVENT::Actived){
+            wd->set_active();
+        }
+
+
+        wd->push_message(msg, param);
+    }
+    return result;
+}
+
+void CWinOS::set_active_window(Window* wd)
+{
+    
+}
+
 
 
 void lymgr_update(const Layer_mgr& lymgr, const CRect& rect)

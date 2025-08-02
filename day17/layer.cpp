@@ -245,7 +245,8 @@ void CWindowLayer::fill_title_box()
 	fill_box(Color8::COL8_E6E6E6,2,2,_width -3,22);
 	//fill_box(Color8::COL8_000084, 3, 3, _width - 4, 20 );
 
-	Color8 background = (active_window == this) ? Color8::COL8_000084 : Color8::COL8_848484; 
+	Color8 background = (this_window && this_window->is_active()) ? Color8::COL8_000084 : Color8::COL8_848484; 
+
 	fill_box(background, _title_box._x, _title_box._y, _title_box._w, _title_box._h);
 	_draw_button();
 

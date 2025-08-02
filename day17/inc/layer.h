@@ -6,6 +6,7 @@
 #include "memory_kit.h"
 #include "functions.h"
 
+
 class Layer_mgr;
 
 class Layer{
@@ -65,22 +66,26 @@ public:
 		
 };
 
+
+class Window;
+
 class CWindowLayer : public Layer
 {
 protected:
 	stringbuf<> _title;
-	CRect _title_box, _client_box;
+	CRect _title_box, _client_box;	
+	Window* this_window;
+
 	void _draw_button();
-	static CWindowLayer* active_window;
 public:
-	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height)
+	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd)
 						: Layer(offset_x,offset_y, width, height),
-						 _title_box(3,3,_width - 4, 20), _client_box(2,23,_width -3, _height -3)
+						 _title_box(3,3,_width - 4, 20), _client_box(2,23,_width -3, _height -3),
+						 this_window(wnd)
 	{}
 
 	void set_title(const char* title, Color8 font_color = Color8::COL8_FFFFFF);
 	void set_title(const char* title, Layer_mgr& lymgr, Color8 font_color = Color8::COL8_FFFFFF);
-	void set_active() { active_window = this;}
 
 
 	void load_img(const char* title = "", Color8 client_color = Color8::COL8_E6E6E6);
@@ -94,7 +99,6 @@ public:
 		
 };
 
-CWindowLayer* CWindowLayer::active_window = 0;
 
 class CTextLayer: public Layer
 {

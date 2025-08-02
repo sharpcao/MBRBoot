@@ -1,10 +1,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include "layer.h"
-#include "task_kit.h"
+#include "winform.h"
 #include "winos.h"
-#include "functions.h"
 
 class ConsoleLayer : public CWindowLayer
 {
@@ -13,8 +11,8 @@ private:
 	
 public:
 	void twinkle();
-	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height) :
-		CWindowLayer(offset_x, offset_y, width, height), _twinkle_box(_client_box._x+2, _client_box._y+2, 10,18)
+	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd) :
+		CWindowLayer(offset_x, offset_y, width, height, wnd), _twinkle_box(_client_box._x+2, _client_box._y+2, 10,18)
 
 	{}
 
@@ -34,29 +32,23 @@ public:
 
 
 
-class ConsoleWindow {
+class ConsoleWindow : public Window {
 private:
-	ConsoleLayer* _consoleLayer = 0;
-	Task_Message_mgr message_mgr;
-	Task task;
+	//ConsoleLayer* _consoleLayer = 0;
 	
 	void _create_layer(uint offset_x, uint offset_y, uint width, uint height);
-	void _task_run();
+	virtual void _task_run();
 
 public:
 	ConsoleWindow() = default;
 	~ConsoleWindow();
-	void active() { _consoleLayer->set_active(); }
 
 	static ConsoleWindow* CreateWindow(uint offset_x, uint offset_y, uint width, uint height);
-	static void task_entry(uint param);
+	virtual void redraw() ;
 
 };
 
-void ConsoleWindow::task_entry(uint param)
-{
-	reinterpret_cast<ConsoleWindow*>(param)->_task_run();
-}
+
 
 
 #endif

@@ -15,16 +15,18 @@ void ConsoleLayer::twinkle()
 
 void ConsoleWindow::_create_layer(uint offset_x, uint offset_y, uint width, uint height)
 {
-	_consoleLayer = (ConsoleLayer*)OS.p_layerMgr->create_layer(
-                                         ConsoleLayer(offset_x,offset_y,width,height));
+	win_layer = (ConsoleLayer*)OS.p_layerMgr->create_layer(
+                                         ConsoleLayer(offset_x,offset_y,width,height,this));
 	stringbuf<> s("console");
-	_consoleLayer->load_img(s.c_str());
+
+	reinterpret_cast<ConsoleLayer*>(win_layer)->load_img(s.c_str());
+	
 }
 
 ConsoleWindow::~ConsoleWindow()
 {
-	if(_consoleLayer){
-		OS.p_layerMgr->remove_layer(_consoleLayer);
+	if(win_layer){
+		OS.p_layerMgr->remove_layer(win_layer);
 	}
 }
 
@@ -58,8 +60,10 @@ void console_timeout(uint tmr)
 
 void ConsoleWindow::_task_run()
 {
-	active();
-	_consoleLayer->set_title(0, *OS.p_layerMgr);
+	//active();
+	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
+	
+	consoleLayer->set_title(0, *OS.p_layerMgr);
 	
 	OS.timer_ctrl.add_timer(80,console_timeout, &message_mgr);
 	uint p1,p2;
@@ -73,11 +77,20 @@ void ConsoleWindow::_task_run()
 		}else{
 			io_sti();
 			if( p1 == EVENT::Timer){
-				_consoleLayer->twinkle();
+				consoleLayer->twinkle();
                 OS.timer_ctrl.call_hander((uint)p2);
+            }else if(p1 == EVENT::Actived){
+            	//active();	
             }
 		}
 
 	}
 
+}
+
+
+void ConsoleWindow::redraw()
+{
+	stringbuf<> s("console");
+	reinterpret_cast<ConsoleLayer*>(win_layer)->load_img(s.c_str());
 }
