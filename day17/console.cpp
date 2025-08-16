@@ -16,6 +16,50 @@ void ConsoleLayer::twinkle()
 	bshow = !bshow;
 }
 
+CRect ConsoleLayer::cursor_client_box()
+{
+	uint w = _cursor_col*8 + 2;
+	
+	return CRect( 
+			 _cursor_col*8 + 2, 
+			 _cursor_row*16 + 2,
+			 8, 16);
+}
+
+void ConsoleLayer::scroll_row(uint oy, uint x, uint y, uint w, uint h, Color8 client_color )
+{
+	if (x + w > _width) w = _width - x;
+	if (y + h > _height) h = _height - y;
+
+	uint i;
+	for(i = y; i < y + h - oy; ++i)
+	{
+		for(uint j = x; j < x + w; ++j)
+		{
+			_img_data[i*_width + j] = _img_data[(i+oy)*_width + j];
+		}
+		
+	}
+	for(; i < y + h; ++i)
+	{
+		for(uint j = x; j < x + w; ++j)
+		{
+			_img_data[i*_width + j] = client_color;
+		}
+		
+	}
+}
+
+void ConsoleLayer::cursor_step(uint s)
+{
+	uint n = _cursor_col + s;
+	_cursor_col = n % _col_max();
+	_cursor_row += n / _col_max();
+	if (_cursor_row == _row_max()){
+		_cursor_row = _row_max()-1;
+		scroll_row(16, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
+	}
+}
 
 void ConsoleLayer::add_char(uchar asc)
 {
@@ -23,7 +67,7 @@ void ConsoleLayer::add_char(uchar asc)
 		CRect cursor_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
 		fill_box(Color8::COL8_000000, cursor_box);
 		putfont8(cursor_box._x, cursor_box._y,asc, COL8_FFFFFF);
-		++_cursor_col;
+		cursor_step();
 	}
 }
 

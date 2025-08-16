@@ -232,7 +232,7 @@ void CWindowLayer::load_img(const char* title, Color8 client_color)
 
 	//客户区
 	//fill_box(client_color, 2, 23, _width - 3, _height - 3);
-	fill_box(client_color, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
+	fill_box(client_color, _client_box._x, _client_box._y, _width -3 , _height -3);
 
 
 	set_title(title);

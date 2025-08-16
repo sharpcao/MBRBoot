@@ -10,20 +10,18 @@ private:
 	//CRect _twinkle_box;
 
 	uint _cursor_row = 0, _cursor_col = 0;
+	uint _col_max() { return _client_box._w / 8; }
+	uint _row_max() { return _client_box._h / 16; }
+	void scroll_row(uint oy, uint x, uint y, uint w, uint h,  Color8 client_color = Color8::COL8_000000);
 
 public:
-	CRect cursor_client_box(){
-		return CRect( 
-			 _cursor_col*8 + 2, 
-			 _cursor_row*16+ 2,
-			 8, 16);
-	}
-	void cursor_clear();
+	CRect cursor_client_box();
+	void cursor_step(uint s = 1);
 	void add_char(uchar asc);
 
 	void twinkle();
 	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd) :
-		CWindowLayer(offset_x, offset_y, width, height, wnd)//, _twinkle_box(_client_box._x+2, _client_box._y+2, 10,18)
+		CWindowLayer(offset_x, offset_y, width, height, wnd)
 
 	{}
 

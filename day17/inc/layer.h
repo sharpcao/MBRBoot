@@ -82,8 +82,8 @@ protected:
 public:
 	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd)
 						: Layer(offset_x,offset_y, width, height),
-						 _title_box(_title_offset_x,_title_offset_y,_width - 4, 20),
-						 _client_box(_client_offset_x,_client_offset_y,_width -3, _height -3),
+						 _title_box(_title_offset_x,_title_offset_y, width - 4, 20),
+						 _client_box(_client_offset_x,_client_offset_y, width -4, height -23),
 						 this_window(wnd)
 	{}
 

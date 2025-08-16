@@ -26,15 +26,16 @@ void os_main(BOOTINFO *pbi)
     uint height = OS.screen_height * 0.7;
     uint offset_x = 30;
     uint offset_y = OS.screen_height*0.2;
-    ConsoleWindow* p_console = OS.CreateWindow<ConsoleWindow>(offset_x, offset_y, width,height);
-    p_console->set_active();
-
 
     Window* p_win = OS.CreateWindow<Window>(OS.screen_width * 0.65, 2, OS.screen_width * 0.35, OS.screen_height *0.45);
-
-    p_console->redraw();
     p_win->redraw();
     p_win->xyprint(5,30,mem_max_str.c_str(),Color8::COL8_000000);
+
+    ConsoleWindow* p_console = OS.CreateWindow<ConsoleWindow>(offset_x, offset_y, width,height);
+    p_console->set_active();
+    p_console->redraw();
+
+
 
     OS.p_layerMgr->refresh();
 
