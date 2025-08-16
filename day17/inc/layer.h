@@ -74,18 +74,23 @@ class CWindowLayer : public Layer
 protected:
 	stringbuf<> _title;
 	CRect _title_box, _client_box;	
+	static constexpr uint _title_offset_x=3, _title_offset_y=3, _client_offset_x =2, _client_offset_y =23;
 	Window* this_window;
 
+	
 	void _draw_button();
 public:
 	CWindowLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd)
 						: Layer(offset_x,offset_y, width, height),
-						 _title_box(3,3,_width - 4, 20), _client_box(2,23,_width -3, _height -3),
+						 _title_box(_title_offset_x,_title_offset_y,_width - 4, 20),
+						 _client_box(_client_offset_x,_client_offset_y,_width -3, _height -3),
 						 this_window(wnd)
 	{}
 
 	void set_title(const char* title, Color8 font_color = Color8::COL8_FFFFFF);
 	void set_title(const char* title, Layer_mgr& lymgr, Color8 font_color = Color8::COL8_FFFFFF);
+	void client_xyprint(uint x, uint y, const char* str, Color8 col= Color8::COL8_FFFFFF);
+	void client_putfont8(uint x, uint y, uchar asc, Color8 col = Color8::COL8_FFFFFF);
 
 
 	void load_img(const char* title = "", Color8 client_color = Color8::COL8_E6E6E6);
@@ -98,6 +103,8 @@ public:
 	}
 		
 };
+
+
 
 
 class CTextLayer: public Layer

@@ -7,6 +7,7 @@
 #include "inc\layer.h"
 #include "inc\winos.h"
 #include "inc\timer_kit.h"
+#include "inc\winform.h"
 
 
 Task_Message_mgr EventList;
@@ -77,10 +78,16 @@ void handle_message()
                 OS.timer_ctrl.call_hander((uint)p2);
             }
             else if(p1 == EVENT::Key){
-                char s1[5];
+                char s1[4];
                 uint2str(s1,p2);
                 OS.layers.p_txt_key->set_text(s1,*OS.p_layerMgr);
                 OS.layers.p_input->add_key(p2,*OS.p_layerMgr);
+
+                auto act_w = Window::get_active();
+                if(act_w) {
+                    char c = OS.translate_keycode(p2);
+                    act_w->push_message(p1,c);
+                }
 
             }else if (p1 == EVENT::Mouse){
                 if(mdec.push_char((char)p2)){

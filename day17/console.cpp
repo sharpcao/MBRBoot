@@ -1,5 +1,6 @@
 #include "inc\console.h"
 #include "inc\os_io.h"
+#include "inc\functions.h"
 
 extern CWinOS OS;
 
@@ -8,18 +9,31 @@ void ConsoleLayer::twinkle()
 {
 	static bool bshow = false;
 	Color8 col = bshow ? Color8::COL8_000000 : Color8::COL8_FFFFFF;
+
+	CRect _twinkle_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
 	fill_box(col, _twinkle_box);
 	OS.p_layerMgr->update(_twinkle_box.to_vga_pos(_offset_x, _offset_y));
 	bshow = !bshow;
+}
+
+
+void ConsoleLayer::add_char(uchar asc)
+{
+	if(asc){
+		CRect cursor_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
+		fill_box(Color8::COL8_000000, cursor_box);
+		putfont8(cursor_box._x, cursor_box._y,asc, COL8_FFFFFF);
+		++_cursor_col;
+	}
 }
 
 void ConsoleWindow::_create_layer(uint offset_x, uint offset_y, uint width, uint height)
 {
 	win_layer = (ConsoleLayer*)OS.p_layerMgr->create_layer(
                                          ConsoleLayer(offset_x,offset_y,width,height,this));
-	stringbuf<> s("console");
+	stringbuf<> s("console1");
 
-	reinterpret_cast<ConsoleLayer*>(win_layer)->load_img(s.c_str());
+	static_cast<ConsoleLayer*>(win_layer)->load_img(s.c_str());
 	
 }
 
@@ -30,25 +44,6 @@ ConsoleWindow::~ConsoleWindow()
 	}
 }
 
-ConsoleWindow* ConsoleWindow::CreateWindow(uint offset_x, uint offset_y, uint width, uint height)
-{
-	ConsoleWindow* p_win = (ConsoleWindow*)OS.p_mem_mgr->malloc(sizeof(ConsoleWindow));
-	if(!p_win) return 0;
-
-	new(p_win) ConsoleWindow((*p_win));
-	p_win->_create_layer(offset_x,  offset_y,  width,  height);
-
-	p_win->task = Task( OS.p_task_mgr, 
-						OS.p_task_mgr->add_task(task_entry, OS.p_mem_mgr->malloc(8*1024) + 8*1024, (uint)p_win)
-					);
-
-
-	p_win->message_mgr.set_msg_task(p_win->task);
-	p_win->task.active(Task_mgr::PT::normal, Task_mgr::LV::level_3);
-	return p_win;
-
-} 
-
 
 
 void console_timeout(uint tmr)
@@ -58,7 +53,7 @@ void console_timeout(uint tmr)
 
 }
 
-void ConsoleWindow::_task_run()
+void ConsoleWindow::Run()
 {
 	//active();
 	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
@@ -81,6 +76,13 @@ void ConsoleWindow::_task_run()
                 OS.timer_ctrl.call_hander((uint)p2);
             }else if(p1 == EVENT::Actived){
             	//active();	
+            }else if(p1 == EVENT::Key){
+           		uchar c = p2;
+           		if(c) {
+           			consoleLayer->add_char(c);
+	            	OS.p_layerMgr->update(consoleLayer->get_area());
+	            }
+
             }
 		}
 
@@ -91,6 +93,5 @@ void ConsoleWindow::_task_run()
 
 void ConsoleWindow::redraw()
 {
-	stringbuf<> s("console");
-	reinterpret_cast<ConsoleLayer*>(win_layer)->load_img(s.c_str());
+	reinterpret_cast<ConsoleLayer*>(win_layer)->load_img(0);
 }

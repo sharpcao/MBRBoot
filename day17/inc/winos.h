@@ -49,6 +49,10 @@ public:
 
     Array<Window*> _windows;
     Window* _active_window = 0;
+
+    template<typename T> 
+    T* CreateWindow(uint offset_x, uint offset_y, uint width, uint height);
+
     bool add_window(Window* wd) { return _windows.push_back(wd);}
     void set_active_window(Window* wd);
 
@@ -57,6 +61,11 @@ public:
 
     void init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr);
     void debug_print(const char* s);
+    static char translate_keycode(uint keycode)
+    {
+        extern char keytable[];
+        return (keycode < 0x54)? keytable[keycode] : 0;
+    }
 
 private:
     void init_task_mgr(CMEM_MGR& mem_mgr);
@@ -72,7 +81,24 @@ private:
 };
 
 CVGA CWinOS::vga;
+extern CWinOS OS;
 
+template<typename TWin> 
+TWin* CWinOS::CreateWindow(uint offset_x, uint offset_y, uint width, uint height)
+{
+    TWin* p_win = (TWin*)OS.p_mem_mgr->malloc(sizeof(TWin));
+    if(!p_win) return 0;
 
+    new(p_win) TWin();
+
+    // p_win->_create_layer(offset_x,  offset_y,  width,  height);
+    // p_win->_set_task(Task( OS.p_task_mgr, 
+    //                     OS.p_task_mgr->add_task(TWin::task_entry, OS.p_mem_mgr->malloc(8*1024) + 8*1024, (uint)p_win)
+    //                 ));
+    p_win->InitWindow(offset_x,  offset_y,  width,  height);
+
+    add_window(p_win);
+    return p_win;
+}
 
 #endif

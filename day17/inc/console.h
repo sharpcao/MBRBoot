@@ -7,12 +7,23 @@
 class ConsoleLayer : public CWindowLayer
 {
 private:
-	CRect _twinkle_box;
-	
+	//CRect _twinkle_box;
+
+	uint _cursor_row = 0, _cursor_col = 0;
+
 public:
+	CRect cursor_client_box(){
+		return CRect( 
+			 _cursor_col*8 + 2, 
+			 _cursor_row*16+ 2,
+			 8, 16);
+	}
+	void cursor_clear();
+	void add_char(uchar asc);
+
 	void twinkle();
 	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd) :
-		CWindowLayer(offset_x, offset_y, width, height, wnd), _twinkle_box(_client_box._x+2, _client_box._y+2, 10,18)
+		CWindowLayer(offset_x, offset_y, width, height, wnd)//, _twinkle_box(_client_box._x+2, _client_box._y+2, 10,18)
 
 	{}
 
@@ -34,18 +45,16 @@ public:
 
 class ConsoleWindow : public Window {
 private:
-	//ConsoleLayer* _consoleLayer = 0;
-	
-	void _create_layer(uint offset_x, uint offset_y, uint width, uint height);
-	virtual void _task_run();
 
+	virtual void _create_layer(uint offset_x, uint offset_y, uint width, uint height);
+	
 public:
+
 	ConsoleWindow() = default;
 	~ConsoleWindow();
 
-	static ConsoleWindow* CreateWindow(uint offset_x, uint offset_y, uint width, uint height);
 	virtual void redraw() ;
-
+	virtual void Run();
 };
 
 

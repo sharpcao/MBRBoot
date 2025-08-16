@@ -54,6 +54,9 @@ public:
 	CRect to_vga_pos(uint offset_x, uint offset_y){
 		return CRect(offset_x + _x, offset_y + _y, _w, _h);
 	}
+	CRect add_offset(uint offset_x, uint offset_y) {
+		return CRect(offset_x + _x, offset_y + _y, _w, _h);
+	}
 	uint x1() const {return _x + _w;}
 	uint y1() const{return _y + _h;}
  	uint size() const{ return _w*_h;}

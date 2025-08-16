@@ -21,26 +21,17 @@ void os_main(BOOTINFO *pbi)
     uint mem_size = memtest(0x400000,0xbfffffff);
     stringbuf<> mem_max_str;
     mem_max_str <<"memory:" << mem_size/(1024*1024) <<" MB";
-    //OS.layers.p_window1->xyprint(5,30,mem_max_str.c_str(),Color8::COL8_000000);
-
-
-    
-    
-
 
     uint width = OS.screen_width * 0.6;
     uint height = OS.screen_height * 0.7;
     uint offset_x = 30;
     uint offset_y = OS.screen_height*0.2;
-    ConsoleWindow* p_console = ConsoleWindow::CreateWindow(offset_x, offset_y, width,height);
-    OS.add_window(p_console);
-    //OS.post_message(p_console, EVENT::Actived,0);
+    ConsoleWindow* p_console = OS.CreateWindow<ConsoleWindow>(offset_x, offset_y, width,height);
     p_console->set_active();
 
 
-    Window* p_win = Window::CreateWindow(OS.screen_width * 0.65, 2, OS.screen_width * 0.35, OS.screen_height *0.45);
-    OS.add_window(p_win);
- 
+    Window* p_win = OS.CreateWindow<Window>(OS.screen_width * 0.65, 2, OS.screen_width * 0.35, OS.screen_height *0.45);
+
     p_console->redraw();
     p_win->redraw();
     p_win->xyprint(5,30,mem_max_str.c_str(),Color8::COL8_000000);

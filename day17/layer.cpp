@@ -266,6 +266,15 @@ void CWindowLayer::set_title(const char* title, Layer_mgr& lymgr, Color8 font_co
 
 }
 
+void CWindowLayer::client_xyprint(uint x, uint y, const char* str, Color8 col)
+{
+	xyprint(_offset_x + _client_offset_x, _offset_y + _client_offset_y, str, col);
+}
+
+void CWindowLayer::client_putfont8(uint x, uint y, uchar asc, Color8 col)
+{
+	putfont8(_offset_x + _client_offset_x, _offset_y + _client_offset_y, asc,col);
+}
 
 void CTextLayer::set_text(const char* p_text, Color8 font_color)
 {

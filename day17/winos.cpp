@@ -13,6 +13,10 @@ char keytable[0x54] = {
 
 void lymgr_update(const Layer_mgr& lymgr, const CRect& rect);
 
+
+
+
+
 void CWinOS::debug_print(const char* s)
 {
   

@@ -4,7 +4,15 @@
 
 extern CWinOS OS;
 
-void Window::_task_run()
+bool Window::push_message(uint p1, uint p2)
+{
+	io_cli();
+	bool result = message_mgr.push_message(p1,p2);
+	io_sti();
+	return result;
+}
+
+void Window::Run()
 {
 	uint p1,p2;
 	for(;;)
@@ -23,7 +31,6 @@ void Window::_task_run()
 }
 
 
-
 void Window::_create_layer(uint offset_x, uint offset_y, uint width, uint height)
 {
 	win_layer = (CWindowLayer*)OS.p_layerMgr->create_layer(
@@ -32,6 +39,13 @@ void Window::_create_layer(uint offset_x, uint offset_y, uint width, uint height
 	win_layer->load_img(s.c_str());
 }
 
+void Window::_set_task(const Task& t) 
+{
+	task = t;
+	message_mgr.set_msg_task(task);
+	task.active(Task_mgr::PT::normal, Task_mgr::LV::level_3);
+
+}
 
 Window::~Window()
 {
@@ -40,28 +54,20 @@ Window::~Window()
 	}
 }
 
-Window* Window::CreateWindow(uint offset_x, uint offset_y, uint width, uint height)
-{
-	Window* p_win = (Window*)OS.p_mem_mgr->malloc(sizeof(Window));
-	if(!p_win) return 0;
 
-	new(p_win) Window((*p_win));
-	p_win->_create_layer(offset_x,  offset_y,  width,  height);
-
-	p_win->task = Task( OS.p_task_mgr, 
-						OS.p_task_mgr->add_task(task_entry, OS.p_mem_mgr->malloc(8*1024) + 8*1024, (uint)p_win)
-					);
-
-
-	p_win->message_mgr.set_msg_task(p_win->task);
-	p_win->task.active(Task_mgr::PT::normal, Task_mgr::LV::level_3);
-	return p_win;
-
-} 
 
 void Window::redraw() 
 {
-	stringbuf<> s("Win");
-	win_layer->load_img(s.c_str());
+	win_layer->load_img(0);
+
+}
+
+void Window::InitWindow(uint offset_x, uint offset_y, uint width, uint height)
+{
+	_create_layer(offset_x, offset_y, width, height);
+
+	_set_task(Task( OS.p_task_mgr, 
+                        OS.p_task_mgr->add_task(Window::task_entry, OS.p_mem_mgr->malloc(8*1024) + 8*1024, (uint)this)
+                    ));
 
 }
