@@ -2,6 +2,7 @@
 #define MEMORY_KIT_H
 
 #include "common.h"
+#include "functions.h"
 
 class MEM_FREE_REC{
 public:
@@ -35,7 +36,9 @@ public:
 	void free(uint addr, uint size);
 	void reset() {_last= 0; free(_total_addr,_total_size);}
 	
-	void print();
+	void print() const;
+	uint get_mem_free() const;
+	uint get_mem_total() const {return _total_size;};
 	uint size() {return _last;}
 
 private:

@@ -7,8 +7,8 @@
 class ConsoleLayer : public CWindowLayer
 {
 private:
-	//CRect _twinkle_box;
-
+	
+	
 	uint _cursor_row = 0, _cursor_col = 0;
 	uint _col_max() { return _client_box._w / 8; }
 	uint _row_max() { return _client_box._h / 16; }
@@ -22,9 +22,10 @@ public:
 	void twinkle();	
 
 
-	void cmd_enter();
+	void cmd_enter(const stringbuf<>& cmd_str);
 	void add_char(uchar asc);
-
+	void add_string(const char* pstr);
+	static const char* prefix_str;
 
 	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd) :
 		CWindowLayer(offset_x, offset_y, width, height, wnd)
@@ -45,7 +46,7 @@ public:
 
 };
 
-
+const char* ConsoleLayer::prefix_str = "a:>";
 
 class ConsoleWindow : public Window {
 private:

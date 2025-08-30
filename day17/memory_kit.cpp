@@ -102,7 +102,7 @@ void CMEM_MGR::reduce()
 		if (_mf[_last-1].size()>0) break;
 }
 
-void CMEM_MGR::print()
+void CMEM_MGR::print() const
 {
 DEBUG_BUILD(
 	if (_last==0){
@@ -114,4 +114,13 @@ DEBUG_BUILD(
 		}
 	}
 )
+}
+
+uint CMEM_MGR::get_mem_free() const
+{
+	uint result = 0;
+	if ( _last){
+		for(uint i = 0; i<_last; ++i)	result += _mf[i].size();
+	}
+	return result;
 }

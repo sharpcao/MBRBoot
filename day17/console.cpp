@@ -83,11 +83,22 @@ void ConsoleLayer::cursor_next()
 }
 
 
-void ConsoleLayer::cmd_enter()
+void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 {
 	cursor_show(false);
 	cursor_next();
-	add_char('>');
+	if(cmd_str.size()){
+		if (cmd_str == "mem"){
+			stringbuf<> mem_str;
+			mem_str <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
+				<<"free:" << OS.p_mem_mgr->get_mem_free() /1024 << " KB\n";
+			add_string(mem_str.c_str());
+		}else{
+			add_string(cmd_str.c_str());
+		}
+		cursor_next();	
+	}
+	add_string(ConsoleLayer::prefix_str);
 	OS.p_layerMgr->update(get_area());
 }
 
@@ -96,9 +107,19 @@ void ConsoleLayer::add_char(uchar asc)
 	if(asc){
 		CRect cursor_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
 		fill_box(Color8::COL8_000000, cursor_box);
-		putfont8(cursor_box._x, cursor_box._y,asc, COL8_FFFFFF);
-		cursor_step();
+		if(asc == '\n'){
+			cursor_next();
+		}else{
+			putfont8(cursor_box._x, cursor_box._y,asc, COL8_FFFFFF);
+			cursor_step();
+		}
+		
 	}
+}
+void ConsoleLayer::add_string(const char* pstr)
+{
+	for(const char* p = pstr; *p!= 0; ++p) add_char(*p);
+
 }
 
 void ConsoleWindow::_create_layer(uint offset_x, uint offset_y, uint width, uint height)
@@ -133,11 +154,12 @@ void ConsoleWindow::Run()
 	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
 	
 	consoleLayer->set_title(0, *OS.p_layerMgr);
-	consoleLayer->add_char('>');
+	consoleLayer->add_string(ConsoleLayer::prefix_str);
 	OS.p_layerMgr->update(consoleLayer->get_area());
 
 	OS.timer_ctrl.add_timer(80,console_timeout, &message_mgr);
 	uint p1,p2;
+	stringbuf<> cmd_str;
 	for(;;)
 	{
 		io_cli();
@@ -170,12 +192,14 @@ void ConsoleWindow::Run()
             		TransKey::set_caps();
             		continue;
             	}else if(p2 == TransKey::KeyCode::EnterDown){
-            		consoleLayer->cmd_enter();
+            		consoleLayer->cmd_enter(cmd_str);
+            		cmd_str.reset();
             		continue;
             	}
 
            		uchar c = OS.translate_keycode(p2);
            		if(c) {
+           			cmd_str << c;
            			consoleLayer->add_char(c);
 	            	OS.p_layerMgr->update(consoleLayer->get_area());
 	            }

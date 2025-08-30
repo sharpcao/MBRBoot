@@ -74,8 +74,24 @@ public:
 		_buf[_idx] = 0;
 		return *this;
 	}
+	stringbuf& operator<<(unsigned char c){
+		_buf[_idx++] = c;
+		_buf[_idx] = 0;
+		return *this;
+	}
 
-	uint size() {return (_idx>0)? _idx - 1: 0;}
+	bool operator== (const char* pstr) const {
+		uint i = 0;
+		for(; pstr[i] != 0; ++i)
+		{
+			if(i >= _idx | _buf[i] != pstr[i]) {
+				return false;
+			}
+		}
+		return (i==_idx);
+	}
+
+	uint size() const {return (_idx>0)? _idx : 0;}
 	const char* c_str() const {return _buf;}
 
 private:
