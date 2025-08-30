@@ -17,9 +17,15 @@ private:
 public:
 	CRect cursor_client_box();
 	void cursor_step(uint s = 1);
+	void cursor_next();
+	void cursor_show(bool bshow = true);
+	void twinkle();	
+
+
+	void cmd_enter();
 	void add_char(uchar asc);
 
-	void twinkle();
+
 	ConsoleLayer(uint offset_x, uint offset_y, uint width, uint height, Window* wnd) :
 		CWindowLayer(offset_x, offset_y, width, height, wnd)
 

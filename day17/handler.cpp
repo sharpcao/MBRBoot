@@ -85,8 +85,8 @@ void handle_message()
 
                 auto act_w = Window::get_active();
                 if(act_w) {
-                    char c = OS.translate_keycode(p2);
-                    act_w->push_message(p1,c);
+                    //char c = OS.translate_keycode(p2);
+                    act_w->push_message(p1,p2);
                 }
 
             }else if (p1 == EVENT::Mouse){

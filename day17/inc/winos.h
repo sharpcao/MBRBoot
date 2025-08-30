@@ -31,6 +31,33 @@ public:
 
 extern Task_Message_mgr EventList;
 
+class TransKey{
+    static bool _lshift, _rshift;
+    static bool _caps;
+
+public:
+    static char translate_keycode(uint keycode);
+    static void set_lshift(bool v) { _lshift = v;}
+    static void set_rshift(bool v) { _rshift = v;}
+    static void set_caps() { _caps = !_caps;}
+    static bool is_shift() { return (_lshift | _rshift)? (!_caps) : _caps;}
+    enum KeyCode {
+        LShiftDown = 0x2a,
+        LShiftUp = 0xaa,
+        RShiftDown = 0x36,
+        RShiftUp = 0xb6,
+        CapsDown = 0x3a,
+        CapsUp = 0xba,
+        EnterDown = 0x1c,
+        EnterUp = 0x9c
+
+    };
+};
+
+bool TransKey::_lshift = false;
+bool TransKey::_rshift = false;
+bool TransKey::_caps = false;
+
 class CWinOS{
 public:
     CCursor* p_Cursor = 0;
@@ -61,10 +88,8 @@ public:
 
     void init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr);
     void debug_print(const char* s);
-    static char translate_keycode(uint keycode)
-    {
-        extern char keytable[];
-        return (keycode < 0x54)? keytable[keycode] : 0;
+    static char translate_keycode(uint keycode){
+        return TransKey::translate_keycode(keycode);
     }
 
 private:

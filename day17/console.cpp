@@ -8,12 +8,23 @@ extern CWinOS OS;
 void ConsoleLayer::twinkle()
 {
 	static bool bshow = false;
-	Color8 col = bshow ? Color8::COL8_000000 : Color8::COL8_FFFFFF;
 
+	// Color8 col = bshow ? Color8::COL8_000000 : Color8::COL8_FFFFFF;
+
+	// CRect _twinkle_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
+	// fill_box(col, _twinkle_box);
+	bshow = !bshow;
+	cursor_show(bshow);
+	
+	
+}
+
+void ConsoleLayer::cursor_show(bool bshow)
+{
+	Color8 col = bshow ? Color8::COL8_FFFFFF : Color8::COL8_000000;
 	CRect _twinkle_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
 	fill_box(col, _twinkle_box);
 	OS.p_layerMgr->update(_twinkle_box.to_vga_pos(_offset_x, _offset_y));
-	bshow = !bshow;
 }
 
 CRect ConsoleLayer::cursor_client_box()
@@ -61,6 +72,25 @@ void ConsoleLayer::cursor_step(uint s)
 	}
 }
 
+void ConsoleLayer::cursor_next()
+{
+	
+	_cursor_col = 0;
+	if ( ++_cursor_row == _row_max()){
+		_cursor_row = _row_max()-1;
+		scroll_row(16, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
+	}
+}
+
+
+void ConsoleLayer::cmd_enter()
+{
+	cursor_show(false);
+	cursor_next();
+	add_char('>');
+	OS.p_layerMgr->update(get_area());
+}
+
 void ConsoleLayer::add_char(uchar asc)
 {
 	if(asc){
@@ -103,7 +133,9 @@ void ConsoleWindow::Run()
 	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
 	
 	consoleLayer->set_title(0, *OS.p_layerMgr);
-	
+	consoleLayer->add_char('>');
+	OS.p_layerMgr->update(consoleLayer->get_area());
+
 	OS.timer_ctrl.add_timer(80,console_timeout, &message_mgr);
 	uint p1,p2;
 	for(;;)
@@ -121,7 +153,28 @@ void ConsoleWindow::Run()
             }else if(p1 == EVENT::Actived){
             	//active();	
             }else if(p1 == EVENT::Key){
-           		uchar c = p2;
+
+            	if(p2 == TransKey::KeyCode::LShiftDown) {
+            		TransKey::set_lshift(true);
+            		continue;
+            	}else if( p2 == TransKey::KeyCode::LShiftUp){
+            		TransKey::set_lshift(false);
+            		continue;
+            	}else if(p2 == TransKey::KeyCode::RShiftDown){
+            		TransKey::set_rshift(true);
+            		continue;
+            	}else if(p2 == TransKey::KeyCode::RShiftUp){
+            		TransKey::set_rshift(false);
+            		continue;
+            	}else if(p2 == TransKey::KeyCode::CapsDown){
+            		TransKey::set_caps();
+            		continue;
+            	}else if(p2 == TransKey::KeyCode::EnterDown){
+            		consoleLayer->cmd_enter();
+            		continue;
+            	}
+
+           		uchar c = OS.translate_keycode(p2);
            		if(c) {
            			consoleLayer->add_char(c);
 	            	OS.p_layerMgr->update(consoleLayer->get_area());
