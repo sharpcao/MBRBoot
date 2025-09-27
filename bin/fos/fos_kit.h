@@ -3,9 +3,11 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 using std::vector;
 using std::string;
+using std::pair;
 
 using ulong = unsigned long;
 using uint = unsigned int;
@@ -43,6 +45,7 @@ struct FMeta{
 		uint name_size = (meta_name.size() <7) ? meta_name.size() : 7;
 		for(uint i = 0; i<name_size; ++i) name[i] = meta_name[i];
 	}
+	
 };
 
 class Meta{
@@ -60,6 +63,7 @@ public:
 	const FMeta get_meta(const string& key) const;
 
 	Meta(string sfile);
+
 	const vector<FMeta>& get() const { return _vec;}
 	FFile get_file(uint file_idx) const;
 	FFile get_file(const string& fn) const;
@@ -68,22 +72,20 @@ public:
 	void add_file(const string& filename);
 	void del_file(const string& filename);
 	void print_file(const FFile& file_record) const;
-	static void make_image(const string& filename) ;
+	void print_space() const;
+	static void make_image(const string& filename, uint file_size = 1440);
+	static void format(const string& filename);
 
 	
 };
 
-const char* Meta::C_MBR="MBR";
+const char* Meta::C_MBR="MBR0";
 const char* Meta::C_META="META";
-const char* Meta::C_FILES="FILES";
+const char* Meta::C_FILES="FILE";
 const char* Meta::C_FMAP="FMAP";
-const char* Meta::C_FDATA="FDATA";
+const char* Meta::C_FDATA="FDAT";
 
-const FMeta  DISK_META[] ={
-	FMeta{"MBR", 0x0, 0x200}, {"META", 0x200, 0x200}, {"FILES", 0x400, 0x5c00}, 
-	{"FMAP", 0x6000, 0x1600} ,{"FDATA", 0x8000, 0x160000}
 
-};
 
 
 #endif

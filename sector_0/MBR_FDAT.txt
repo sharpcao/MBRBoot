@@ -1,0 +1,57 @@
+Turbo Dump  Version 6.5.4.0 Copyright (c) 1988-2016 Embarcadero Technologies, Inc.
+                   Display of File mbr_fdat.obj
+
+000000 THEADR  mbr_fdat.cpp
+000011 COMENT  Purge: Yes, List: Yes, Class: 0   (000h)
+    Translator: TC86 Borland Turbo C++ 3.00
+000033 COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
+    Dependency File: mbr_fdat.cpp          09/27/2025  01:25:13 pm
+00004A COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
+    End of Dependency List
+000050 COMENT  Purge: Yes, List: Yes, Class: 234 (0EAh)
+    Compiler Parameters
+      Source Language:     C++
+      Leading Underscores: Yes
+      Memory Model:              Small
+000058 LNAMES
+    Name  1: ''
+    Name  2: '_TEXT'
+    Name  3: 'CODE'
+    Name  4: '_DATA'
+    Name  5: 'DATA'
+    Name  6: '_BSS'
+    Name  7: 'BSS'
+    Name  8: 'DGROUP'
+000083 SEGDEF 1 : _TEXT           BYTE  PUBLIC  Class 'CODE'	 Length: 0117
+00008D SEGDEF 2 : _DATA           WORD  PUBLIC  Class 'DATA'	 Length: 0000
+000097 SEGDEF 3 : _BSS            WORD  PUBLIC  Class 'BSS'	 Length: 0000
+0000A1 GRPDEF Group: DGROUP
+    Segment: _DATA          
+    Segment: _BSS           
+0000AA PUBDEF  '_main'                 Segment: _TEXT:0000
+0000B9 PUBDEF  'config_video()'        Segment: _TEXT:00D4
+0000D3 PUBDEF  'load()'                Segment: _TEXT:000B
+0000E5 PUBDEF  'read_hdd(unsigned long, unsigned int, unsigned int, unsigned int)'    Segment: _TEXT:0057
+000102 LEDATA  Segment: (1) _TEXT          Offset: 0000  Length: 0117
+    0000: 55 8B EC BC 00 7C E8 02  00 5D C3 55 8B EC 83 EC   U‹ì..|...].U‹ìƒì
+    0010: 02 56 89 56 FE FF 76 FE  B8 01 00 50 B8 00 7E 50   .V.V..vþ¸..P..~P
+    0020: 33 C0 BA 00 02 50 52 E8  2D 00 83 C4 0A BE 00 7E   3Àº..PR.-.ƒÄ...~
+    0030: FF 76 FE B8 80 00 50 B8  00 80 50 FF 74 4A FF 74   .vþ¸..P...P.tJ.t
+    0040: 48 E8 13 00 83 C4 0A E8  8A 00 BA F0 0F B8 00 80   H...ƒÄ....ºð....
+    0050: FF E0 5E 8B E5 5D C3 55  8B EC 83 EC 12 56 57 C6   ..^‹å].U‹ìƒì.VW.
+    0060: 46 EE 10 C6 46 EF 00 8B  46 0A 89 46 F0 8B 46 08   F...F...F..F..F.
+    0070: 89 46 F2 C7 46 F4 00 00  8D 46 04 8B F8 8B 05 89   .FòÇF....F.‹ø...
+    0080: 46 FE 8B 45 02 8B D8 8B  C3 25 FF 00 B1 08 D3 E0   F..E.‹Ø‹Ã%....Óà
+    0090: 8B 56 FE B1 08 D3 EA 0B  C2 89 46 FE B1 08 D3 EB   .Vþ±.Óê...Fþ±.Óë
+    00A0: 8B 46 FE D1 E8 8B D3 83  E2 01 B1 0F D3 E2 0B C2   .FþÑ.‹Óƒâ...Óâ..
+    00B0: 89 46 F6 8B C3 D1 E8 89  46 F8 C7 46 FA 00 00 C7   .F.‹ÃÑè.FøÇF....
+    00C0: 46 FC 00 00 8D 76 EE 8B  56 0C B4 42 CD 13 5F 5E   F....v..V..B.._^
+    00D0: 8B E5 5D C3 55 8B EC 83  EC 02 C7 46 FE F0 0F 8B   ‹å].U‹ìƒì..Fþð..
+    00E0: 5E FE C6 47 02 08 8B 5E  FE C7 47 04 40 01 8B 5E   ^þÆG...^þÇG.@..^
+    00F0: FE C7 47 06 C8 00 8B 5E  FE C7 47 0A 0A 00 C7 47   þÇG....^þÇG....G
+    0100: 08 00 00 B0 13 B4 00 CD  10 B4 02 CD 16 8B 5E FE   ..............^.
+    0110: 88 47 01 8B E5 5D C3                               .G.‹å].
+000220 COMENT  Purge: Yes, List: Yes, Class: 232 (0E8h)
+    Source File 1: mbr_fdat.cpp          09/27/2025  01:25:13 pm
+000238 MODEND
+

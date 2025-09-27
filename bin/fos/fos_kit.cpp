@@ -1,14 +1,81 @@
-
 #include <iostream>
 #include <fstream>
 #include <memory>
+#include <cmath>
+#include <vector>
 #include "fos_kit.h"
 
 
 
 using std::ifstream;
 using std::fstream;
+using std::vector;
 
+
+void Meta::print_space() const
+{
+	ifstream mfile(_meta_file, std::ios::binary);
+	if(!mfile) throw(std::runtime_error(string("Cant open file:") + _meta_file));
+
+	FMeta fmap_meta  = get_meta(C_FMAP);
+	mfile.seekg(fmap_meta.start, std::ios::beg);
+
+	uint fmap_entrys = fmap_meta.length / 4;
+	uint value = 0, usage = 0;
+	for(uint i = 0; i < fmap_entrys; ++i){
+		mfile.read((char*)&value, sizeof(uint));
+		if(value) ++usage;
+	}
+	std::cout << "Total:"
+			  << fmap_entrys <<"k, usage:" << usage << "k, free:" << fmap_entrys - usage <<"k" 
+			  <<std::endl;
+
+
+}
+
+
+void Meta::format(const string& filename)
+{
+	fstream afile(filename, std::ios::binary | std::ios::ate | std::ios::in|std::ios::out);
+
+	if(!afile) throw(std::runtime_error(string("Cant open file:") + filename));
+
+	uint s_total = afile.tellg() / 1024;
+	afile.seekg(0x200, std::ios::beg);
+
+	// vector<char> buffer(0x200,0);
+	// afile.write(buffer.data(),buffer.size());
+
+
+	vector<FMeta> meta_vec(5);
+	uint s_rec, s_map, s_dat;
+	s_rec = std::ceil( float(s_total -1) * 32 / 1060 );
+	s_map =  std::ceil( float(s_total -1) * 4 / 1060 );
+	s_dat = s_total - s_rec - s_map - 1;
+
+	meta_vec[0] = {C_MBR, 0x0, 0x200};
+	meta_vec[1] = {C_META, 0x200, 0x200};
+	meta_vec[2] = {C_FILES, 0x400, s_rec*1024};
+	meta_vec[3] = {C_FMAP, 0x400 + s_rec*1024, s_dat*4 };
+	meta_vec[4] = {C_FDATA, 0x400 + s_rec*1024 +s_map*1024, s_dat*1024};
+
+	vector<char> buf(512, 0);
+	while(afile.tellg() < meta_vec[4].start){
+		afile.write(buf.data(), buf.size());
+	}
+
+	afile.seekg(0x200, std::ios::beg);
+	afile.write((char*)meta_vec.data(), meta_vec.size() *sizeof(FMeta));
+
+	for(const auto& it:meta_vec){
+		std::cout <<std::hex <<
+			 it.name << " 0x" <<it.start <<", 0x" << it.length << std::endl;
+	}
+
+
+
+
+}
 
 uint Meta::get_free_file_idx() const
 {
@@ -318,26 +385,20 @@ Meta::Meta(string sfile)
 
 }
 
-void Meta::make_image(const string& filename) 
+void Meta::make_image(const string& filename, uint file_kb) 
 {
 	ofstream afile(filename, std::ios::binary );
 	if(!afile) throw std::runtime_error(string("Can't create file ") + filename);
 
-	char buf[512];
-	auto clear_buf = [&buf] () {
-		for(uint i = 0; i<512; ++i) buf[i] = 0;
-	};
+	char buf[1024];
+	for(uint i = 0; i<1024; ++i) buf[i] = 0;
 	
-	clear_buf();
-	afile.write(buf, 512);
-	afile.write((char*)DISK_META, sizeof(DISK_META));
-	afile.write(buf, 512 - sizeof(DISK_META));
-
-	for(uint i = 0; i < 1440 * 2 - 2 ; ++i){
-		afile.write(buf, 512);
+	for(uint i = 0; i < file_kb; ++i){
+		afile.write(buf, sizeof(buf));
 	}
+	afile.close();
 
-
+	Meta::format(filename);
 
 }
 
