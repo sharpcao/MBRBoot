@@ -2,6 +2,7 @@
 #define GDTIDT_H
 
 #include "task_kit.h"
+#include "os_io.h"
 
 using uint = unsigned int;
 constexpr uint AR_INTGATE32 =0x008e;
@@ -35,11 +36,7 @@ struct  OS_LOAD_GDT
 	OS_LOAD_GDT() = delete;
 	OS_LOAD_GDT(short limit, SEGMENT_DESCRIPTOR* base) : limit(limit), base(base)
 	{
-		auto* p = this;
-		__asm {
-			mov	 eax, p
-			lgdt [eax]
-		};
+		load_gdt(this);
 	}
 };
 
@@ -50,11 +47,7 @@ struct OS_LOAD_IDT
 	OS_LOAD_IDT() = delete;
 	OS_LOAD_IDT(short limit, GATE_DESCRIPTOR* base) : limit(limit), base(base)
 	{
-		auto* p = this;
-		__asm {
-			mov	 eax, p
-			lidt [eax]
-		}
+		load_idt(this);
 	}
 };
 

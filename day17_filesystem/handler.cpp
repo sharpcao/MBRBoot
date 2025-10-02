@@ -40,6 +40,14 @@ void int2c_handler()
 
 }
 
+void int7_handler()
+{
+    uint cr0 = load_cr0();
+    cr0 &= ~(0x08);   //clear TS
+    store_cr0(cr0);
+
+}
+
 void mouse_event(const Mouse_decode& md)
 {
     CVGA vga;

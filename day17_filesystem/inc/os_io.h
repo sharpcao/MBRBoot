@@ -18,110 +18,34 @@ enum PIC {
 	};
 
 //__declspec(naked) 
-void io_out8(uint port, uint value)
-{
-	__asm{
-		mov edx, port
-		mov eax, value
-		out dx,al
-		//ret
-	}
-}
-__declspec(naked)
-uchar io_in8(uint port)
-{
-	__asm{
-		mov edx, [esp+4]
-		mov eax,0
-		in al,dx
-		ret
-	}
-}
+void io_out8(uint port, uint value);
 
-__declspec(naked)  
-uint io_load_eflags()
-{
-	__asm{
-		pushfd 
-		pop eax
-		ret
-	}
-}
-
-__declspec(naked) 
-void io_cli()
-{
-	__asm {
-		cli
-		ret
-	}
-}
-
-__declspec(naked) 
-void io_sti()
-{
-	__asm{
-		sti
-		ret
-	}
-}
-
-__declspec(naked) 
-void io_hlt()
-{
-	__asm{
-		hlt
-		ret
-	}
-}
-
-__declspec(naked) 
-void io_stihlt()
-{
-	__asm{
-		sti
-		hlt
-		ret
-	}
-}
+__declspec(naked) uchar io_in8(uint port);
+__declspec(naked) void io_cli();
+__declspec(naked) void io_sti();
+__declspec(naked) void io_hlt();
+__declspec(naked) void io_stihlt();
 
 
+//__declspec(naked)  
+uint io_load_eflags();
 
-__declspec(naked) 
-void io_store_eflags(uint eflags)
-{
-	__asm{
-		push dword ptr [esp+4] 
-		popfd
-		ret
-	}
-}
+//__declspec(naked) 
+void  io_store_eflags(uint eflags);
 
-__declspec(naked)
-void io_load_tr(uint idx)
-{
-	__asm{
-		ltr [esp+4]
-		ret
-	}
-}
-
-__declspec(naked)
-void task_switch(uint ip, uint cs)
-{
-	__asm{
-
-		//jmp far fword ptr [esp+4]
-		__emit 0xff
-		__emit 0x6c
-		__emit 0x24
-		__emit 0x04
-
-		ret
-	}
-}
+__declspec(naked) void io_load_tr(uint idx);
+__declspec(naked) void task_switch(uint ip, uint cs);
 
 
+__declspec(naked) uint load_cr0();
+__declspec(naked) void store_cr0(uint v);
+
+
+struct OS_LOAD_GDT;
+struct OS_LOAD_IDT;
+
+void load_gdt(OS_LOAD_GDT* ptr);
+void load_idt(OS_LOAD_IDT* ptr);
 
 #endif
 

@@ -80,9 +80,11 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
     init_timers();
 
     GDTIDT gdtidt;
+
     gdtidt.add_idt_handler(0x20, handler_wrap<int20_handler>);
     gdtidt.add_idt_handler(0x21, handler_wrap<int21_handler>);
     gdtidt.add_idt_handler(0x2c, handler_wrap<int2c_handler>);
+    gdtidt.add_idt_handler(0x07, handler_wrap<int7_handler>);
 
     
     CPIC pic;

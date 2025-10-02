@@ -90,8 +90,7 @@ void CVGA::_init_palette()
 {
     constexpr uint start = 0;
     constexpr uint size = 16; 
-    uint i, eflags;
-    eflags = io_load_eflags();
+    volatile uint eflags = io_load_eflags();
     io_cli();
     io_out8(0x03c8, start);
     for(uint i = start; i < size; ++i)

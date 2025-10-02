@@ -1,0 +1,115 @@
+     1                                  ;   Enter 32-bit protection mode, reload the PEOS to proper location
+     2                                  ;   
+     3                                  ;   nasm load_peos.asm -o sector_1.bin
+     4                                  ;
+     5                                  ;   Author:Sharp.Cao
+     6                                  ;   Date:2025/1/26
+     7                                  ;-----------------------------------------------------------------------------------------
+     8                                                  org 0x8000
+     9                                  PE_Base         equ 0x8000
+    10                                  PE_Head         equ PE_Base + 0x200
+    11                                  EntryPoint      equ PE_Head + 0x28
+    12                                  ImageBase       equ PE_Head + 0x34 
+    13                                  CodeVirtualAddr equ PE_Head + 0x104 
+    14                                  CodeRawSize     equ PE_Head + 0x108 
+    15                                  CodeRawPointer  equ PE_Head + 0x10c 
+    16                                  DataVirtualAddr equ PE_Head + 0x12c 
+    17                                  DataRawSize     equ PE_Head + 0x130 
+    18                                  DataRawPointer  equ PE_Head + 0x134 
+    19                                  
+    20                                  ;-----------------------------------------------------------------------------------------
+    21                                  [bits 16]
+    22 00000000 EB2A                                    jmp     _start
+    23                                  
+    24 00000002 1F00                    gdt_size:       dw 8*4-1             ;GDT Table size, total bytes minus 1
+    25 00000004 [08000000]              gdt_base:       dd GDT_BASE_ADDR     ;GDT base address
+    26                                  
+    27                                  GDT_BASE_ADDR:
+    28 00000008 0000000000000000        GDT_0:          dd 0h, 0h
+    29 00000010 FFFF0000009ACF00        GDT_1_CS:       dd 0x0000ffff, 0x00cf9a00
+    30 00000018 FFFF00000092CF00        GDT_2_DS:       dd 0x0000ffff, 0x00cf9200
+    31 00000020 0000000000964000        GDT_3_SS:       dd 0x00000000, 0x00409600
+    32                                  ;GDT_3_SS:       dd 0x0000ffff, 0x00cf9200
+    33 00000028 00000000                PBOOTINFO:      dd 0h
+    34                                  
+    35                                  _start:
+    36 0000002C 8916[2800]                          mov     [PBOOTINFO],dx      ;BootInfo transfered by dx
+    37                                      ;Load 48bit GDT
+    38 00000030 0F0116[0200]                        lgdt    [gdt_size]                      
+    39                                  
+    40                                      ;Open A20 address
+    41 00000035 E492                                in      al,             0x92            
+    42 00000037 0C02                                or      al,             0000_0010B
+    43 00000039 E692                                out     0x92,           al
+    44                                  
+    45                                      ;The interrupts should be prohibited now
+    46 0000003B FA                                  cli 
+    47                                  
+    48                                      ;Turn on the protection mode
+    49 0000003C 0F20C0                              mov     eax,cr0     
+    50 0000003F 6683C801                            or      eax,1
+    51 00000043 0F22C0                              mov     cr0,eax
+    52                                  
+    53                                      ;Set DS\ES\SS\ESP, jump to Entry Point
+    54 00000046 B81000                              mov     ax, 00000000000_10_000b
+    55 00000049 8ED8                                mov     ds, ax
+    56 0000004B 8EC0                                mov     es, ax
+    57 0000004D B81800                              mov     ax, 00000000000_11_000b
+    58 00000050 8ED0                                mov     ss, ax
+    59 00000052 66BC007C0000                        mov     esp, 0x7c00
+    60                                              
+    61 00000058 66EA[60000000]0800                  jmp     dword 0x0008:_copy_image ; cs=8=1000b，The first Selector
+    62                                  
+    63                                  ;-----------------------------------------------------------------------------------------
+    64                                  [bits 32]
+    65                                  ;copy_image hard code
+    66                                  ;           image_base  equ    0x100000
+    67                                  ;           code_rva    equ      0x1000
+    68                                  ;           data_rva    equ      0x2000
+    69                                  ;           entry_point equ  0x1008
+    70                                  ;           org_base    equ      0x8000
+    71                                  ;           code_off    equ       0x600
+    72                                  ;           code_size   equ       0x200
+    73                                  ;           data_off    equ       0x800
+    74                                  ;           data_size   equ       0x200
+    75                                  
+    76                                  ;           mov     esi, org_base + code_off
+    77                                  ;           mov     edi, image_base + code_rva
+    78                                  ;           mov     ecx, code_size / 4
+    79                                  ;           rep     movsd
+    80                                  ;           mov     esi, org_base + data_off
+    81                                  ;           mov     edi, image_base + data_rva
+    82                                  ;           mov     ecx, data_size / 4
+    83                                  ;           rep     movsd
+    84                                  ;           jmp     dword 0x0008:image_base + entry_point
+    85                                  
+    86                                  _copy_image:
+    87 00000060 8B1D34820000                        mov     ebx, [ImageBase]        ;ImageBase
+    88                                  ;copy code segment virtual address
+    89 00000066 8B350C830000                        mov     esi, [CodeRawPointer]
+    90 0000006C 81C600800000                        add     esi, PE_Base
+    91 00000072 8B3D04830000                        mov     edi, [CodeVirtualAddr]
+    92 00000078 01DF                                add     edi, ebx
+    93 0000007A 8B0D08830000                        mov     ecx, [CodeRawSize]
+    94 00000080 C1E902                              shr     ecx, 2
+    95 00000083 F3A5                                rep     movsd           
+    96                                  ;copy data segment to virtual address       
+    97 00000085 8B3534830000                        mov     esi, [DataRawPointer]
+    98 0000008B 81C600800000                        add     esi, PE_Base
+    99 00000091 8B3D2C830000                        mov     edi, [DataVirtualAddr]
+   100 00000097 01DF                                add     edi, ebx
+   101 00000099 8B0D30830000                        mov     ecx, [DataRawSize]
+   102 0000009F C1E902                              shr     ecx, 2
+   103 000000A2 F3A5                                rep     movsd
+   104                                  ;jump to EntryPoint
+   105 000000A4 8B15[28000000]                      mov     edx, [PBOOTINFO]
+   106 000000AA 52                                  push    edx
+   107 000000AB A128820000                          mov     eax, [EntryPoint]       
+   108 000000B0 01D8                                add     eax, ebx
+   109 000000B2 9BDBE3                              finit
+   110 000000B5 FFD0                                call    eax
+   111                                  
+   112 000000B7 00<rep 149h>            times  512 -($-$$) db 0
+   113                                      
+   114                                  
+   115                                  

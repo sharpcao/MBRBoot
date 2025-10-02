@@ -231,10 +231,11 @@ check_begin:
 
 			if( _task_ptrs[next] ){		
 
-				if( _task_ptrs[_cur] && _task_ptrs[next]->level < _task_ptrs[_cur]->level ) {
-					next = 0;
-					goto check_begin;
-				}
+				// fix this problem
+				// if( _task_ptrs[_cur] && _task_ptrs[next]->level < _task_ptrs[_cur]->level ) {
+				// 	next = 0;
+				// 	goto check_begin;
+				// }
 
 				_cur = next;
 				need_switch = true;			
@@ -246,6 +247,7 @@ check_begin:
 
 	if(need_switch){
 		_cur_ptask = _task_ptrs[_cur];
+
 		task_switch(0, _task_ptrs[_cur]->sel);
 	}
 

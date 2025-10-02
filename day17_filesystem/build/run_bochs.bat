@@ -1,1 +1,1 @@
-"D:/Program Files/Bochs-2.8/bochsdbg.exe" 
+"D:/Program Files/Bochs-2.8/bochs.exe" 

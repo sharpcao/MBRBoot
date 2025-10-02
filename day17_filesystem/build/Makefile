@@ -1,11 +1,11 @@
 #-v for Debug
 
-CFLAGS = -q -c -x- -O -v
-IFLAGS = -q -b:0x100000 -v -Gn -LD:\BCC102\lib\win32c\release
+CFLAGS = -q -c -x- -O2 -v 
+IFLAGS = -q -b:0x100000  -v -Gn -LD:\BCC102\lib\win32c\release
 
 OBJS = vga.obj hankaku.obj gdtidt.obj device.obj handler.obj \
 		memory_kit.obj task_kit.obj timer_kit.obj winform_kit.obj \
-		winos.obj layer.obj bootpack.obj console.obj 
+		winos.obj layer.obj bootpack.obj console.obj os_io.obj
 
  
 default:

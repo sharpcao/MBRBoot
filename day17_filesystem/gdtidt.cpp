@@ -47,6 +47,7 @@ void GDTIDT::init_gdt_idt()
 	(_gdt_start+1)->set(0xffffffff, 0x00000000, 0x409a); //code segment
 	(_gdt_start+2)->set(0xffffffff, 0x00000000, 0x4092); //data segment
 	(_gdt_start+3)->set(0x00000000, 0x00000000, 0x4096); //stack segment
+	//(_gdt_start+3)->set(0xffffffff, 0x00000000, 0x4092); //stack segment
 
 	_load_gdt();
 	_load_idt();

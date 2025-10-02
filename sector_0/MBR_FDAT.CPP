@@ -49,7 +49,8 @@ struct META_REC{
 void read_hdd(ulong hdd_addr, uint to_ram_addr, uint nsector, uint driver);
 void load();
 void config_video();
-
+void print_str(char* p_str);
+void print_char(char x);
 
 void main()
 {
@@ -62,19 +63,29 @@ void main()
 
 void load()
 {
+    // char *str1 = "read s1\r\n";
+    // char *str2 = "read s_more\r\n";
+    // char *str3 = "config_video\r\n";
 
     uint driver;
     asm { mov driver, dx}
 
+    print_char('1');
     read_hdd(HDD_META_OFFSET, 0x7e00,1, driver); // Read Meta;
     META_REC* pmeta = (META_REC*)(0x7e00);
+
+    print_char('2');
 	read_hdd(pmeta[HDD_META_FDAT_INDEX].start_addr, PE_MEM_LOCATION, LOAD_SECTS, driver);
 
-    config_video();
+
+    print_char('3');
+    //config_video();
+    L1:
     asm{
         mov dx, BOOTINFO_ADDR
         mov ax, PE_MEM_LOCATION //jump to entry pointer
-        jmp ax
+        //jmp ax
+        jmp L1
     }
 
 
@@ -133,5 +144,21 @@ void config_video()
     }
 }
 
+
+void print_char(char x)
+{
+    asm{
+        mov ah, 0xe
+        mov al, x
+        int 0x10
+    }
+}
+void print_str(char* p_str)
+{
+
+    char* p;
+    for(p=p_str; *p!=0 ;++p) print_char(*p);
+    
+}
 
 

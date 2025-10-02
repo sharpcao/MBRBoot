@@ -8,6 +8,7 @@ using HF = void (*)();
 void int20_handler();
 void int21_handler();
 void int2c_handler();
+void int7_handler(); //clear TS
 
 template<HF handler_func> 
 __declspec(naked)

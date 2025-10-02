@@ -29,6 +29,7 @@ GDT_0:          dd 0h, 0h
 GDT_1_CS:       dd 0x0000ffff, 0x00cf9a00
 GDT_2_DS:       dd 0x0000ffff, 0x00cf9200
 GDT_3_SS:       dd 0x00000000, 0x00409600
+;GDT_3_SS:       dd 0x0000ffff, 0x00cf9200
 PBOOTINFO:      dd 0h
 
 _start:
@@ -105,6 +106,7 @@ _copy_image:
             push    edx
             mov     eax, [EntryPoint]       
             add     eax, ebx
+            finit
             call    eax
 
 times  512 -($-$$) db 0
