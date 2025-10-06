@@ -46,15 +46,20 @@ struct META_REC{
 };
 
 
-void read_hdd(ulong hdd_addr, uint to_ram_addr, uint nsector, uint driver);
+void read_hdd(ulong hdd_addr, uint to_ram_addr, uint nsector, char driver);
 void load();
 void config_video();
-void print_str(char* p_str);
+
 void print_char(char x);
+void print_hex(char h);
 
 void main()
 {
     asm { 
+        mov ax,0x0
+        mov ds,ax
+        mov es,ax
+        mov ss,ax
         mov sp, 0x7c00 // Default sp is FFFF, copy sectors would overwrite stack
     }  
     load();
@@ -63,44 +68,44 @@ void main()
 
 void load()
 {
-    // char *str1 = "read s1\r\n";
-    // char *str2 = "read s_more\r\n";
-    // char *str3 = "config_video\r\n";
 
-    uint driver;
-    asm { mov driver, dx}
+    char driver;
+    asm {  mov driver, dl }
 
-    print_char('1');
-    read_hdd(HDD_META_OFFSET, 0x7e00,1, driver); // Read Meta;
+
+    read_hdd(HDD_META_OFFSET, 0x7e00 >> 4, 1, driver); // Read Meta;
     META_REC* pmeta = (META_REC*)(0x7e00);
 
-    print_char('2');
-	read_hdd(pmeta[HDD_META_FDAT_INDEX].start_addr, PE_MEM_LOCATION, LOAD_SECTS, driver);
+	//read_hdd(pmeta[HDD_META_FDAT_INDEX].start_addr, PE_MEM_LOCATION >> 4, LOAD_SECTS, driver);
 
+    ulong start_addr = pmeta[HDD_META_FDAT_INDEX].start_addr;
+    for(uint i = 0;i < LOAD_SECTS; ++i){
+        uint  mem_seg = PE_MEM_LOCATION / 16+ i*512 /16;
+        read_hdd(start_addr + i*512, mem_seg, 1, driver);
 
-    print_char('3');
-    //config_video();
-    L1:
-    asm{
-        mov dx, BOOTINFO_ADDR
-        mov ax, PE_MEM_LOCATION //jump to entry pointer
-        //jmp ax
-        jmp L1
     }
+
+	config_video();
+	
+	asm{
+		mov dx, BOOTINFO_ADDR
+		mov ax, PE_MEM_LOCATION //jump to entry pointer
+		jmp ax
+	}
 
 
 }
 
 
-void read_hdd(ulong hdd_addr, uint to_ram_addr, uint nsector, uint driver)
+void read_hdd(ulong hdd_addr, uint to_ram_seg, uint nsector, char driver)
 {
 
 	DAP dap;
     dap.size = (char)0x10;
     dap.reserved = (char)0x0;
     dap.n_sector = nsector;
-    dap.offset = to_ram_addr;
-    dap.segment = 0;
+	dap.offset = 0; 
+    dap.segment = to_ram_seg;
 
 // convert hdd_addr to LBA sector number 
 
@@ -118,7 +123,7 @@ void read_hdd(ulong hdd_addr, uint to_ram_addr, uint nsector, uint driver)
 
     asm{
         lea si, dap
-        mov dx, driver
+        mov dl, driver
         mov ah, 0x42
         int 0x13
     }
@@ -145,6 +150,8 @@ void config_video()
 }
 
 
+/*
+
 void print_char(char x)
 {
     asm{
@@ -153,12 +160,15 @@ void print_char(char x)
         int 0x10
     }
 }
-void print_str(char* p_str)
-{
 
-    char* p;
-    for(p=p_str; *p!=0 ;++p) print_char(*p);
-    
+void print_hex(char h)
+{
+    char x = (h & 0xF0)>>4;
+    print_char( (x<=9)? x+ '0' - 0 : x + 'A' - 10);
+    x = (h & 0x0F);
+    print_char( (x<=9)? x+ '0' - 0 : x + 'A' - 10);
+    print_char(' ');
 }
 
+*/
 

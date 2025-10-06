@@ -1,19 +1,165 @@
 Turbo Dump  Version 6.5.4.0 Copyright (c) 1988-2016 Embarcadero Technologies, Inc.
                    Display of File mbr_fdat.obj
 
-000000 THEADR  mbr_fdat.cpp
-000011 COMENT  Purge: Yes, List: Yes, Class: 0   (000h)
+000000 THEADR  ..\SOURCE\MBR_FDAT.CPP
+00001B COMENT  Purge: Yes, List: Yes, Class: 0   (000h)
     Translator: TC86 Borland Turbo C++ 3.00
-000033 COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
-    Dependency File: mbr_fdat.cpp          09/27/2025  01:25:13 pm
-00004A COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
+00003D COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
+    Dependency File: ..\SOURCE\MBR_FDAT.CPP  10/06/2025  10:19:25 am
+00005E COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 0000
+000067 COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 0003
+000070 COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0014
+000078 COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0014
+000080 COMENT  Purge: Yes, List: Yes, Class: 238 (0EEh)
+    Coverage offsets:
+      Segment: 1
+        Offset:  0000
+        Offset:  0003
+        Offset:  0006
+        Offset:  0008
+        Offset:  000a
+        Offset:  000c
+        Offset:  000f
+        Offset:  0012
+000097 COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 0014
+0000A0 COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 001C
+0000A9 COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 004B
+0000B2 COMENT  Purge: Yes, List: Yes, Class: 230 (0E6h)
+    Local Definitions
+      Name: mem_seg               Type: 0A  BP: FFF80000C4 COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 007F
+0000CC COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 1A  Size: 8    TID: 1A TID_CARRAY          
+      Element type index: 02
+0000D8 COMENT  Purge: Yes, List: Yes, Class: 226 (0E2h)
+    Struct Member Record
+      Name:                 name             Type: 1A
+      Name:                 start_addr       Type: 0C
+      Name:                 size             Type: 0C
+      New Offset: 000010
+0000FE COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 19  Size: 16   TID: 1E TID_STRUCT          
+      Name: META_REC            
+      Member index: 565F
+000111 COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 18  Size: 2    TID: 15 TID_NEAR            
+      Pointed-to type index: 19  Extra info: 04
+00011E COMENT  Purge: Yes, List: Yes, Class: 230 (0E6h)
+    Local Definitions
+      Name: i                     Type: 0A  Reg: SI      Name: start_addr            Type: 0C  BP: FFFA      Name: pmeta                 Type: 18  Reg: DI      Name: driver                Type: 02  BP: FFFF00014C COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0097
+000154 COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0097
+00015C COMENT  Purge: Yes, List: Yes, Class: 238 (0EEh)
+    Coverage offsets:
+      Segment: 1
+        Offset:  0014
+        Offset:  001c
+        Offset:  001f
+        Offset:  004b
+        Offset:  007f
+        Offset:  0080
+        Offset:  0086
+        Offset:  0089
+        Offset:  008c
+        Offset:  008f
+        Offset:  0091
+000179 COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 0097
+000182 COMENT  Purge: Yes, List: Yes, Class: 230 (0E6h)
+    Local Definitions
+      Name: driver                Type: 02  BP: 000C      Name: nsector               Type: 0A  BP: 000A      Name: to_ram_seg            Type: 0A  BP: 0008      Name: hdd_addr              Type: 0C  BP: 00040001BB COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 009F
+0001C4 COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 1B  Size: 2    TID: 15 TID_NEAR            
+      Pointed-to type index: 0A  Extra info: 04
+0001D1 COMENT  Purge: Yes, List: Yes, Class: 226 (0E2h)
+    Struct Member Record
+      Name:                 size             Type: 02
+      Name:                 reserved         Type: 02
+      Name:                 n_sector         Type: 0A
+      Name:                 offset           Type: 0A
+      Name:                 segment          Type: 0A
+      Name:                 lba_w0           Type: 0A
+      Name:                 lba_w1           Type: 0A
+      Name:                 lba_w2           Type: 0A
+      Name:                 lba_w3           Type: 0A
+      New Offset: 000010
+000230 COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 1C  Size: 16   TID: 1E TID_STRUCT          
+      Name: DAP                 
+      Member index: 68
+00023E COMENT  Purge: Yes, List: Yes, Class: 230 (0E6h)
+    Local Definitions
+      Name: w1                    Type: 0A  Reg: BX      Name: w0                    Type: 0A  BP: FFFE      Name: p_tmp                 Type: 1B  Reg: DI      Name: dap                   Type: 1C  BP: FFEE      Name: hdd_addr              Type: 0C  BP: 0004      Name: to_ram_seg            Type: 0A  BP: 0008      Name: nsector               Type: 0A  BP: 000A      Name: driver                Type: 02  BP: 000C000295 COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0114
+00029D COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0114
+0002A5 COMENT  Purge: Yes, List: Yes, Class: 238 (0EEh)
+    Coverage offsets:
+      Segment: 1
+        Offset:  0097
+        Offset:  009f
+        Offset:  0104
+        Offset:  0107
+        Offset:  010a
+        Offset:  010c
+        Offset:  010e
+0002BA COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 0114
+0002C3 COMENT  Purge: Yes, List: Yes, Class: 229 (0E5h)
+    Begin Scope   Segment: 0001  Offset: 011A
+0002CC COMENT  Purge: Yes, List: Yes, Class: 226 (0E2h)
+    Struct Member Record
+      Name:                 cyls             Type: 02
+      Name:                 leds             Type: 02
+      Name:                 vmode            Type: 02
+      Name:                 reserve          Type: 02
+      Name:                 scrnx            Type: 04
+      Name:                 scrny            Type: 04
+      Name:                 vram             Type: 06
+      New Offset: 00000c
+00030E COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 1E  Size: 12   TID: 1E TID_STRUCT          
+      Name: BOOTINFO            
+      Member index: 5500
+000321 COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 1D  Size: 2    TID: 15 TID_NEAR            
+      Pointed-to type index: 1E  Extra info: 04
+00032E COMENT  Purge: Yes, List: Yes, Class: 230 (0E6h)
+    Local Definitions
+      Name: p                     Type: 1D  BP: FFFE00033A COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0157
+000342 COMENT  Purge: Yes, List: Yes, Class: 231 (0E7h)
+    End of scope - Offset: 0157
+00034A COMENT  Purge: Yes, List: Yes, Class: 238 (0EEh)
+    Coverage offsets:
+      Segment: 1
+        Offset:  0114
+        Offset:  011a
+        Offset:  0143
+        Offset:  0145
+        Offset:  0147
+        Offset:  0149
+        Offset:  014b
+        Offset:  014d
+        Offset:  0150
+        Offset:  0153
+000365 COMENT  Purge: Yes, List: Yes, Class: 233 (0E9h)
     End of Dependency List
-000050 COMENT  Purge: Yes, List: Yes, Class: 234 (0EAh)
+00036B COMENT  Purge: Yes, List: Yes, Class: 234 (0EAh)
     Compiler Parameters
       Source Language:     C++
       Leading Underscores: Yes
       Memory Model:              Small
-000058 LNAMES
+000373 LNAMES
     Name  1: ''
     Name  2: '_TEXT'
     Name  3: 'CODE'
@@ -22,36 +168,79 @@ Turbo Dump  Version 6.5.4.0 Copyright (c) 1988-2016 Embarcadero Technologies, In
     Name  6: '_BSS'
     Name  7: 'BSS'
     Name  8: 'DGROUP'
-000083 SEGDEF 1 : _TEXT           BYTE  PUBLIC  Class 'CODE'	 Length: 0117
-00008D SEGDEF 2 : _DATA           WORD  PUBLIC  Class 'DATA'	 Length: 0000
-000097 SEGDEF 3 : _BSS            WORD  PUBLIC  Class 'BSS'	 Length: 0000
-0000A1 GRPDEF Group: DGROUP
+00039E SEGDEF 1 : _TEXT           BYTE  PUBLIC  Class 'CODE'	 Length: 0157
+0003A8 SEGDEF 2 : _DATA           WORD  PUBLIC  Class 'DATA'	 Length: 0000
+0003B2 SEGDEF 3 : _BSS            WORD  PUBLIC  Class 'BSS'	 Length: 0000
+0003BC GRPDEF Group: DGROUP
     Segment: _DATA          
     Segment: _BSS           
-0000AA PUBDEF  '_main'                 Segment: _TEXT:0000
-0000B9 PUBDEF  'config_video()'        Segment: _TEXT:00D4
-0000D3 PUBDEF  'load()'                Segment: _TEXT:000B
-0000E5 PUBDEF  'read_hdd(unsigned long, unsigned int, unsigned int, unsigned int)'    Segment: _TEXT:0057
-000102 LEDATA  Segment: (1) _TEXT          Offset: 0000  Length: 0117
-    0000: 55 8B EC BC 00 7C E8 02  00 5D C3 55 8B EC 83 EC   UãÏ..|...].UãÏÉÏ
-    0010: 02 56 89 56 FE FF 76 FE  B8 01 00 50 B8 00 7E 50   .V.V..v˛∏..P..~P
-    0020: 33 C0 BA 00 02 50 52 E8  2D 00 83 C4 0A BE 00 7E   3¿∫..PR.-.Éƒ...~
-    0030: FF 76 FE B8 80 00 50 B8  00 80 50 FF 74 4A FF 74   .v˛∏..P...P.tJ.t
-    0040: 48 E8 13 00 83 C4 0A E8  8A 00 BA F0 0F B8 00 80   H...Éƒ....∫....
-    0050: FF E0 5E 8B E5 5D C3 55  8B EC 83 EC 12 56 57 C6   ..^ãÂ].UãÏÉÏ.VW.
-    0060: 46 EE 10 C6 46 EF 00 8B  46 0A 89 46 F0 8B 46 08   F...F...F..F..F.
-    0070: 89 46 F2 C7 46 F4 00 00  8D 46 04 8B F8 8B 05 89   .FÚ«F....F.ã¯...
-    0080: 46 FE 8B 45 02 8B D8 8B  C3 25 FF 00 B1 08 D3 E0   F..E.ãÿã√%....”‡
-    0090: 8B 56 FE B1 08 D3 EA 0B  C2 89 46 FE B1 08 D3 EB   .V˛±.”Í...F˛±.”Î
-    00A0: 8B 46 FE D1 E8 8B D3 83  E2 01 B1 0F D3 E2 0B C2   .F˛—.ã”É‚...”‚..
-    00B0: 89 46 F6 8B C3 D1 E8 89  46 F8 C7 46 FA 00 00 C7   .F.ã√—Ë.F¯«F....
-    00C0: 46 FC 00 00 8D 76 EE 8B  56 0C B4 42 CD 13 5F 5E   F....v..V..B.._^
-    00D0: 8B E5 5D C3 55 8B EC 83  EC 02 C7 46 FE F0 0F 8B   ãÂ].UãÏÉÏ..F˛..
-    00E0: 5E FE C6 47 02 08 8B 5E  FE C7 47 04 40 01 8B 5E   ^˛∆G...^˛«G.@..^
-    00F0: FE C7 47 06 C8 00 8B 5E  FE C7 47 0A 0A 00 C7 47   ˛«G....^˛«G....G
-    0100: 08 00 00 B0 13 B4 00 CD  10 B4 02 CD 16 8B 5E FE   ..............^.
-    0110: 88 47 01 8B E5 5D C3                               .G.ãÂ].
-000220 COMENT  Purge: Yes, List: Yes, Class: 232 (0E8h)
-    Source File 1: mbr_fdat.cpp          09/27/2025  01:25:13 pm
-000238 MODEND
+0003C5 PUBDEF  '_main'                 Segment: _TEXT:0000
+0003D4 COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 1F  Size: 0    TID: 23 TID_FUNCTION        
+      Return type index: 01  Language modifier: 00
+  Argument info: 00
+
+0003E2 COMENT  Purge: Yes, List: Yes, Class: 225 (0E1h)
+    Public Symbol Type: 1F    Function Return Offset: 02 bytes0003EA PUBDEF  'config_video()'        Segment: _TEXT:0114
+000404 COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 20  Size: 0    TID: 23 TID_FUNCTION        
+      Return type index: 01  Language modifier: 00
+  Argument info: 00
+
+000412 COMENT  Purge: Yes, List: Yes, Class: 225 (0E1h)
+    Public Symbol Type: 20    Function Return Offset: 02 bytes00041A PUBDEF  'load()'                Segment: _TEXT:0014
+00042C COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 21  Size: 0    TID: 23 TID_FUNCTION        
+      Return type index: 01  Language modifier: 00
+  Argument info: 00
+
+00043A COMENT  Purge: Yes, List: Yes, Class: 225 (0E1h)
+    Public Symbol Type: 21    Function Return Offset: 02 bytes000442 PUBDEF  'read_hdd(unsigned long, unsigned int, unsigned int, signed char)'    Segment: _TEXT:0097
+00045F COMENT  Purge: Yes, List: Yes, Class: 227 (0E3h)
+    Type Definition      Index: 22  Size: 0    TID: 23 TID_FUNCTION        
+      Return type index: 01  Language modifier: 00
+  Argument info: 00
+
+00046D COMENT  Purge: Yes, List: Yes, Class: 225 (0E1h)
+    Public Symbol Type: 22    Function Return Offset: 02 bytes000475 COMENT  Purge: Yes, List: Yes, Class: 230 (0E6h)
+    Local Definitions
+      Name: ulong                 Type: 0C      Name: uint                  Type: 0A      Name: META_REC              Type: 19      Name: DAP                   Type: 1C      Name: BOOTINFO              Type: 1E0004A6 LEDATA  Segment: (1) _TEXT          Offset: 0000  Length: 0157
+    0000: 55 8B EC B8 00 00 8E D8  8E C0 8E D0 BC 00 7C E8   UãÏ...éÿé¿é–..|.
+    0010: 02 00 5D C3 55 8B EC 83  EC 08 56 57 88 56 FF 8A   ..].UãÏÉÏ.VW.V..
+    0020: 46 FF 50 B8 01 00 50 B8  E0 07 50 33 C0 BA 00 02   F.P...P∏‡.P3¿∫..
+    0030: 50 52 E8 62 00 83 C4 0A  BF 00 7E 8B 45 4A 8B 55   PR.b.Éƒ...~.EJ.U
+    0040: 48 89 46 FC 89 56 FA 33  F6 EB 35 8B C6 B1 09 D3   H.F..V.3ˆÎ5ã∆..”‡
+    0050: E0 B1 04 D3 E8 05 00 08  89 46 F8 8A 46 FF 50 B8    ..”Ë....F..F.P.
+    0060: 01 00 50 FF 76 F8 8B C6  B1 09 D3 E0 8B 56 FC 8B   ..P.v.ã∆..”‡.V..
+    0070: 5E FA 03 D8 83 D2 00 52  53 E8 1B 00 83 C4 0A 46   ^...É“.RS...Éƒ.F
+    0080: 81 FE 80 00 72 C5 E8 8B  00 BA F0 0F B8 00 80 FF   Å˛..r≈Ë..∫.....
+    0090: E0 5F 5E 8B E5 5D C3 55  8B EC 83 EC 12 56 57 C6   ._^ãÂ].UãÏÉÏ.VW.
+    00A0: 46 EE 10 C6 46 EF 00 8B  46 0A 89 46 F0 C7 46 F2   F...F...F..F«F.
+    00B0: 00 00 8B 46 08 89 46 F4  8D 46 04 8B F8 8B 05 89   ...F..F..F.ã¯...
+    00C0: 46 FE 8B 45 02 8B D8 8B  C3 25 FF 00 B1 08 D3 E0   F..E.ãÿã√%....”‡
+    00D0: 8B 56 FE B1 08 D3 EA 0B  C2 89 46 FE B1 08 D3 EB   .V˛±.”Í...F˛±.”Î
+    00E0: 8B 46 FE D1 E8 8B D3 83  E2 01 B1 0F D3 E2 0B C2   .F˛—.ã”É‚...”‚..
+    00F0: 89 46 F6 8B C3 D1 E8 89  46 F8 C7 46 FA 00 00 C7   .F.ã√—Ë.F¯«F....
+    0100: 46 FC 00 00 8D 76 EE 8A  56 0C B4 42 CD 13 5F 5E   F....v..V..B.._^
+    0110: 8B E5 5D C3 55 8B EC 83  EC 02 C7 46 FE F0 0F 8B   ãÂ].UãÏÉÏ..F˛..
+    0120: 5E FE C6 47 02 08 8B 5E  FE C7 47 04 40 01 8B 5E   ^˛∆G...^˛«G.@..^
+    0130: FE C7 47 06 C8 00 8B 5E  FE C7 47 0A 0A 00 C7 47   ˛«G....^˛«G....G
+    0140: 08 00 00 B0 13 B4 00 CD  10 B4 02 CD 16 8B 5E FE   ..............^.
+    0150: 88 47 01 8B E5 5D C3                               .G.ãÂ].
+000604 COMENT  Purge: Yes, List: Yes, Class: 232 (0E8h)
+    Source File 1: ..\SOURCE\MBR_FDAT.CPP  10/06/2025  10:19:25 am
+000626 LINNUM  Segment: _TEXT
+      56:0000h      59:0003h      60:0006h      61:0008h      62:000Ah
+      63:000Ch      65:000Fh      67:0012h      69:0014h      73:001Ch
+      76:001Fh      77:0038h      81:003Bh      82:0047h      83:004Bh
+      84:005Bh      88:0086h      91:0089h      92:008Ch      93:008Fh
+      97:0091h     100:0097h     104:009Fh     105:00A3h     106:00A7h
+     107:00ADh     108:00B2h     112:00B8h     113:00BDh     114:00C2h
+     115:00C7h     116:00DCh     118:00E0h     119:00F3h     120:00FAh
+     121:00FFh     125:0104h     126:0107h     127:010Ah     128:010Ch
+     131:010Eh     133:0114h     135:011Ah     136:011Fh     137:0126h
+     138:012Eh     139:0136h     142:0143h     143:0145h     144:0147h
+     145:0149h     146:014Bh     147:014Dh     148:0150h     150:0153h
+
+000708 MODEND
 
