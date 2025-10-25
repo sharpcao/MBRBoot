@@ -85,9 +85,9 @@ _start:
 				jge 	.done
 
 				call    find_next_idx
-				cmp		ax, 0xff
+				cmp		ax, 0xffff
 				jnz		.load_file
-				cmp  	dx, 0xff
+				cmp  	dx, 0xffff
 				jnz 	.load_file
 
 .done:
