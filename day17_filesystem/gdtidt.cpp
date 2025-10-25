@@ -6,6 +6,30 @@ short GDTIDT::_idt_size = 0x800-1;
 GATE_DESCRIPTOR* GDTIDT::_idt_start = (GATE_DESCRIPTOR*)0x0026f800;
 
 
+constexpr uint AR_INTGATE32 =0x008e;
+constexpr uint AR_TSS32 = 0x0089;
+
+/*
+Segment Descriptor
+--------------------------
+| limit_low   		2
+| base_low			2
+| base_mid			1
+| access_right		1
+| limit_high		1
+| base_high			1
+--------------------------
+
+31                             23                             15                             7                              0
++------------------------------+--+--+--+--+-------------------+--+-----+--------------------+------------------------------+
+|          BASE 31..24         | G|0|0|A|V|L|    LIMIT 19..16  | P| DPL |       TYPE         |        BASE 23..16           |
++------------------------------+--+--+--+--+-------------------+--+-----+--------------------+------------------------------+
+|                                  BASE 15..0                  |              LIMIT 15..0               					|
++--------------------------------------------------------------+------------------------------------------------------------+
+
+
+*/
+
 void SEGMENT_DESCRIPTOR::set(uint limit, uint base, uint ar)
 {
 	// limit =0xffffffff, base=0x00000000 ar = 0x409a
@@ -46,11 +70,12 @@ void GDTIDT::init_gdt_idt()
 
 	(_gdt_start+1)->set(0xffffffff, 0x00000000, 0x409a); //code segment
 	(_gdt_start+2)->set(0xffffffff, 0x00000000, 0x4092); //data segment
-	(_gdt_start+3)->set(0x00000000, 0x00000000, 0x4096); //stack segment
-	//(_gdt_start+3)->set(0xffffffff, 0x00000000, 0x4092); //stack segment
+	//(_gdt_start+3)->set(0x00000000, 0x00000000, 0x4096); //stack segment
+	(_gdt_start+3)->set(0xffffffff, 0x00000000, 0x4092); //stack segment
 
 	_load_gdt();
 	_load_idt();
+	jmp_cs(0x08);
 }
 
 void GDTIDT::add_gdt_task(uint idx, TSS32* p_tss)

@@ -19,21 +19,37 @@ DataRawPointer  equ PE_Head + 0x134
 
 ;-----------------------------------------------------------------------------------------
 [bits 16]
-                jmp     _start
-
-gdt_size:       dw 8*4-1             ;GDT Table size, total bytes minus 1
-gdt_base:       dd GDT_BASE_ADDR     ;GDT base address
+                    jmp     _start
+BOOTINFO_BASE:
+    BI_CYLS:        db 0
+    BI_LEDS:        db 0
+    BI_VMODE:       db 8
+    BI_RESERVE:     db 0
+    BI_SCRNX:       dw 320
+    BI_SCRNY:       dw 200
+    BI_VRAM:        dd 0xa0000
+    
+gdt_size:           dw 8*4-1             ;GDT Table size, total bytes minus 1
+gdt_base:           dd GDT_BASE_ADDR     ;GDT base address
 
 GDT_BASE_ADDR:
-GDT_0:          dd 0h, 0h
-GDT_1_CS:       dd 0x0000ffff, 0x00cf9a00
-GDT_2_DS:       dd 0x0000ffff, 0x00cf9200
-GDT_3_SS:       dd 0x00000000, 0x00409600
-;GDT_3_SS:       dd 0x0000ffff, 0x00cf9200
-PBOOTINFO:      dd 0h
+GDT_0:              dd 0h, 0h
+GDT_1_CS:           dd 0x0000ffff, 0x00cf9a00
+GDT_2_DS:           dd 0x0000ffff, 0x00cf9200
+GDT_3_SS:           dd 0x00000000, 0x00409600
+;GDT_3_SS:          dd 0x0000ffff, 0x00cf9200
+PBOOTINFO:          dd 0h
+
+
 
 _start:
-            mov     [PBOOTINFO],dx      ;BootInfo transfered by dx
+            mov     al, 0x13
+            mov     ah, 0x0
+            int     0x10
+            mov     ah,0x02
+            int     0x16
+            mov     [BI_LEDS], al
+
     ;Load 48bit GDT
             lgdt    [gdt_size]                      
 
@@ -54,11 +70,14 @@ _start:
             mov     ax, 00000000000_10_000b
             mov     ds, ax
             mov     es, ax
+            mov     fs, ax
+            mov     gs, ax
+
             mov     ax, 00000000000_11_000b
             mov     ss, ax
             mov     esp, 0x7c00
             
-            jmp     dword 0x0008:_copy_image ; cs=8=1000b，The first Selector
+            jmp     dword 0x0008:_clear_ram ; cs=8=1000b，The first Selector
 
 ;-----------------------------------------------------------------------------------------
 [bits 32]
@@ -66,7 +85,7 @@ _start:
 ;           image_base  equ    0x100000
 ;           code_rva    equ      0x1000
 ;           data_rva    equ      0x2000
-;           entry_point equ  0x1008
+;           entry_point equ      0x1008
 ;           org_base    equ      0x8000
 ;           code_off    equ       0x600
 ;           code_size   equ       0x200
@@ -82,6 +101,12 @@ _start:
 ;           mov     ecx, data_size / 4
 ;           rep     movsd
 ;           jmp     dword 0x0008:image_base + entry_point
+_clear_ram:
+            mov     eax, 0
+            mov     ecx, 0x100000 / 4
+            mov     edi, 0x100000
+            cld
+            rep     stosd
 
 _copy_image:
             mov     ebx, [ImageBase]        ;ImageBase
@@ -102,7 +127,7 @@ _copy_image:
             shr     ecx, 2
             rep     movsd
 ;jump to EntryPoint
-            mov     edx, [PBOOTINFO]
+            mov     edx, BOOTINFO_BASE
             push    edx
             mov     eax, [EntryPoint]       
             add     eax, ebx

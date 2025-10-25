@@ -2,6 +2,11 @@
 #include "inc\os_io.h"
 #include "inc\functions.h"
 
+void memset(char* const p_mem, uint size, char v)
+{
+	for(char* p = p_mem; p < p_mem + size; ++p) *p = v;
+}
+
 Task_mgr::Task_mgr()
 {
 
@@ -29,10 +34,10 @@ TaskItem* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 		{
 			TaskItem& t = _tasks[i];
 			t.flag = Task_flag::used;
-			t.priority = 2;
-			t.level = 2;
-
-			t.tss.eflags = 0x00000202;
+			t.priority = PT::normal;
+			t.level = LV::level_2;
+			memset((char*)&t.tss, sizeof(t.tss), (char)0);
+			t.tss.eflags = 0x00000202; // IF = 1
 			t.tss.eax = 0;
 			t.tss.ecx = 0;
 			t.tss.edx = 0;
@@ -47,9 +52,9 @@ TaskItem* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 			t.tss.gs = 2*8;
 			t.tss.ss = 3*8;
 			t.tss.ldtr = 0;
-			t.tss.iomap = 0x40000000;
+			t.tss.iomap = sizeof(t.tss);
 			t.tss.eip = (int)task_func;			
-			t.tss.esp = 0;
+			t.tss.esp = 0x7c00;
 
 			if (esp_addr){
 				t.tss.esp = esp_addr-8;
@@ -64,25 +69,27 @@ TaskItem* Task_mgr::add_task(Task_func task_func, uint esp_addr, uint param)
 
 void Task_mgr::_insert_active(TaskItem* p_task)
 {
-		if(_running_end >= max_tasks) return;
+	if(_running_end >= max_tasks) return;
 
-		uint i = 0, score = p_task->level * 100 + p_task->priority;
-		for(; i < _running_end; ++i)
-		{
-			TaskItem* task_p = _task_ptrs[i];
-			if( score > task_p->priority + task_p->level * 100) break;
+	p_task->flag = Task_flag::actived;
+
+	uint i = 0, lv = p_task->level;
+
+	for(; i < _running_end; ++i){
+		if( lv > _task_ptrs[i]->level) break;
+	}
+
+	if( i == _running_end ) {
+		_task_ptrs[_running_end++] = p_task;
+	}else{
+		for(uint j = _running_end++; j > i; --j){
+			_task_ptrs[j] = _task_ptrs[j-1];
 		}
-		if( i == _running_end ) {
-			_task_ptrs[_running_end++] = p_task;
-		}else{
-			for(uint j = _running_end; j > i; --j){
-				_task_ptrs[j] = _task_ptrs[j - 1];
-			}
-			_task_ptrs[i] = p_task;
-			++_running_end;
-		}
-		if(_cur >=i ) ++_cur;
-		p_task->flag = Task_flag::actived;
+		_task_ptrs[i] = p_task;
+	}
+
+	if(_cur >=i && _cur < _running_end -1 ) ++_cur;
+	
 }
 
 void Task_mgr::_reorder(TaskItem* p_task, Reorder direction)
@@ -90,70 +97,74 @@ void Task_mgr::_reorder(TaskItem* p_task, Reorder direction)
 	TaskItem** begin = &_task_ptrs[0];
 	TaskItem** end = &_task_ptrs[_running_end];
 	TaskItem** pos = begin;
+
 	for(; pos < end; ++pos){
 		if ( *pos == p_task) break;
 	}
-	if (pos != end){
-		if(direction == Reorder::down) {
-			TaskItem** new_pos = pos + 1;
-			for(; new_pos < end; ++new_pos){
-				if ( (*new_pos)->level <= (*pos)->level) break;
-			}
+	if (pos == end) return;
 
-			for(auto p = pos + 1; p < new_pos; ++p) *(p-1) = *p;
+	auto lv = p_task->level;
 
-			*(new_pos -1) = p_task;
-
-		}else if( direction == Reorder::up){
-			TaskItem** new_pos = pos -1;
-			for(; new_pos > 0; --new_pos){
-				if( (*new_pos)->level >= (*pos)->level) break;
-			}
-	
-			for(auto p = pos -1; p > new_pos; --p) *(p+1) = *p;
-
-			*(new_pos + 1) = p_task;
-		}
-
-		// fix _cur index
-		for(uint i = 0; i< _running_end; ++i){
-			if(_task_ptrs[i] == _cur_ptask){
-				_cur = i;
+	if(direction == Reorder::down) 
+	{
+		TaskItem** apos = pos + 1;
+		for(; apos < end; ++apos)
+		{
+			if ( lv < (*apos)->level ) {
+				*(apos-1) = *apos;
+			}else{
 				break;
 			}
 		}
+		*(apos -1) = p_task;
 
+	}else if( direction == Reorder::up)
+	{
+		TaskItem** apos = pos -1;
+		for(; apos >= begin; --apos)
+		{
+			if( lv > (*apos)->level ) {
+				*(apos+1) = *apos;
+			}else{
+				break;
+			}
+		}
+		*(apos + 1) = p_task;
 	}
+
+	// fix _cur index
+	for(uint i = 0; i< _running_end; ++i){
+		if(_task_ptrs[i] == _cur_ptask)
+		{
+			_cur = i;
+			break;
+		}
+	}
+	
 }
 
 
 
-void Task_mgr::set_active(TaskItem* p_task, uint priority, uint level)
+void Task_mgr::set_active(TaskItem* p_task, uint new_priority, uint new_level)
 {
 	
 
 	if( p_task == 0) return;
 
-	if (priority) p_task->priority = priority;
+	if (new_priority) p_task->priority = new_priority;
 
 	Reorder reorder = Reorder::no;
-	if (level) {
-		if (level > p_task->level){
-			reorder = Reorder::up;
-			p_task->level = level;
-		}else if(level < p_task->level){
-			reorder = Reorder::down;
-			p_task->level = level;
-		}
+	if (new_level && new_level != p_task->level) 
+	{
+		reorder = (new_level > p_task->level)? Reorder::up : Reorder::down;
+		p_task->level = new_level;
 	}
 
 
-	if (p_task->flag == Task_flag::actived) {
-		if(reorder != Reorder::no)	{
-			// set_inactive(p_task);
-			// _insert_active(p_task);
-			_reorder(p_task, reorder);
-		}
+	if (p_task->flag == Task_flag::actived)
+	{
+		if(reorder != Reorder::no)	_reorder(p_task, reorder);
+		
 	}else{
 		_insert_active(p_task);
 	}
@@ -163,27 +174,27 @@ void Task_mgr::set_active(TaskItem* p_task, uint priority, uint level)
 
 void Task_mgr::set_inactive(TaskItem* p_task)
 {
-	if (p_task) {
-		p_task->flag = Task_flag::used;
-		for(uint i = 0; i < _running_end; ++i)
+	if (p_task == 0)  return;
+
+	p_task->flag = Task_flag::used;
+	for(uint i = 0; i < _running_end; ++i)
+	{
+		if (_task_ptrs[i] == p_task)
 		{
-			if (_task_ptrs[i] == p_task){
 
-				for( uint j = i; j < _running_end; ++j){
-					_task_ptrs[j] = _task_ptrs[j+1];
-				}
-				--_running_end;
-				if (i == _cur){
-					_cur = -1;
-				}else if( i < _cur){
-					--_cur;
-				}
-
+			for( uint j = i+1; j < _running_end; ++j){
+				_task_ptrs[j-1] = _task_ptrs[j];
 			}
+			--_running_end;
+			if ( _cur >= i && _cur > 0) --_cur;
+
+			break;
+
 		}
 	}
 }
 
+/*
 void Task_mgr::_clean_inactive()
 {
 	TaskItem** p_start = &_task_ptrs[0], **p_end = &_task_ptrs[_running_end];
@@ -216,22 +227,37 @@ void Task_mgr::_clean_inactive()
 	_running_end = p1 - p_start;
 	_need_clean = false;
 }
-
+*/
+void Task_mgr::switch_to(uint idx)
+{
+	task_switch(0, _tasks[idx].sel);
+}
 void Task_mgr::switch_next()
 {
 
 	bool need_switch = false;
+
+
+
 	if (_running_end > 1){
-		
+
+		// if(_cur_ptask->flag == Task_flag::actived){
+		// 	for(_cur = 0; _cur < _running_end; ++_cur) {
+		// 		if(_task_ptrs[_cur] == _cur_ptask) break;
+		// 	}
+		// }
+
 		for(uint next = _cur + 1; ; ++next){
 
 			if ( next >= _running_end ) next = 0;
 check_begin:
-			if( _task_ptrs[next] == _cur_ptask ) break;
-
+			if( _task_ptrs[next] == _cur_ptask ){
+				_cur = next;
+			 	break;
+			}
 			if( _task_ptrs[next] ){		
 
-				// fix this problem
+				//fix this problem
 				// if( _task_ptrs[_cur] && _task_ptrs[next]->level < _task_ptrs[_cur]->level ) {
 				// 	next = 0;
 				// 	goto check_begin;
@@ -248,7 +274,7 @@ check_begin:
 	if(need_switch){
 		_cur_ptask = _task_ptrs[_cur];
 
-		task_switch(0, _task_ptrs[_cur]->sel);
+		task_switch(0, _cur_ptask->sel);
 	}
 
 }
@@ -264,7 +290,7 @@ void CMTTimerCtrl::mt_inc()
 	inc<Task_Message_mgr*,Task_Message_mgr* >();
 	if ((++cnt % p) == 0){
 		cnt = 0;
-		mt_taskswitch();
+		//mt_taskswitch();
 	}
 
 	

@@ -17,6 +17,59 @@ extern CWinOS OS;
 extern char keytable[];
 extern CTimerCtrl task_b_timectl;
 
+void get_reg_str(stringbuf<>& str)
+{
+    cpu::Reg reg;
+    cpu::get_regs(&reg);
+    str << stringbuf<>::flag::hex
+        << "\neax:" << reg.eax 
+        << ",ebx:" << reg.ebx
+        << ",ecx:" << reg.ecx
+        << ",edx:" << reg.edx
+        << ",esi:" << reg.esi
+        <<", edi:" << reg.edi
+        <<"\ncs:" << reg.cs
+        <<",ds:" << reg.ds
+        <<",es:" << reg.es
+        <<",fs:" << reg.fs
+        <<"\nflag:" << reg.eflags 
+        << stringbuf<>::flag::dec;
+}
+
+void get_task_str(uint idx, stringbuf<>& str)
+{
+    struct SEG{
+        uint low;
+        uint high;
+    };
+
+    TaskItem* task = OS.p_task_mgr->get_task(idx);
+    TSS32& tss = task->tss;
+
+    GDTIDT gdt;
+    //SEG* pseg = (SEG*)gdt.get_gdt(task->sel);
+    SEG* pseg = (SEG*)gdt.get_gdt(0);
+
+    str <<"\n" << idx << stringbuf<>::flag::hex
+        << ",sel:" << task->sel
+        << "\n,ss:" <<(uint)tss.ss
+        << ",esp:" <<  (uint)tss.esp
+        << ",eip:" <<(uint)tss.eip
+        << ",efg:" <<(uint)tss.eflags
+        << "\ncs:" <<(uint)tss.cs 
+        << ", ds:" <<(uint)tss.ds
+        << ", es:" <<(uint)tss.es
+        << ", fs:" <<(uint)tss.fs
+        << ", gs:" <<(uint)tss.gs
+        << ", ss:" <<(uint)tss.ss
+        << "\n,seg1_0:" << pseg[1].low << ",seg1_1:" <<pseg[1].high
+        << "\n,seg2_0:" << pseg[2].low << ",seg2_1:" <<pseg[2].high
+        << "\n,seg3_0:" << pseg[3].low << ",seg3_1:" <<pseg[3].high
+        << "\n,seg4_0:" << pseg[4].low << ",seg4_1:" <<pseg[4].high
+        << "\n,seg6_0:" << pseg[6].low << ",seg6_1:" <<pseg[6].high;
+
+}
+
 void int20_handler()
 {
 
@@ -48,6 +101,32 @@ void int7_handler()
 
 }
 
+void int0a_handler(uint int_num)
+{
+    uint _eip;
+    __asm{ 
+        mov eax,_eip
+        mov _eip, eax 
+    }
+    CVGA& vga = OS.vga;
+    vga.fill(0,0, vga.get_xsize(), vga.get_ysize(),Color8::COL8_0000FF);
+   
+    stringbuf<> str;
+    str << "int:" <<  stringbuf<>::flag::hex << int_num << ", 0x" << _eip ;
+    get_task_str(0, str); 
+    //get_task_str(1,str);
+    //get_task_str(2,str);
+    //get_task_str(3,str);  
+    vga.xyprint(0,0,str.c_str(),Color8::COL8_FFFFFF);
+
+
+    __asm{
+    here:
+        hlt
+        jmp here 
+    }
+}
+
 void mouse_event(const Mouse_decode& md)
 {
     CVGA vga;
@@ -71,10 +150,8 @@ void handle_message()
     uint p1,p2;
     static Mouse_decode mdec;
 
-    OS._speedcnt = 0;
     for(;;){
 
-        OS._speedcnt++; 
         io_cli();        
         if ( !EventList.get_message(p1,p2))
         {
@@ -84,6 +161,7 @@ void handle_message()
             io_sti();
             if( p1 == EVENT::Timer){
                 OS.timer_ctrl.call_hander((uint)p2);
+       
             }
             else if(p1 == EVENT::Key){
                 char s1[4];
@@ -93,9 +171,13 @@ void handle_message()
 
                 auto act_w = Window::get_active();
                 if(act_w) {
-                    //char c = OS.translate_keycode(p2);
+                    
                     act_w->push_message(p1,p2);
+                    char c = OS.translate_keycode(p2);
+                    if(c=='-') OS.p_task_mgr->switch_to(2);
+
                 }
+
 
             }else if (p1 == EVENT::Mouse){
                 if(mdec.push_char((char)p2)){

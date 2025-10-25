@@ -121,9 +121,17 @@ void CVGA::putfont8(uint x, uint y, uchar asc, Color8 col)
 
 void CVGA::xyprint(uint x, uint y, const char* str, Color8 col)
 {
-    for(;*str != 0; ++str, x+=8)
-        putfont8(x,y,*str,col);
-
+    char c;
+    while( (c = *str++) != 0){
+        if(c == '\n'){
+            y += 20;
+            x = 0;
+            continue;
+        }else{
+            putfont8(x,y,c,col);
+            x+=8;
+        }   
+    }
 }
 
 

@@ -1,1 +1,0 @@
-"D:/Program Files/Bochs-2.8/bochs.exe" 

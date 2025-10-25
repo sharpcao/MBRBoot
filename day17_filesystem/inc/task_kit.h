@@ -42,7 +42,7 @@ private:
 	int _cur = 0;
 	TaskItem* _cur_ptask = 0;
 	bool _need_clean = false;
-	void _clean_inactive();
+	//void _clean_inactive();
 	void _insert_active(TaskItem* p_task);
 
 	enum Reorder{ no, up, down};
@@ -58,10 +58,13 @@ public:
 	void set_inactive(TaskItem* p_task);
 
 	void switch_next();
+	void switch_to(uint idx);
 	TaskItem* get_task(uint id) {return &_tasks[id]; }
 
 	uint get_cur_priority() { return _cur_ptask->priority;}
 	uint get_cur_level() {return  _cur_ptask->level; }
+	int get_running_end(){ return _running_end;}
+	
 
 	enum PT {		// priority
 		 low = 1,
@@ -88,10 +91,14 @@ class Task {
 public:
 	Task(Task_mgr* mgr, TaskItem* task) : _task_mgr(mgr), _task(task) {}
 	Task() = default;
-	void active(uint priority = 0, uint level = 0){
+
+	void active(uint priority = 0, uint level = 0)
+	{
 		if(_task_mgr && _task) _task_mgr->set_active(_task, priority, level);
 	}
-	void inactive(){
+
+	void inactive()
+	{
 		if(_task_mgr && _task) _task_mgr->set_inactive(_task);
 	}
 

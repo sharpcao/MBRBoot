@@ -1,0 +1,49 @@
+
+
+
+#define BUF_META   0x7000
+#define BUF_FMAP   0x7200
+#define	FILE_VEC   0X7400
+
+int main()
+	read_disk(1,1, BUF_META)
+	file_seg = get_file_seg(BUF_META)
+	fmap_seg = get_fmap_seg(BUF_META)
+	fdat_seg  = get_fdat_seg(BUF_META)
+	for(uint i=0; i <10; ++i)
+	{
+		fr = file_seg.start + i ;
+		if(fr.empty()) break;
+		if(fr.ext == "os"){
+			printf(i + " "  + fr.name)
+			FILE_VEC[i] = fr.start
+		}
+	}
+	sel = getchar();
+	if(sel >= 0x30 && sel <= 0x39){
+		sel -= 0x30
+		fl =  FILE_VEC[i]
+		x = fl.start
+		i =  0
+		do{
+			read_disk((fdat_seg.start + x*1024) /512 , 2,0x8000 + i *0x400)
+			x = find_next(x)
+			++i
+		}while(x !=0xFFFFFFFF)
+
+	}
+
+}
+find_next(x)
+{
+static cur_load
+	a = x / 128
+	r = x % 128
+	if(a != cur_load) {
+		read_disk(fmap_seg.start/512+a,1,BUF_FMAP)
+		cur_load = a
+	}
+	return  BUF_MAP[r]
+}
+
+read_disk(serial,nsector, offset)

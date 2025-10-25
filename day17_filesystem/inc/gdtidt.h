@@ -5,8 +5,7 @@
 #include "os_io.h"
 
 using uint = unsigned int;
-constexpr uint AR_INTGATE32 =0x008e;
-constexpr uint AR_TSS32 = 0x0089;
+
 
 struct SEGMENT_DESCRIPTOR
 {
@@ -61,9 +60,10 @@ public:
 	using Handler_Func = void(*)();
 	void init_gdt_idt();
 	void add_gdt_task(uint idx, TSS32*);
-
-
 	void add_idt_handler(uint id, Handler_Func f);
+	SEGMENT_DESCRIPTOR* get_gdt(uint sel){
+		return _gdt_start + sel;
+	}
 
 private:
 	void _load_gdt() { OS_LOAD_GDT gdt(_gdt_size, _gdt_start);}

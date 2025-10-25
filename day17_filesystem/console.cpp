@@ -5,6 +5,7 @@
 extern CWinOS OS;
 
 
+
 void ConsoleLayer::twinkle()
 {
 	static bool bshow = false;
@@ -93,7 +94,11 @@ void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 			mem_str <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
 				<<"free:" << OS.p_mem_mgr->get_mem_free() /1024 << " KB\n";
 			add_string(mem_str.c_str());
-		}else{
+		}if (cmd_str== "a"){
+				
+	            
+		}
+		else{
 			add_string(cmd_str.c_str());
 		}
 		cursor_next();	
@@ -148,6 +153,9 @@ void console_timeout(uint tmr)
 
 }
 
+
+extern void get_task_str(uint idx, stringbuf<>& str);
+
 void ConsoleWindow::Run()
 {
 	//active();
@@ -170,8 +178,16 @@ void ConsoleWindow::Run()
 		}else{
 			io_sti();
 			if( p1 == EVENT::Timer){
+
+					//static uint tmp = 0;
 				consoleLayer->twinkle();
                 OS.timer_ctrl.call_hander((uint)p2);
+                	// if(++tmp > 50) {
+                	// 	tmp = 0;
+                	// 	message_mgr.push_message(EVENT::Key,3);
+                	 	OS.p_task_mgr->switch_to(1);
+                	// }
+
             }else if(p1 == EVENT::Actived){
             	//active();	
             }else if(p1 == EVENT::Key){
@@ -197,12 +213,17 @@ void ConsoleWindow::Run()
             		continue;
             	}
 
-           		uchar c = OS.translate_keycode(p2);
-           		if(c) {
-           			cmd_str << c;
-           			consoleLayer->add_char(c);
-	            	OS.p_layerMgr->update(consoleLayer->get_area());
-	            }
+        	  	static uint count = 0;
+			    count++;
+			    stringbuf<> s;
+			    s << (uint)count << "s";
+			    consoleLayer->add_string(s.c_str());
+
+	            OS.p_layerMgr->update(consoleLayer->get_area());
+
+	     	
+	            OS.p_task_mgr->switch_to(0);
+
 
             }
 		}

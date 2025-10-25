@@ -1,0 +1,331 @@
+     1                                  				org		0x7c00
+     2                                  [bits 16]
+     3                                  
+     4                                  STACK_TOP		equ		0x7000
+     5                                  BUF_META		equ		0x7000
+     6                                  	META_FILE 	equ		BUF_META + 0x20
+     7                                  	META_FMAP 	equ		BUF_META + 0x30
+     8                                  	META_FDAT 	equ		BUF_META + 0x40
+     9                                  
+    10                                  
+    11                                  BUF_FILE		equ		0x7200
+    12                                  BUF_FMAP		equ		0x7400
+    13                                  
+    14                                  MEM_LOAD_BASE   equ		0x8000
+    15                                  OS_MAX_SIZE		equ		128 			;128kb
+    16                                  
+    17 00000000 EB0B                    				jmp		_start
+    18                                  
+    19                                  
+    20                                  ;Global data
+    21 00000002 00000000                LAST_LOAD		dd		0
+    22 00000006 00                      DRIVER			db 		0
+    23 00000007 424F4F543A00            MSG_BOOT		db   	'BOOT:',0
+    24                                  
+    25                                  
+    26                                  _start:
+    27                                  ;Initial regs
+    28 0000000D 31C0                    				xor		ax, ax
+    29 0000000F 8ED8                    				mov		ds, ax
+    30 00000011 8EC0                    				mov		es, ax
+    31 00000013 8EE0                    				mov		fs, ax
+    32 00000015 8EE8                    				mov		gs, ax
+    33 00000017 8ED0                    				mov		ss,	ax
+    34 00000019 BC0070                  				mov		sp, STACK_TOP			
+    35 0000001C 8816[0600]              				mov		byte [DRIVER], dl
+    36                                  
+    37                                  ;Load disk meta
+    38 00000020 680007                  				push 	BUF_META / 16
+    39 00000023 6A01                    				push 	1
+    40 00000025 6A00                    				push 	0
+    41 00000027 6A01                    				push  	1
+    42 00000029 E85201                  				call  	read_disk_lba
+    43                                  
+    44                                  ;Load file records to BUF_FILE
+    45 0000002C A12870                  				mov		ax, [META_FILE + 0x8]		;start address
+    46 0000002F 8B162A70                				mov		dx, [META_FILE + 0xa]
+    47 00000033 E8F800                  				call	convert_serial
+    48 00000036 682007                  				push 	BUF_FILE / 16
+    49 00000039 6A01                    				push   	1
+    50 0000003B 52                      				push 	dx
+    51 0000003C 50                      				push 	ax
+    52 0000003D E83E01                  				call	read_disk_lba
+    53                                  
+    54                                  ;Print 10 files
+    55 00000040 BE0072                  				mov		si, BUF_FILE
+    56 00000043 E8BE00                  				call	print_files
+    57 00000046 88C1                    				mov 	cl, al
+    58 00000048 80C130                  				add 	cl, '0'
+    59                                  ;Choose file to boot 0~9
+    60 0000004B BE[0700]                				mov		si, MSG_BOOT
+    61 0000004E E86C01                  				call	print_str
+    62                                  .choose_file_loop:
+    63 00000051 B400                    				mov		ah, 0
+    64 00000053 CD16                    				int  	0x16
+    65 00000055 3C30                    				cmp		al, '0'
+    66 00000057 7CF8                    				jl 		.choose_file_loop
+    67 00000059 38C8                    				cmp		al, cl
+    68 0000005B 7DF4                    				jge  	.choose_file_loop
+    69 0000005D 2C30                    				sub  	al, '0'
+    70 0000005F B400                    				mov 	ah,  0
+    71 00000061 E82700                  				call    get_file_start_chunk
+    72                                  
+    73                                  ;Load from start chunk idx
+    74 00000064 B90000                  				mov		cx, 0
+    75 00000067 BF0008                  				mov		di, MEM_LOAD_BASE / 16
+    76                                  
+    77                                  .load_file:
+    78 0000006A 57                      				push 	di
+    79 0000006B 52                      				push 	dx
+    80 0000006C 50                      				push   	ax
+    81 0000006D E8E300                  				call    read_file_chuck
+    82 00000070 41                      				inc  	cx
+    83 00000071 83C740                  				add  	di, 1024 / 16
+    84 00000074 81F98000                				cmp		cx, OS_MAX_SIZE
+    85 00000078 7D0E                    				jge 	.done
+    86                                  
+    87 0000007A E81E00                  				call    find_next_idx
+    88 0000007D 3DFF00                  				cmp		ax, 0xff
+    89 00000080 75E8                    				jnz		.load_file
+    90 00000082 81FAFF00                				cmp  	dx, 0xff
+    91 00000086 75E2                    				jnz 	.load_file
+    92                                  
+    93                                  .done:
+    94                                  				;hlt
+    95 00000088 E9(0080)                				jmp 	MEM_LOAD_BASE
+    96                                  
+    97                                  
+    98                                  
+    99                                  ;--------------------------------------------------------------------------------------------
+   100                                  ; input @ax = user choose num
+   101                                  ; ouput 
+   102                                  ;		@ax = file start chunk low
+   103                                  ;		@dx = file start chunk high
+   104                                  get_file_start_chunk:
+   105 0000008B 57                      				push  	di
+   106 0000008C 89C7                    				mov		di, ax
+   107 0000008E C1E705                  				shl 	di, 5
+   108 00000091 8B851872                				mov  	ax, [BUF_FILE + di + 0x18]
+   109 00000095 8B951A72                				mov   	dx, [BUF_FILE + di + 0x1a]  	
+   110 00000099 5F                      				pop 	di
+   111 0000009A C3                      				retn
+   112                                  				
+   113                                  ;--------------------------------------------------------------------------------------------
+   114                                  ; input
+   115                                  ; 		@ax = current idx low
+   116                                  ;		@dx = current idx high
+   117                                  ; output
+   118                                  ; 		@ax = next idx low
+   119                                  ;		@dx = next idx high
+   120                                  find_next_idx:
+   121 0000009B 53                      				push 	bx
+   122 0000009C 51                      				push 	cx
+   123 0000009D 55                      				push    bp
+   124 0000009E 83EC08                  				sub		sp, 8
+   125                                  
+   126 000000A1 89E5                    				mov		bp, sp
+   127 000000A3 894604                  				mov		[bp + 4], ax
+   128 000000A6 895606                  				mov		[bp + 6], dx
+   129 000000A9 A13870                  				mov		ax, [META_FMAP + 0x08]
+   130 000000AC 8B163A70                				mov		dx, [META_FMAP + 0x0a]
+   131 000000B0 E87B00                  				call 	convert_serial
+   132 000000B3 894600                  				mov		[bp], ax
+   133 000000B6 895602                  				mov		[bp + 2], dx
+   134                                  
+   135 000000B9 8B4604                  				mov		ax, [bp + 4]
+   136 000000BC 8B5606                  				mov		dx, [bp + 6]
+   137 000000BF 89C3                    				mov		bx, ax
+   138 000000C1 83E37F                  				and		bx, 0x007f
+   139 000000C4 C1E302                  				shl		bx, 2
+   140 000000C7 B90700                  				mov 	cx, 7
+   141 000000CA E87A00                  				call 	dxax_shr
+   142 000000CD FF7602                  				push    word [bp + 2]
+   143 000000D0 FF7600                  				push 	word [bp]
+   144 000000D3 E86400                  				call	dxax_add
+   145 000000D6 3B06[0200]              				cmp		ax, [LAST_LOAD]
+   146 000000DA 7508                    				jnz		.load_fmap_sect
+   147 000000DC 3B16[0400]              				cmp		dx, [LAST_LOAD + 2]
+   148 000000E0 7502                    				jnz		.load_fmap_sect
+   149 000000E2 EB11                    				jmp 	.has_load
+   150                                  .load_fmap_sect:
+   151 000000E4 684007                  				push  	BUF_FMAP / 16 				;convert to segment
+   152 000000E7 6A01                    				push    1   						
+   153 000000E9 52                      				push  	dx
+   154 000000EA 50                      				push 	ax
+   155 000000EB E89000                  				call	read_disk_lba
+   156 000000EE A3[0200]                				mov		[LAST_LOAD], ax
+   157 000000F1 8916[0400]              				mov		[LAST_LOAD + 2], dx
+   158                                  
+   159                                  .has_load:
+   160 000000F5 8B870074                				mov  	ax, [BUF_FMAP + bx]
+   161 000000F9 8B970274                				mov     dx, [BUF_FMAP + bx + 2]
+   162                                  
+   163 000000FD 83C408                  				add     sp, 8
+   164 00000100 5D                      				pop    	bp
+   165 00000101 59                      				pop  	cx
+   166 00000102 5B                      				pop 	bx
+   167 00000103 C3                      				retn
+   168                                  ;--------------------------------------------------------------------------------------------
+   169                                  ;input
+   170                                  ; 	@si = file record start
+   171                                  ;output
+   172                                  ; 	@ax = actual file
+   173                                  print_files:
+   174 00000104 56                      				push    si
+   175 00000105 51                      				push   	cx
+   176 00000106 31C9                    				xor		cx,	cx
+   177                                  .loop:
+   178 00000108 8A04                    				mov		al, [si]
+   179 0000010A 84C0                    				test  	al, al
+   180 0000010C 741B                    				jz		.done
+   181 0000010E 88C8                    				mov		al, cl
+   182 00000110 0430                    				add     al, 0x30
+   183 00000112 E8B600                  				call	print_char
+   184 00000115 B020                    				mov		al, ' '
+   185 00000117 E8B100                  				call	print_char
+   186 0000011A E8A000                  				call  	print_str
+   187 0000011D E8B000                  				call	print_newline
+   188 00000120 83C620                  				add 	si, 0x20
+   189 00000123 41                      				inc    	cx
+   190 00000124 83F909                  				cmp     cx, 9
+   191 00000127 7EDF                    				jle  	.loop
+   192                                  				
+   193                                  .done:
+   194 00000129 89C8                    				mov 	ax, cx
+   195 0000012B 59                      				pop     cx
+   196 0000012C 5E                      				pop     si
+   197 0000012D C3                      				retn
+   198                                  
+   199                                  ;--------------------------------------------------------------------------------------------
+   200                                  ; input  @dx:@ax 
+   201                                  ; output @dx:@ax = @dx:@ax / 512  
+   202                                  convert_serial:
+   203 0000012E 88E0                    				mov		al, ah
+   204 00000130 88D4                    				mov		ah, dl
+   205 00000132 C1EA08                  				shr		dx, 8
+   206 00000135 D1EA                    				shr		dx, 1
+   207 00000137 D1D8                    				rcr    	ax, 1
+   208 00000139 C3                      				ret
+   209                                  
+   210                                  ;--------------------------------------------------------------------------------------------
+   211                                  ; input @1 = low bit, @2 = high bit
+   212                                  ; ouput @dx:@ax = @dx:@ax + input
+   213                                  dxax_add:
+   214 0000013A 55                      				push	bp
+   215 0000013B 89E5                    				mov		bp, sp
+   216 0000013D 034602                  				add 	ax, word [bp + 2]
+   217 00000140 135604                  				adc 	dx, word [bp + 4]
+   218 00000143 5D                      				pop		bp
+   219 00000144 C20400                  				retn 	4
+   220                                  
+   221                                  
+   222                                  ;--------------------------------------------------------------------------------------------
+   223                                  ; input @cx = shift right num
+   224                                  ; ouput @dx:@ax = @dx:@ax >> @cx
+   225                                  dxax_shr:
+   226                                  .loop:
+   227 00000147 85C9                    				test	cx, cx
+   228 00000149 7407                    				jz 		.done
+   229 0000014B D1EA                    				shr  	dx, 1
+   230 0000014D D1D8                    				rcr    	ax, 1
+   231 0000014F 49                      				dec     cx
+   232 00000150 EBF5                    				jmp 	.loop
+   233                                  .done:
+   234 00000152 C3                      				retn
+   235                                  ;--------------------------------------------------------------------------------------------
+   236                                  ; input
+   237                                  ; 	@1 = chunk_idx_low
+   238                                  ;	@2 = chunk_idx_high
+   239                                  ; 	@3 = memory_seg
+   240                                  ; output 
+   241                                  ;	NA
+   242                                  read_file_chuck:
+   243 00000153 60                      				pusha
+   244 00000154 89E5                    				mov 	bp, sp
+   245                                  
+   246                                  
+   247 00000156 A14870                  				mov		ax, [META_FDAT + 0x08]
+   248 00000159 8B164A70                				mov		dx, [META_FDAT + 0x0a]			; FDAT base address
+   249 0000015D E8CEFF                  				call	convert_serial
+   250 00000160 8B4E12                  				mov		cx, [bp + 0x12]					; chunk_idx
+   251 00000163 8B5E14                  				mov		bx, [bp + 0x14]
+   252 00000166 D1E1                    				shl		cx, 1 
+   253 00000168 D1D3                    				rcl     bx, 1
+   254 0000016A 01C8                    				add 	ax, cx
+   255 0000016C 11DA                    				adc 	dx, bx
+   256                                  
+   257 0000016E FF7616                  				push  	word [bp + 0x16]
+   258 00000171 6A02                    				push 	2				
+   259 00000173 52                      				push 	dx
+   260 00000174 50                      				push 	ax
+   261 00000175 E80600                  				call  	read_disk_lba
+   262                                  
+   263 00000178 89EC                    				mov		sp, bp
+   264 0000017A 61                      				popa
+   265 0000017B C20600                  				retn	6
+   266                                  ;--------------------------------------------------------------------------------------------
+   267                                  ;+0x12  @1 = serial_low
+   268                                  ;+0x14  @2 = serial_high
+   269                                  ;+0x16  @3 = nsector
+   270                                  ;+0x18  @4 = memory_seg
+   271                                  read_disk_lba:
+   272 0000017E 60                      				pusha 	
+   273 0000017F 89E5                    				mov		bp, sp
+   274 00000181 83EC10                  				sub		sp, 0x10
+   275                                  
+   276 00000184 89E6                    				mov		si, sp
+   277 00000186 C7041000                				mov		word  [si], 0x0010
+   278 0000018A 8B4616                  				mov		ax,  [bp + 0x16]
+   279 0000018D 894402                  				mov		[si + 2], ax			; nsector
+   280 00000190 C744040000              				mov		word [si + 4], 0 		; memory offset
+   281 00000195 8B4618                  				mov 	ax, [bp + 0x18]
+   282 00000198 894406                  				mov 	[si + 6], ax			; memory seg
+   283 0000019B 8B4612                  				mov		ax, [bp + 0x12]			
+   284 0000019E 894408                  				mov		[si + 8], ax			; serial_low
+   285 000001A1 8B4614                  				mov		ax, [bp + 0x14]
+   286 000001A4 89440A                  				mov		[si + 10], ax			; serial_high
+   287 000001A7 31C0                    				xor		ax, ax
+   288 000001A9 89440C                  				mov		[si + 12], ax
+   289 000001AC 89440E                  				mov		[si + 14], ax
+   290 000001AF 8A16[0600]              				mov		dl, [DRIVER]
+   291 000001B3 B442                    				mov		ah, 0x42
+   292 000001B5 CD13                    				int     0x13
+   293                                  
+   294 000001B7 89EC                    				mov 	sp, bp
+   295 000001B9 61                      				popa 	
+   296 000001BA C20800                  				retn	8
+   297                                  
+   298                                  ;--------------------------------------------------------------------------------------------
+   299                                  ;@si = string
+   300                                  print_str:
+   301 000001BD 60                      				pusha
+   302 000001BE FC                      				cld
+   303                                  .loop:
+   304 000001BF AC                      				lodsb
+   305 000001C0 3C00                    				cmp 	al, 0
+   306 000001C2 7405                    				jz		.done
+   307 000001C4 E80400                  				call	print_char
+   308 000001C7 EBF6                    				jmp 	.loop
+   309                                  .done:
+   310 000001C9 61                      				popa
+   311 000001CA C3                      				retn
+   312                                  
+   313                                  ;--------------------------------------------------------------------------------------------
+   314                                  ;input @al = char 
+   315                                  print_char:
+   316 000001CB B40E                    				mov		ah, 0x0e
+   317 000001CD CD10                    				int 	0x10
+   318 000001CF C3                      				retn
+   319                                  
+   320                                  ;--------------------------------------------------------------------------------------------
+   321                                  print_newline:
+   322 000001D0 B00D                    				mov		al, 0x0d
+   323 000001D2 E8F6FF                  				call	print_char
+   324 000001D5 B00A                    				mov		al, 0x0a
+   325 000001D7 E8F1FF                  				call	print_char
+   326 000001DA C3                      				retn
+   327                                  
+   328                                  ;--------------------------------------------------------------------------------------------
+   329 000001DB 00<rep 23h>             				times	510 - ($ -$$) 	db 0
+   330 000001FE 55AA                    				dw 		0xAA55
+   331                                  				

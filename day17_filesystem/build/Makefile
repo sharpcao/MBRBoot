@@ -18,7 +18,7 @@ default:
 peos.sys : $(OBJS)
 	ilink32 $(IFLAGS) ..\..\common\c0x32_mini.obj $(OBJS), peos.exe,,cw32.lib import32.lib
 	copy peos.exe peos.sys  
-	dd if=load_peos.bin of=peos.sys
+	dd if=pe_loader.bin of=peos.sys
 
 hankaku.obj :
 	bcc32c $(CFLAGS) ..\..\common\hankaku.cpp

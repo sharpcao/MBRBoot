@@ -85,7 +85,12 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
     gdtidt.add_idt_handler(0x21, handler_wrap<int21_handler>);
     gdtidt.add_idt_handler(0x2c, handler_wrap<int2c_handler>);
     gdtidt.add_idt_handler(0x07, handler_wrap<int7_handler>);
-
+    
+    gdtidt.add_idt_handler(0x08, handler_wrap_safe<int0a_handler,0x08>); //default blue screen
+    gdtidt.add_idt_handler(0x0a, handler_wrap_safe<int0a_handler,0x0a>); //default blue screen
+    gdtidt.add_idt_handler(0x0b, handler_wrap_safe<int0a_handler,0x0b>); //default blue screen
+    gdtidt.add_idt_handler(0x0c, handler_wrap_safe<int0a_handler,0x0c>); //default blue screen
+    gdtidt.add_idt_handler(0x0d, handler_wrap_safe<int0a_handler,0x0d>); //default blue screen
     
     CPIC pic;
     pic.init_pic();
@@ -109,6 +114,8 @@ void CWinOS::_idle_task(uint param)
     for(;;)
     {
         io_hlt();
+        //OS.p_task_mgr->switch_next();
+        OS.p_task_mgr->switch_to(2);
     }
 }
 

@@ -2,7 +2,7 @@
 #include "inc\winos.h"
 
 
-void CTimer::set_timeout(uint timeout,Timeout_Func p_fn)
+void CTimer::set_timer(uint timeout,Timeout_Func p_fn)
 {
 	int eflags = io_load_eflags();
 	io_cli();
@@ -23,7 +23,7 @@ bool CTimerCtrl::add_timer(uint timeout, CTimer::Timeout_Func p_fn ,Message_mgr<
 		_timers[_last]._id = _last;
 		_timers[_last].set_tm_event(p_evt);
 		uint real_timeout = _count + timeout;
-		_timers[_last].set_timeout(real_timeout, p_fn);
+		_timers[_last].set_timer(real_timeout, p_fn);
 		CTimer *it = _next_timer, *pre = 0;
 		while(it->_timeout <= real_timeout) {
 			pre = it;
@@ -70,7 +70,7 @@ void CTimerCtrl::set_timer(uint idx, uint timeout, CTimer::Timeout_Func p_fn)
 		uint real_timeout = _count+timeout;
 		
 		if(!_timers[idx].is_timeout()){
-			_timers[idx].set_timeout(real_timeout, p_fn);
+			_timers[idx].set_timer(real_timeout, p_fn);
 			if(_timers[idx].next()->_timeout < real_timeout)
 			{
 				CTimer *it = _next_timer;
@@ -87,7 +87,7 @@ void CTimerCtrl::set_timer(uint idx, uint timeout, CTimer::Timeout_Func p_fn)
 
 		}else{
 
-			_timers[idx].set_timeout(real_timeout, p_fn);
+			_timers[idx].set_timer(real_timeout, p_fn);
 			insert_timer(&_timers[idx], _next_timer);
 		}
 

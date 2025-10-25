@@ -10,20 +10,18 @@ class CTimerCtrl;
 
 class CTimer{
 public:
-
-	using Timeout_Func = void(*)(uint tmr);
-	void set_timeout(uint timeout, Timeout_Func p_fn = 0);
-		
-	bool is_timeout() { return _is_timeout;}
-	void timeout() {
-		_is_timeout = true;
-	}
-	CTimer* next() { return _next;}
-	void set_tm_event(Message_mgr<>* pmsgr) {_p_tm_evt = pmsgr; }
 	friend CTimerCtrl;
+	using Timeout_Func = void(*)(uint tmr);
 
+	void set_timer(uint timeout, Timeout_Func p_fn = 0);
+		
+	bool is_timeout()	{ return _is_timeout;}
+	void timeout() 		{ _is_timeout = true;}
+	CTimer* next() 		{ return _next;	}
+	void set_tm_event(Message_mgr<>* pmsgr) { _p_tm_evt = pmsgr; }
+	
 private:
-	uint _id =0;
+	uint _id = 0;
 	uint _timeout = 0;
 	bool _is_timeout = true;
 	Timeout_Func _p_fn = 0;
@@ -43,10 +41,10 @@ protected:
 	void insert_timer(CTimer* tm, CTimer* from);
 
 public:
-	void init(Message_mgr<>* p_evt)  {
+	void init_timers(Message_mgr<>* p_evt)  {
 		p_event_buf=p_evt; 
 
-		_timers[_last].set_timeout(0xFFFFFFFF);
+		_timers[_last].set_timer(0xFFFFFFFF);
 		_next_timer = &_timers[_last++];
 
 	}
@@ -86,7 +84,8 @@ void CTimerCtrl::inc()
 					static_cast<T1>(p_event_buf)->push_message(EVENT::Timer, p->_id);
 				}
 			}
-		}else{
+		}else
+		{
 			break;
 		}
 	}

@@ -35,7 +35,7 @@ void  io_store_eflags(uint eflags);
 
 __declspec(naked) void io_load_tr(uint idx);
 __declspec(naked) void task_switch(uint ip, uint cs);
-
+__declspec(naked) void jmp_cs(short int);
 
 __declspec(naked) uint load_cr0();
 __declspec(naked) void store_cr0(uint v);
@@ -46,6 +46,15 @@ struct OS_LOAD_IDT;
 
 void load_gdt(OS_LOAD_GDT* ptr);
 void load_idt(OS_LOAD_IDT* ptr);
+
+namespace cpu {
+	struct Reg{
+			uint eax, ebx, ecx, edx, esi, edi;
+			uint cs, ds, es,fs, gs;
+			uint eflags;
+	};
+	__declspec(naked) void get_regs(Reg* reg);
+}
 
 #endif
 

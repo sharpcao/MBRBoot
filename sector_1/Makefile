@@ -1,5 +1,7 @@
-sector_1.bin : load_peos.asm Makefile
-	nasm load_peos.asm -o sector_1.bin -l load_peos.lst
+SOURCE = pe_s0_loados.asm
+sector_1.bin : $(SOURCE)
+	nasm $(SOURCE) -o pe_loader.bin -l pe_loader.lst
+	copy pe_loader.bin sector_1.bin
 
 clean:
-	del sector_1.bin load_peos.lst
+	del *.bin *.lst

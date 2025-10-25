@@ -12,7 +12,7 @@ fdimage.img : sector_0/sector_0.bin sector_1/sector_1.bin $(sector_x_dir)/sector
     $(DD) if=peos.bin of=fdimage.img 
 
 
-sector_1/sector_1.bin: sector_1/load_peos.asm
+sector_1/sector_1.bin: 
     cd sector_1
     make sector_1.bin 
     cd ..

@@ -3,16 +3,19 @@
 
 #include "common.h"
 
-uint uint2str(char* p, uint v)
+uint uint2str(char* p, uint v, bool hex = false)
 {
+
 	char buf[10];
-	int i = 0,size = 0;
+	int i = 0, size = 0;
+	uint base = hex? 16 : 10;
 	if(v==0){
 		*p++ = 0x30;
 		size = 1;
 	}else{
-		for(;v!=0; v/=10,++i){
-			buf[i] = (v % 10) + 0x30;
+		for(;v!=0; v/= base,++i){
+			buf[i] = (v % base) + 0x30;
+			if (buf[i] > '9') buf[i] += 'a' - ('9'+1);
 		}
 		size = i--;
 		for(;i>=0;--i,++p){
@@ -26,6 +29,12 @@ uint uint2str(char* p, uint v)
 template<uint N=256>
 class stringbuf{
 public:
+
+	enum flag {
+		hex,
+		dec
+	};
+
 	stringbuf() { reset();}
 
 	void reset(){
@@ -58,9 +67,16 @@ public:
 
 	stringbuf&  operator<<(uint v)
 	{
-		_idx += uint2str(&_buf[_idx],v);
+		_idx += uint2str(&_buf[_idx],v, _hex);
 		return *this;
 	}
+	stringbuf& operator<<(flag f)
+	{
+		if(f == flag::hex || f == flag::dec) _hex = (f==flag::hex);
+		return *this;
+	}
+
+
 	stringbuf& operator<<(const char* p)
 	{
 		for(;*p!=0;p++){
@@ -95,7 +111,9 @@ public:
 	const char* c_str() const {return _buf;}
 
 private:
+
 	uint _idx;
+	bool _hex = false;
 	const uint _max = N;
 	char _buf[N];
 	void _set_text(const char* p_text){

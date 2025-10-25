@@ -95,7 +95,7 @@ public:
 private:
     void init_task_mgr(CMEM_MGR& mem_mgr);
     void init_timers(){
-        timer_ctrl.init(&EventList);
+        timer_ctrl.init_timers(&EventList);
         timer_ctrl.set_task_mgr(p_task_mgr);
     }
     void init_layers(CMEM_MGR& mem_mgr, uint width, uint height);

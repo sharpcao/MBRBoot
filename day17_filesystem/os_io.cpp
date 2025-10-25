@@ -109,6 +109,22 @@ void task_switch(uint ip, uint cs)
 }
 
 __declspec(naked)
+void jmp_cs(short int cs)
+{
+	__asm{
+		add esp, 0x0c
+		__emit 0xff
+		__emit 0x5c
+		__emit 0x24
+		__emit 0xf4
+
+	}
+}
+
+
+
+
+__declspec(naked)
 uint load_cr0()
 {
 	__asm{
@@ -143,4 +159,36 @@ void load_idt(OS_LOAD_IDT* ptr)
 		mov	 eax, ptr
 		lidt [eax]
 	};
+}
+
+__declspec(naked) void cpu::get_regs(Reg* reg)
+{
+	
+	__asm{
+		push ebp
+		push eax
+		mov ebp, [esp+12]
+		mov [ebp], eax
+		mov [ebp+4], ebx
+		mov [ebp+8], ecx
+		mov [ebp+12], edx
+		mov [ebp+16], esi
+		mov [ebp+20], edi
+		mov [ebp+24], cs
+		mov word ptr [ebp+26], 0
+		mov [ebp+28], ds
+		mov word ptr [ebp+30], 0
+		mov [ebp+32], es
+		mov word ptr [ebp+34], 0
+		mov [ebp+36], fs
+		mov word ptr [ebp+38], 0
+		mov [ebp+40], gs
+		mov word ptr [ebp+42], 0
+		pushfd
+		pop eax
+		mov [ebp+44], eax
+		pop eax
+		pop ebp
+		ret
+	}
 }
