@@ -236,11 +236,13 @@ void Meta::add_file(const string& filename)
 			
 			if(++idx >= map_meta.length / sizeof(ulong)) throw std::runtime_error("No space available!");
 		}
+
 		return idx;
 		
 	};
 
-	cur = first = find_free_map();
+	cur = pre = first = find_free_map();
+
 
 	for(uint remain_size = file_size; remain_size > 0; )
 	{
