@@ -25,14 +25,23 @@ MSG_BOOT		db   	'BOOT:',0
 
 _start:
 ;Initial regs
+				cli
 				xor		ax, ax
 				mov		ds, ax
 				mov		es, ax
 				mov		fs, ax
 				mov		gs, ax
-				mov		ss,	ax
-				mov		sp, STACK_TOP			
+				mov		ss, ax
+				mov		bx, ax
+				mov		cx, ax
+				mov		si, ax
+				mov		di, ax
+				mov		bp, ax
+				mov		sp, STACK_TOP		
+				sti	
 				mov		byte [DRIVER], dl
+				mov		ax, 0x0003
+				int   	0x10
 
 ;Load disk meta
 				push 	BUF_META / 16

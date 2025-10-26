@@ -18,7 +18,7 @@ _start:
 				mov		fs, ax
 				mov		gs, ax
 				mov		ss, ax
-				mov		sp, 0x7c00
+				mov		sp, 0x7000
 
 ;---------------------------------------------------------------------------------
 ;Function 00h - Return Super VGA Information
