@@ -110,6 +110,15 @@ public:
 	uint size() const {return (_idx>0)? _idx : 0;}
 	const char* c_str() const {return _buf;}
 
+	char pop() {
+		if (!_idx ) return 0;
+		char x = _buf[--_idx];
+		_buf[_idx] = 0;
+		return x;
+	}
+
+	char operator [] (uint ix) const {return _buf[ix];}
+
 private:
 
 	uint _idx;
@@ -183,5 +192,24 @@ bool Array<T>::has(const T& v)
 	}
 	return result;
 }
+
+
+
+
+class Cmd_Parser{
+	static constexpr uint N = 16;
+	const char* _cmd;
+	uint _args;
+	uint _args_pos[N];
+public:
+	Cmd_Parser(const char* cmd);
+	uint size()  const { return _args;}
+	stringbuf<> operator []  (uint ix) const;
+	uint pos(uint ix) { return _args_pos[ix]; }
+
+};
+
+
+
 
 #endif

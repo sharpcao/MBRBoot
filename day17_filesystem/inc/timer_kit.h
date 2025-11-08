@@ -5,6 +5,7 @@
 #include "common.h"
 #include "Message_kit.h"
 #include "os_io.h"
+#include "lock_kit.h"
 
 class CTimerCtrl;
 

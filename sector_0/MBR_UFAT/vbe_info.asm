@@ -36,10 +36,46 @@ _start:
 				mov  		si, [0x9000 + VgaInfoBlock.OEMStringPtr]
 				mov     	ax, [0x9000 + VgaInfoBlock.OEMStringPtr + 2]
 				call    	print_DS_SI_string
+				call  	print_newline
+
+				mov		ax, [0x9000 + VgaInfoBlock.VideoModePtr]
+				mov		dx, [0x9000 + VgaInfoBlock.VideoModePtr + 2]
+				call  	print_vga_modes
+
+
 
 .wait:
 				hlt
 				jmp 		.wait
+
+
+
+
+
+;---------------------------------------------------------------------------------------------
+
+; @DX:@AX
+print_vga_modes:
+				pusha
+				mov  	ds, dx
+				mov  	si, ax
+				cld
+.loop:
+				lodsw
+				cmp	ax, 0xFFFF
+				je 	.done
+				mov   dl, ah
+				call  print_byte
+				mov   al, dl
+				call  print_byte
+				mov	al, ','
+				call  print_char
+				jmp 	.loop
+
+.done:
+				popa
+				retn
+
 ;---------------------------------------------------------------------------------------------
 print_DS_SI_string:
 				push 		ds
@@ -67,6 +103,42 @@ print_str:
 print_char:
 				mov		ah, 0x0e
 				int 		0x10
+				retn
+
+;--------------------------------------------------------------------------------------------
+; input @al = hex
+print_byte:
+				push  	dx
+				mov		dl,	al
+				and  		al,	0xf0
+				shr		al,	4
+				call  	hex2char
+				call  	print_char
+				mov  		al,	dl
+				and   		al,   0x0f
+				call   	hex2char
+				call     	print_char
+				mov 		al,   ' '
+				call 		print_char
+				pop 		dx
+				retn
+
+;--------------------------------------------------------------------------------------------
+hex2char:
+				cmp		al, 0x0f
+				jle		.less16
+				xor		al, al
+				jmp		.done
+
+.less16:
+				cmp		al,	10
+				jl 		.less10
+				add   	al, 'a' - 0x30 - 0xa 
+
+.less10:
+				add 		al, 0x30
+.done:
+
 				retn
 
 ;--------------------------------------------------------------------------------------------

@@ -173,9 +173,7 @@ void handle_message()
                 if(act_w) {
                     
                     act_w->push_message(p1,p2);
-                    char c = OS.translate_keycode(p2);
-                    if(c=='-') OS.p_task_mgr->switch_to(2);
-
+            
                 }
 
 

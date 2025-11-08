@@ -1,6 +1,8 @@
 #ifndef MESSAGE_KIT_H
 #define MESSAGE_KIT_H
 
+#include "lock_kit.h"
+
 template<uint N = 128>
 class Message_mgr
 {
@@ -19,9 +21,12 @@ private:
 };
 
 
+
 template<uint N>
 bool Message_mgr<N>::push_message(uint p1, uint p2)
 {
+	Disable_Interrupt lock;
+
 	if( (_i2+1) % N == _i1 ){
 		return false;
 	}else{
@@ -36,6 +41,8 @@ bool Message_mgr<N>::push_message(uint p1, uint p2)
 template<uint N>
 bool Message_mgr<N>::get_message(uint& p1, uint& p2)
 {
+	Disable_Interrupt lock;
+
 	//p1 = p2 = 0;
 	if(_i1 == _i2) return false;
 	

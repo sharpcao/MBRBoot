@@ -5,7 +5,7 @@ c.img:
 	fos c.img format
 	fos c.img addfile hello.os
 	dd if=mbr.bin of=c.img 
-	del mbr.bin hello.os
+	# del mbr.bin hello.os
 	
 
 

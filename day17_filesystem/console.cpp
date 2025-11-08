@@ -4,7 +4,7 @@
 
 extern CWinOS OS;
 
-
+extern void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd_str);
 
 void ConsoleLayer::twinkle()
 {
@@ -73,6 +73,16 @@ void ConsoleLayer::cursor_step(uint s)
 	}
 }
 
+void ConsoleLayer::cursor_back(uint s)
+{
+	int n = (int)_convert_pos(_cursor_row, _cursor_col) - s;
+	if (n < _cursor_prefix_end) n = _cursor_prefix_end;
+
+	_cursor_col = n % _col_max();
+	_cursor_row = n / _col_max();	
+
+}
+
 void ConsoleLayer::cursor_next()
 {
 	
@@ -83,27 +93,47 @@ void ConsoleLayer::cursor_next()
 	}
 }
 
+void ConsoleLayer::add_prefix(bool newline)
+{
+	if (newline) cursor_next();
+	add_string(prefix_str);
+	_cursor_prefix_end = _convert_pos(_cursor_row, _cursor_col);
+}
 
 void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 {
 	cursor_show(false);
 	cursor_next();
+	stringbuf<> cout_s;
+	bool newline = true;
+
+	Cmd_Parser cmd(cmd_str.c_str());
+
 	if(cmd_str.size()){
-		if (cmd_str == "mem"){
-			stringbuf<> mem_str;
-			mem_str <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
+
+		if (cmd[0] =="cls"){
+			fill_client_box(Color8::COL8_000000);
+			_cursor_row = _cursor_col = 0;
+			newline = false;
+
+		}else if (cmd[0] == "mem"){
+			
+			cout_s <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
 				<<"free:" << OS.p_mem_mgr->get_mem_free() /1024 << " KB\n";
-			add_string(mem_str.c_str());
-		}if (cmd_str== "a"){
-				
-	            
+			
+		}else if( cmd[0] == "ver"){
+			cout_s <<"VOS 0.0.1";
+
+		}else if(cmd[0] == "dump"){
+			console_dump(cout_s, cmd);
+
+		}else{
+			cout_s << cmd_str.c_str();
 		}
-		else{
-			add_string(cmd_str.c_str());
-		}
-		cursor_next();	
+		
 	}
-	add_string(ConsoleLayer::prefix_str);
+	if (cout_s.size()) add_string(cout_s.c_str());
+	add_prefix(newline);
 	OS.p_layerMgr->update(get_area());
 }
 
@@ -121,6 +151,16 @@ void ConsoleLayer::add_char(uchar asc)
 		
 	}
 }
+
+void ConsoleLayer::remove_char()
+{
+	CRect cursor_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
+	fill_box(Color8::COL8_000000, cursor_box);
+	cursor_back();	
+}
+
+
+
 void ConsoleLayer::add_string(const char* pstr)
 {
 	for(const char* p = pstr; *p!= 0; ++p) add_char(*p);
@@ -162,7 +202,7 @@ void ConsoleWindow::Run()
 	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
 	
 	consoleLayer->set_title(0, *OS.p_layerMgr);
-	consoleLayer->add_string(ConsoleLayer::prefix_str);
+	consoleLayer->add_prefix(false);
 	OS.p_layerMgr->update(consoleLayer->get_area());
 
 	OS.timer_ctrl.add_timer(80,console_timeout, &message_mgr);
@@ -179,14 +219,9 @@ void ConsoleWindow::Run()
 			io_sti();
 			if( p1 == EVENT::Timer){
 
-					//static uint tmp = 0;
 				consoleLayer->twinkle();
                 OS.timer_ctrl.call_hander((uint)p2);
-                	// if(++tmp > 50) {
-                	// 	tmp = 0;
-                	// 	message_mgr.push_message(EVENT::Key,3);
-                	 	OS.p_task_mgr->switch_to(1);
-                	// }
+      
 
             }else if(p1 == EVENT::Actived){
             	//active();	
@@ -211,19 +246,20 @@ void ConsoleWindow::Run()
             		consoleLayer->cmd_enter(cmd_str);
             		cmd_str.reset();
             		continue;
-            	}
+            	}else if(p2 == TransKey::KeyCode::Backspace){
+            		cmd_str.pop();
+            		consoleLayer->remove_char();
+            		continue;
+            	}else{
 
-        	  	static uint count = 0;
-			    count++;
-			    stringbuf<> s;
-			    s << (uint)count << "s";
-			    consoleLayer->add_string(s.c_str());
-
+					uchar c = OS.translate_keycode(p2);
+	           		if(c) {
+	           			cmd_str << c;
+	           			consoleLayer->add_char(c);
+	            	
+	            	}
+	            }
 	            OS.p_layerMgr->update(consoleLayer->get_area());
-
-	     	
-	            OS.p_task_mgr->switch_to(0);
-
 
             }
 		}

@@ -94,6 +94,7 @@ public:
 
 
 	void load_img(const char* title = "", Color8 client_color = Color8::COL8_E6E6E6);
+	void fill_client_box(Color8 client_color = Color8::COL8_E6E6E6);
 	void fill_title_box();
 
 	virtual uint class_size  ()  const 

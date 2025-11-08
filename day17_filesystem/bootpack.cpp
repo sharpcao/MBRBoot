@@ -14,7 +14,7 @@ void os_main(BOOTINFO *pbi)
     GDTIDT gdtidt;
     gdtidt.init_gdt_idt();      
 
-    CMEM_MGR mem_mgr(0x200000,0x100000);
+    CMEM_MGR mem_mgr(0x300000,0x100000);
     OS.init(pbi, mem_mgr);
 
 
@@ -53,7 +53,7 @@ void tick_timeout(uint tmr)
     s << (uint)count << "s";
     auto pd = OS.layers.p_txt_tick;
     pd->set_text(s.c_str(),*OS.p_layerMgr,Color8::COL8_000000);
-    //OS.timer_ctrl.set_timer(tmr,100,tick_timeout);
+    OS.timer_ctrl.set_timer(tmr,100,tick_timeout);
 }
 
 

@@ -4,13 +4,11 @@
 
 void CTimer::set_timer(uint timeout,Timeout_Func p_fn)
 {
-	int eflags = io_load_eflags();
-	io_cli();
+	Disable_Interrupt lock;
+
 	_timeout = timeout;
 	_is_timeout = false;
 	_p_fn = p_fn;
-
-	io_store_eflags(eflags);
 
 }
 
@@ -18,6 +16,8 @@ void CTimer::set_timer(uint timeout,Timeout_Func p_fn)
 
 bool CTimerCtrl::add_timer(uint timeout, CTimer::Timeout_Func p_fn ,Message_mgr<>* p_evt)
 {
+	Disable_Interrupt lock;
+
 	bool rtn = true;
 	if (_last < _max){
 		_timers[_last]._id = _last;
@@ -46,6 +46,8 @@ bool CTimerCtrl::add_timer(uint timeout, CTimer::Timeout_Func p_fn ,Message_mgr<
 
 void CTimerCtrl::insert_timer(CTimer* tm, CTimer* from)
 {
+	Disable_Interrupt lock;
+
 	CTimer *it = from; 
 	
 	if((it==_next_timer) && (it->_timeout > tm->_timeout)){
@@ -63,8 +65,7 @@ void CTimerCtrl::insert_timer(CTimer* tm, CTimer* from)
 void CTimerCtrl::set_timer(uint idx, uint timeout, CTimer::Timeout_Func p_fn)
 {
 	
-	int eflags = io_load_eflags();
-	io_cli();
+	Disable_Interrupt lock;
 
 	if(idx>0 && idx < _last){
 		uint real_timeout = _count+timeout;
@@ -93,6 +94,6 @@ void CTimerCtrl::set_timer(uint idx, uint timeout, CTimer::Timeout_Func p_fn)
 
 	}
 
-	io_store_eflags(eflags);
+	
 }
 

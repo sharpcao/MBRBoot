@@ -290,7 +290,7 @@ void CMTTimerCtrl::mt_inc()
 	inc<Task_Message_mgr*,Task_Message_mgr* >();
 	if ((++cnt % p) == 0){
 		cnt = 0;
-		//mt_taskswitch();
+		mt_taskswitch();
 	}
 
 	

@@ -49,7 +49,10 @@ public:
         CapsDown = 0x3a,
         CapsUp = 0xba,
         EnterDown = 0x1c,
-        EnterUp = 0x9c
+        EnterUp = 0x9c,
+        ArrowLeft = 0x4b,
+        ArrowRight= 0x4d,
+        Backspace = 0x0e,
 
     };
 };

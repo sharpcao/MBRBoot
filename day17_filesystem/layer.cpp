@@ -239,6 +239,11 @@ void CWindowLayer::load_img(const char* title, Color8 client_color)
 
 }
 
+void CWindowLayer::fill_client_box(Color8 client_color)
+{
+	fill_box(client_color, _client_box._x, _client_box._y, _width -3 , _height -3);
+}
+
 void CWindowLayer::fill_title_box()
 {
 

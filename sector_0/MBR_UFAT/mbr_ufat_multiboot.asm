@@ -14,7 +14,7 @@ BUF_FMAP		equ		0x7400
 MEM_LOAD_BASE   equ		0x8000
 OS_MAX_SIZE		equ		128 			;128kb
 
-				jmp		_start
+				jmp		0:_start
 
 
 ;Global data
