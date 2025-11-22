@@ -6,7 +6,7 @@
 uint uint2str(char* p, uint v, bool hex = false)
 {
 
-	char buf[10];
+	char buf[16];
 	int i = 0, size = 0;
 	uint base = hex? 16 : 10;
 	if(v==0){
@@ -85,6 +85,13 @@ public:
 		_buf[_idx] = 0;
 		return *this;
 	}
+	stringbuf& operator <<(const stringbuf& rhs)
+	{
+		(*this) << rhs.c_str();
+		return *this;
+	}
+
+
 	stringbuf& operator<<(char c){
 		_buf[_idx++] = c;
 		_buf[_idx] = 0;
@@ -119,6 +126,8 @@ public:
 
 	char operator [] (uint ix) const {return _buf[ix];}
 
+	uint to_uint();
+
 private:
 
 	uint _idx;
@@ -133,6 +142,29 @@ private:
 		_buf[N-1] = 0;
 	}
 };
+
+template<uint N>
+uint stringbuf<N>::to_uint()
+{
+	uint base = (_hex)? 16: 10;  
+	uint result = 0;
+	for(uint i = 0; i< size();++i){
+		char c = _buf[i];
+		if (c >= '0' && c <= '9'){
+			result =  result * base +  (c-'0');
+		}else if (c>='a' && c <= 'f'){
+			result = result *base + (c-'a') + 10;
+		}
+		else{
+			return 0;
+		}
+	}
+	return result;
+}
+
+
+
+
 
 
 

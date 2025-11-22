@@ -12,6 +12,7 @@
 #endif
 
 using uint = unsigned int;
+using ulong = unsigned long;
 using uchar = unsigned char;
 
 constexpr uint CURSOR_WIDTH = 16;

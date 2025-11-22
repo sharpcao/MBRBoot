@@ -5,6 +5,8 @@
 extern CWinOS OS;
 
 extern void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd_str);
+extern void console_readhd(stringbuf<>& cout_str, const Cmd_Parser& cmd);
+extern void console_loadhd(stringbuf<>& cout_str, const Cmd_Parser& cmd);
 
 void ConsoleLayer::twinkle()
 {
@@ -127,6 +129,14 @@ void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 		}else if(cmd[0] == "dump"){
 			console_dump(cout_s, cmd);
 
+		}else if(cmd[0] == "readhd"){
+			console_readhd(cout_s, cmd);
+		}else if(cmd[0] == "loadhd"){
+			console_loadhd(cout_s, cmd);
+		}
+		else if (cmd[0] == "?" || cmd[0] == "help"){
+			cout_s <<"cmd: cls mem ver dump readhd loadhd\n";
+		
 		}else{
 			cout_s << cmd_str.c_str();
 		}

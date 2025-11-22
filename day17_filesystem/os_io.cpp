@@ -10,6 +10,19 @@ void io_out8(uint port, uint value)
 		//ret
 	}
 }
+
+
+void io_out16(uint port, uint value)
+{
+	__asm{
+		mov edx, port
+		mov eax, value
+		out dx,ax
+		//ret
+	}
+}
+
+
 __declspec(naked)
 uchar io_in8(uint port)
 {
@@ -21,6 +34,18 @@ uchar io_in8(uint port)
 	}
 }
 
+
+__declspec(naked) 
+short unsigned int io_in16(uint port)
+{
+	__asm{
+		mov edx, [esp+4]
+		mov eax,0
+		in ax,dx
+		ret
+	}
+
+}
 
 
 __declspec(naked) 

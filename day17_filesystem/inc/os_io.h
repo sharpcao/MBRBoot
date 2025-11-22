@@ -19,8 +19,10 @@ enum PIC {
 
 //__declspec(naked) 
 void io_out8(uint port, uint value);
+void io_out16(uint port, uint value);
 
 __declspec(naked) uchar io_in8(uint port);
+__declspec(naked) short unsigned int io_in16(uint port);
 __declspec(naked) void io_cli();
 __declspec(naked) void io_sti();
 __declspec(naked) void io_hlt();
