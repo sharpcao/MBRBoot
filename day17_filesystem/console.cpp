@@ -7,6 +7,7 @@ extern CWinOS OS;
 extern void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd_str);
 extern void console_readhd(stringbuf<>& cout_str, const Cmd_Parser& cmd);
 extern void console_loadhd(stringbuf<>& cout_str, const Cmd_Parser& cmd);
+extern void console_run_at(stringbuf<>& cout_str, const Cmd_Parser& cmd);
 
 void ConsoleLayer::twinkle()
 {
@@ -137,6 +138,12 @@ void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 		else if (cmd[0] == "?" || cmd[0] == "help"){
 			cout_s <<"cmd: cls mem ver dump readhd loadhd\n";
 		
+		}else if(cmd[0]=="test"){
+			console_print_char('F');
+			//console_add_char('a');
+			add_char('f');
+		}else if(cmd[0] == "runat"){
+			console_run_at(cout_s, cmd);
 		}else{
 			cout_s << cmd_str.c_str();
 		}
@@ -206,10 +213,13 @@ void console_timeout(uint tmr)
 
 extern void get_task_str(uint idx, stringbuf<>& str);
 
+extern ConsoleLayer* cur_ConsoleLayer;
 void ConsoleWindow::Run()
 {
 	//active();
+	
 	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
+	cur_ConsoleLayer = consoleLayer;
 	
 	consoleLayer->set_title(0, *OS.p_layerMgr);
 	consoleLayer->add_prefix(false);
@@ -269,7 +279,9 @@ void ConsoleWindow::Run()
 	            	
 	            	}
 	            }
-	            OS.p_layerMgr->update(consoleLayer->get_area());
+	            //OS.p_layerMgr->update(consoleLayer->get_area());
+	            consoleLayer->refresh();
+
 
             }
 		}

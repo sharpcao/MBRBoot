@@ -6,6 +6,7 @@
 
 
 
+
 class ConsoleLayer : public CWindowLayer
 {
 private:
@@ -30,7 +31,7 @@ public:
 	void cursor_next();
 	void cursor_show(bool bshow = true);
 	void twinkle();	
-
+	void refresh() { OS.p_layerMgr->update(get_area()); }
 
 	void cmd_enter(const stringbuf<>& cmd_str);
 	void add_char(uchar asc);
@@ -75,6 +76,8 @@ public:
 };
 
 
+
+extern void __stdcall console_print_char(uchar c);
 
 
 #endif

@@ -1,5 +1,6 @@
 #include "inc\functions.h"
 #include "inc\os_io.h"
+#include "inc\console.h"
 
 #define ATA_DATA        0x1F0
 #define ATA_ERROR       0x1F1
@@ -161,3 +162,51 @@ void console_loadhd(stringbuf<>& cout_str, const Cmd_Parser& cmd)
 	cout_str << "load done!\n" ;
 
 }
+
+
+void console_run_at(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
+	uint param_num = cmd.size();
+	if (param_num == 2){
+		stringbuf<> saddr = cmd[1];
+		saddr << stringbuf<>::flag::hex;
+		uint mem_addr = saddr.to_uint();
+		GDTIDT gdtidt;
+		gdtidt[1004]->set(4*1024 - 1, mem_addr, AR_CODE32_ER);
+		far_call(0,1004*8);
+
+	}else{
+		cout_str <<"runat [memory]\n";
+		return;
+	}
+
+}
+
+
+
+ConsoleLayer* cur_ConsoleLayer;
+
+void __stdcall console_print_char(uchar c)
+{
+	cur_ConsoleLayer->add_char(c);
+	cur_ConsoleLayer->refresh();
+}
+
+
+void* p_func = (void*)console_print_char;
+
+__declspec(naked) extern "C"
+void __stdcall api_print_char(uchar c)
+{
+	asm{
+		mov eax, [esp + 8]
+		and eax, 0xff
+		mov ecx, p_func
+		push eax
+		call ecx
+		retf 4
+	}
+}
+
+void __stdcall (* p_api)(uchar c) = api_print_char;
+

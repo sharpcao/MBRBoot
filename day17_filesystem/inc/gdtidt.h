@@ -64,6 +64,9 @@ public:
 	SEGMENT_DESCRIPTOR* get_gdt(uint sel){
 		return _gdt_start + sel;
 	}
+	SEGMENT_DESCRIPTOR* operator[] (uint sel){
+		return _gdt_start + sel;
+	}
 
 private:
 	void _load_gdt() { OS_LOAD_GDT gdt(_gdt_size, _gdt_start);}
@@ -76,7 +79,7 @@ private:
 
 };
 
-
+#define AR_CODE32_ER 0x409a
 
 
 #endif

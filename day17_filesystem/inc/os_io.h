@@ -36,7 +36,10 @@ uint io_load_eflags();
 void  io_store_eflags(uint eflags);
 
 __declspec(naked) void io_load_tr(uint idx);
+
 __declspec(naked) void task_switch(uint ip, uint cs);
+__declspec(naked) void far_call(uint ip, uint cs);
+
 __declspec(naked) void jmp_cs(short int);
 
 __declspec(naked) uint load_cr0();

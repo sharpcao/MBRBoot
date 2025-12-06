@@ -49,6 +49,7 @@ public:
 	virtual Layer* class_new(char* addr) const ;
 	
 	friend class Layer_mgr;
+	
 
 };
 
