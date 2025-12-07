@@ -21,11 +21,12 @@ OS_MAX_SIZE		equ		128 			;128kb
 LAST_LOAD		dd		0
 DRIVER			db 		0
 MSG_BOOT		db   	'BOOT:',0
+MSG_DEBUG		db 		'DBG', 0
 
 
 _start:
 ;Initial regs
-				cli
+				;cli
 				xor		ax, ax
 				mov		ds, ax
 				mov		es, ax
@@ -38,10 +39,14 @@ _start:
 				mov		di, ax
 				mov		bp, ax
 				mov		sp, STACK_TOP		
-				sti	
+				;sti	
 				mov		byte [DRIVER], dl
 				mov		ax, 0x0003
 				int   	0x10
+
+				mov		si, MSG_DEBUG
+				call	print_str
+				call	print_newline
 
 ;Load disk meta
 				push 	BUF_META / 16

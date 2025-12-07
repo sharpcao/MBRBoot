@@ -22,6 +22,7 @@
 #define ATA_SR_CORR     0x04
 #define ATA_SR_IDX      0x02
 #define ATA_SR_ERR      0x01
+#define ATA_ALT_STATUS          0x3F6
 
 // 命令
 #define ATA_CMD_READ_PIO    0x20
@@ -34,6 +35,10 @@ static void ata_wait_bsy() {
 
 static void ata_wait_drq() {
     while (!(io_in8(ATA_STATUS) & ATA_SR_DRQ));
+}
+
+static inline void ata_io_delay(void) {
+    io_in8(ATA_ALT_STATUS);  // 通过读取状态寄存器实现延迟
 }
 
 using uint16 = short unsigned int;
