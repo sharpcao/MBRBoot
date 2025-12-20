@@ -1,6 +1,7 @@
 #include "inc\functions.h"
 #include "inc\os_io.h"
 #include "inc\console.h"
+#include "inc\console_api.h"
 
 #define ATA_DATA        0x1F0
 #define ATA_ERROR       0x1F1
@@ -91,7 +92,7 @@ void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd)
 		dump_size = 16;
 	}else{
 
-		cout_str <<"dump [address] [size = 16]\n";
+		cout_str <<"dump [0x_address] [size = 16]\n";
 		return;
 	}
 
@@ -157,7 +158,7 @@ void console_loadhd(stringbuf<>& cout_str, const Cmd_Parser& cmd)
 		}
 	}else{
 
-		cout_str <<"Loadhd [sector] [memory]\n";
+		cout_str <<"Loadhd [sector] [0x_memory]\n";
 		return;
 	}
 	uint lba = cmd[1].to_uint();
@@ -181,7 +182,7 @@ void console_run_at(stringbuf<>& cout_str, const Cmd_Parser& cmd)
 		far_call(0,1004*8);
 
 	}else{
-		cout_str <<"runat [memory]\n";
+		cout_str <<"runat [0x_memory]\n";
 		return;
 	}
 
@@ -195,23 +196,24 @@ void __stdcall console_print_char(uchar c)
 {
 	cur_ConsoleLayer->add_char(c);
 	cur_ConsoleLayer->refresh();
+	API_Entry[9] = 0;
 }
 
 
-void* p_func = (void*)console_print_char;
+void* p_func1 = (void*)console_print_char;
 
-__declspec(naked) extern "C"
-void __stdcall api_print_char(uchar c)
-{
-	asm{
-		mov eax, [esp + 8]
-		and eax, 0xff
-		mov ecx, p_func
-		push eax
-		call ecx
-		retf 4
-	}
-}
+// __declspec(naked) extern "C"
+// void __stdcall api_print_char(uchar c)
+// {
+// 	asm{
+// 		mov eax, [esp + 8]
+// 		and eax, 0xff
+// 		mov ecx, p_func1
+// 		push eax
+// 		call ecx
+// 		retf 4
+// 	}
+// }
 
-void __stdcall (* p_api)(uchar c) = api_print_char;
+// void __stdcall (* p_api)(uchar c) = api_print_char;
 

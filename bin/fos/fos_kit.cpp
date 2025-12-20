@@ -351,6 +351,7 @@ FFile Meta::get_file(const string& fn) const
 void Meta::list_file() const
 {
 	FMeta file_meta = get_meta(Meta::C_FILES);
+	FMeta fdat_meta = get_meta(Meta::C_FDATA);
 			
 	uint n_max = file_meta.length / sizeof(FFile);
 	for(uint i = 0; i < n_max; ++i)
@@ -358,7 +359,8 @@ void Meta::list_file() const
 		FFile record = get_file(i);
 		string name = record.name;
 		if (name.empty()) break;
-		std::cout << i <<": " << record.name << " : start=0x" << std::hex << record.start_sect 
+		std::cout << i <<": " << record.name << " : chunk=0x" << std::hex << record.start_sect 
+					<< " offset=0x" << record.start_sect * 1024 + fdat_meta.start 
 					<< " size=" << std::dec << record.file_size << " attr=" << record.attr << std::endl;
 	}
 }

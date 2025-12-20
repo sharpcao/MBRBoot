@@ -134,10 +134,12 @@ void task_switch(uint ip, uint cs)
 }
 
 
+
 __declspec(naked)
 void far_call (uint ip, uint cs)
 {
 	__asm{
+
 		//call far fword ptr [esp+4]
 		__emit 0xff
 		__emit 0x5c

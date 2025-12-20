@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "layer.h"
+#include "console_api.h"
 
 using HF = void (*)();
 using HF_SAFE = void(*)(uint int_num);
@@ -11,6 +12,19 @@ void int21_handler();
 void int2c_handler();
 void int7_handler(); //clear TS
 void int0a_handler(uint int_num);
+
+__declspec (naked)
+void int40_handler() 
+{ 
+    __asm{
+        push ds
+        mov ax, 0x08 * 2
+        mov ds, ax
+        mov eax, API_Entry
+        pop ds
+        iretd
+    }
+}
 
 template<HF handler_func> 
 __declspec(naked)

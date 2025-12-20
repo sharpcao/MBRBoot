@@ -88,9 +88,8 @@ void int2c_handler()
 {
     io_out8(PIC::PIC1_OCW2,0x64);
     io_out8(PIC::PIC0_OCW2,0x62);
-
     EventList.push_message(EVENT::Mouse, (uint)io_in8(PORT::PORT_KEYDAT));
-
+    
 }
 
 void int7_handler()
@@ -98,7 +97,7 @@ void int7_handler()
     uint cr0 = load_cr0();
     cr0 &= ~(0x08);   //clear TS
     store_cr0(cr0);
-
+   
 }
 
 void int0a_handler(uint int_num)

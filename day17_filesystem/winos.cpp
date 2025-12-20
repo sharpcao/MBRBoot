@@ -91,6 +91,11 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
     gdtidt.add_idt_handler(0x0b, handler_wrap_safe<int0a_handler,0x0b>); //default blue screen
     gdtidt.add_idt_handler(0x0c, handler_wrap_safe<int0a_handler,0x0c>); //default blue screen
     gdtidt.add_idt_handler(0x0d, handler_wrap_safe<int0a_handler,0x0d>); //default blue screen
+
+
+    gdtidt.add_idt_handler(0x40, int40_handler);
+
+
     
     CPIC pic;
     pic.init_pic();
