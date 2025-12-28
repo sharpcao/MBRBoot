@@ -1,0 +1,3 @@
+fos c.img addfile hello.run
+loadhd 830 30000 
+runat 30000
