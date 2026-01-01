@@ -1,6 +1,6 @@
 #-v for Debug
 
-CFLAGS = -q -c -x- -v #-O2 
+CFLAGS = -q -c -x- -O2 -v 
 IFLAGS = -q -b:0x100000  -v -Gn -LD:\BCC102\lib\win32c\release
 
 OBJS = vga.obj hankaku.obj gdtidt.obj device.obj handler.obj \

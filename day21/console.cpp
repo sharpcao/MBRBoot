@@ -8,31 +8,43 @@ extern void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd_str);
 extern void console_readhd(stringbuf<>& cout_str, const Cmd_Parser& cmd);
 extern void console_loadhd(stringbuf<>& cout_str, const Cmd_Parser& cmd);
 extern void console_run_at(stringbuf<>& cout_str, const Cmd_Parser& cmd);
-
-
+extern void console_run(stringbuf<>& cout_s, const Cmd_Parser& cmd);
+extern void console_mem(stringbuf<>& cout_str, const Cmd_Parser& cmd);
 void ConsoleLayer::twinkle()
 {
 	static bool bshow = false;
 	bshow = !bshow;
-	cursor_show(bshow);
-	
+	if (bshow){
+		cursor_show(bshow, true);
+	}else{
+		if(_cursor_pos != _cursor_cmd_end ){
+			 cursor_show(bshow, false);
+			 ((ConsoleWindow*)this_window)->repaint_cmd();
+
+			 CRect box = cursor_box(_cursor_pos);
+			 OS.p_layerMgr->update(box.to_vga_pos(_offset_x, _offset_y));
+		}else{
+			cursor_show(bshow, true);
+		}
+	}
+
 }
 
-void ConsoleLayer::cursor_show(bool bshow)
+void ConsoleLayer::cursor_show(bool bshow, bool update_now)
 {
-	Color8 col = bshow ? Color8::COL8_FFFFFF : Color8::COL8_000000;
-	CRect _twinkle_box = client_box(_cursor_pos);
-	fill_box(col, _twinkle_box);
+	Color8 color = bshow ? Color8::COL8_FFFFFF : Color8::COL8_000000;
+	CRect box = cursor_box(_cursor_pos);
+	fill_box(color, box);
 
-	if(bshow == false) ((ConsoleWindow*)this_window)->repaint_cmd();
-
-	OS.p_layerMgr->update(_twinkle_box.to_vga_pos(_offset_x, _offset_y));
+	if(update_now) {
+		OS.p_layerMgr->update(box.to_vga_pos(_offset_x, _offset_y));
+	}
 }
 
-CRect ConsoleLayer::client_box(uint pos) 
+CRect ConsoleLayer::cursor_box(uint pos) const
 {
-	uint row, col;
-	_convert_from_pos(pos, row, col);
+	uint col = pos % _col_max();
+	uint row = pos / _col_max();
 	return CRect(col*8 + 2, row*16 + 2,8, 16).add_offset(_client_offset_x, _client_offset_y);
 }
 
@@ -70,76 +82,81 @@ void ConsoleLayer::cursor_step(uint s)
 	row += n / _col_max();
 
 	if (row == _row_max()){
-		row = _row_max() - 1;
+		--row;
 		scroll_row(16, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
 		
-		int prefix_end = _cursor_prefix_end - _row_max();
-		_cursor_prefix_end = (prefix_end > 0)? prefix_end:0;
+		_cursor_prefix_end = (_cursor_prefix_end > _col_max())? 
+							(_cursor_prefix_end - _col_max()) : 0;
 	}
+
 	_cursor_pos = _cursor_cmd_end = _convert_to_pos(row, col);
 
 }
 
-void ConsoleLayer::cursor_back(uint s)
-{
 
-	_cursor_pos = _cursor_cmd_end - s;
-	if (_cursor_pos < _cursor_prefix_end) _cursor_pos = _cursor_prefix_end;
-	_cursor_cmd_end = _cursor_pos;
-}
 
-void ConsoleLayer::cursor_next()
+void ConsoleLayer::cursor_nextline()
 {
 	uint row,col;
 	_convert_from_pos(_cursor_cmd_end, row, col);
+
+	++row;
 	col = 0;
 
-	if ( ++row == _row_max()){
-		row = _row_max()-1;
+	if ( row == _row_max()){
+		--row;
 		scroll_row(16, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
 
-		int prefix_end = _cursor_prefix_end - _row_max();
-		_cursor_prefix_end = (prefix_end > 0)? prefix_end:0;
+		_cursor_prefix_end = (_cursor_prefix_end > _col_max())? 
+							(_cursor_prefix_end - _col_max()) : 0;
 		
 	}
 
-	_cursor_pos = _convert_to_pos(row,col);
-	_cursor_cmd_end = _cursor_pos;
+	_cursor_pos = _cursor_cmd_end = _convert_to_pos(row,col);
 
 }
 
-void ConsoleLayer::add_prefix(bool newline)
+void ConsoleLayer::append_prefix(bool newline)
 {
-	if (newline) cursor_next();
-	add_string(prefix_str);
+	if (newline) cursor_nextline();
+	append_string(prefix_str);
 	_cursor_prefix_end = _cursor_pos;
 }
 
-void ConsoleLayer::add_string(const char* pstr)
+void ConsoleLayer::append_string(const char* pstr)
 {
-	for(const char* p = pstr; *p!= 0; ++p) add_char(*p);
+	for(const char* p = pstr; *p!= 0; ++p) append_char(*p);
 }
 
-void ConsoleLayer::add_char(uchar asc)
+void ConsoleLayer::append_char(uchar asc)
 {
 	if(asc){
-		CRect cursor_box = client_box(_cursor_pos);
-		fill_box(Color8::COL8_000000, cursor_box);
+		cursor_show(false);
+
 		if(asc == '\n'){
-			cursor_next();
+			cursor_nextline();
 		}else{
-			putfont8(cursor_box._x, cursor_box._y,asc, COL8_FFFFFF);
+
+			paint_char(_cursor_pos, asc);
 			cursor_step();
 		}
 		
 	}
 }
 
-
-void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
+void ConsoleLayer::clear_screen()
 {
-	cursor_show(false);
-	cursor_next();
+	fill_client_box(Color8::COL8_000000);
+	_cursor_prefix_end = 0, _cursor_cmd_end = 0, _cursor_pos = 0;
+
+}
+
+void ConsoleWindow::cmd_enter(const stringbuf<>& cmd_str)
+{
+	ConsoleLayer* layer = static_cast<ConsoleLayer*> (win_layer);
+	layer->cursor_show(false);
+	layer->paint_cmd(cmd_str);
+	layer->cursor_nextline();
 	stringbuf<> cout_s;
 	bool newline = true;
 
@@ -148,15 +165,12 @@ void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 	if(cmd_str.size()){
 
 		if (cmd[0] =="cls"){
-			fill_client_box(Color8::COL8_000000);
-			_cursor_prefix_end = 0, _cursor_cmd_end = 0, _cursor_pos = 0;
-
+			layer->clear_screen();
 			newline = false;
 
 		}else if (cmd[0] == "mem"){
 			
-			cout_s <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
-				<<"free:" << OS.p_mem_mgr->get_mem_free() /1024 << " KB\n";
+			console_mem(cout_s, cmd);
 			
 		}else if( cmd[0] == "ver"){
 			cout_s <<"VOS 0.0.1";
@@ -174,24 +188,25 @@ void ConsoleLayer::cmd_enter(const stringbuf<>& cmd_str)
 		
 		}else if(cmd[0] == "runat"){
 			console_run_at(cout_s, cmd);
+		}else if(cmd[0] == "run"){
+			console_run(cout_s, cmd);
 		}else if(cmd[0]=="test"){
-			OS.p_mem_mgr_big->print(cout_s);
 
 		}else{
 			cout_s << cmd_str.c_str();
 		}
 		
 	}
-	if (cout_s.size()) add_string(cout_s.c_str());
-	add_prefix(newline);
-	OS.p_layerMgr->update(get_area());
+	if (cout_s.size()) layer->append_string(cout_s.c_str());
+	layer->append_prefix(newline);
+	
 }
 
 
 
 void ConsoleLayer::paint_char(uint pos, uchar asc)
 {
-	CRect box = _get_rect_from_pos(pos);
+	CRect box = cursor_box(pos);
 	if(asc){
 		putfont8(box._x, box._y, asc, COL8_FFFFFF);
 	}else{
@@ -199,23 +214,11 @@ void ConsoleLayer::paint_char(uint pos, uchar asc)
 	}
 }
 
-void ConsoleLayer::remove_char(uint nchar)
-{
-	while(nchar-- ){
-		// CRect cursor_box = cursor_client_box().add_offset(_client_offset_x, _client_offset_y);
-		// fill_box(Color8::COL8_000000, cursor_box);
-		//uint pos = _convert_to_pos(_cursor_row, _cursor_col);
-		cursor_show(false);
-		cursor_back();	
-	}
-	cursor_show(false);
-}
+
 
 void ConsoleLayer::remove_to_head()
 {
 
-	// int nchar = (int)_convert_to_pos(_cursor_row, _cursor_col) - _cursor_prefix_end;
-	// if (nchar > 0) remove_char(nchar);
 	cursor_show(false);
 	uint pos0 = _cursor_prefix_end;
 	uint pos1 = _cursor_cmd_end;
@@ -227,19 +230,27 @@ void ConsoleLayer::remove_to_head()
 
 }
 
-void ConsoleLayer::paint_cmd_str(const stringbuf<>& cmd_str)
+void ConsoleLayer::paint_cmd(const stringbuf<>& cmd_str)
 {
-	//cursor_show(false);
-	uint pos0 = _cursor_prefix_end;
-	uint pos1 = _cursor_cmd_end;
-	uint i = 0, cmd_size = cmd_str.size();
-	for(uint pos = pos0; pos<= pos1; ++pos)
+	
+	uint cmd_size = cmd_str.size();
+	uint pos_end = max(_cursor_prefix_end + cmd_size, _cursor_cmd_end);
+	for(uint pos = _cursor_prefix_end; pos <= pos_end; ++pos)
 	{
-		char c =  (i < cmd_size) ? cmd_str[i] : 0;
-		if (c) paint_char(pos, 0);
+		paint_char(pos, 0);
+		uint i = pos - _cursor_prefix_end;
 
-		paint_char(pos, c);
-		++i;
+		if(i < cmd_size) paint_char(pos, cmd_str[i]);
+
+		if(pos > _col_max() * _row_max()){
+			scroll_row(16, _client_box._x, _client_box._y, _client_box._w, _client_box._h);
+			uint ncol = _col_max();
+			pos -= ncol;
+			pos_end -= ncol;
+			_cursor_prefix_end = (_cursor_prefix_end >= ncol)? _cursor_prefix_end - ncol : 0;
+		}
+
+
 	}
 	_cursor_cmd_end = _cursor_prefix_end + cmd_size;
 }
@@ -280,7 +291,7 @@ extern ConsoleLayer* cur_ConsoleLayer;
 
 void ConsoleWindow::repaint_cmd()
 {
-	((ConsoleLayer*)win_layer)->paint_cmd_str(_cmd_str);
+	((ConsoleLayer*)win_layer)->paint_cmd(_cmd_str);
 }
 
 
@@ -292,7 +303,7 @@ void ConsoleWindow::Run()
 	cur_ConsoleLayer = consoleLayer;
 	
 	consoleLayer->set_title(0, *OS.p_layerMgr);
-	consoleLayer->add_prefix(false);
+	consoleLayer->append_prefix(false);
 	OS.p_layerMgr->update(consoleLayer->get_area());
 
 	OS.timer_ctrl.add_timer(80,console_timeout, &message_mgr);
@@ -311,11 +322,12 @@ void ConsoleWindow::Run()
 
 				consoleLayer->twinkle();
                 OS.timer_ctrl.call_hander((uint)p2);
-      
+      			continue;
 
             }else if(p1 == EVENT::Actived){
             	//active();	
             }else if(p1 == EVENT::Key){
+
 
             	if(p2 == TransKey::KeyCode::LShiftDown) {
             		TransKey::set_lshift(true);
@@ -334,49 +346,54 @@ void ConsoleWindow::Run()
             		continue;
             	}else if(p2 == TransKey::KeyCode::EnterDown){
             		if (!_cmd_str.is_empty()) _cmd_history.add_cmd(_cmd_str);
-            		consoleLayer->cmd_enter(_cmd_str);
+            		cmd_enter(_cmd_str);
             		_cmd_str.reset();
-            		continue;
+      				refresh_console();
             	}else if(p2 == TransKey::KeyCode::Backspace){
-            		_cmd_str.pop();
-            		consoleLayer->remove_char();
-            		//continue;
+            		// _cmd_str.pop();
+            		// consoleLayer->remove_backchar();
+            		consoleLayer->cursor_show(false);
+            		consoleLayer->cursor_move_left();
+					_cmd_str.remove_char(consoleLayer->cursor_char_offset());
+					repaint_cmd();
+            		refresh_console();
             	}else if (p2 == TransKey::KeyCode::ArrowUp){
             		consoleLayer->remove_to_head();
             		_cmd_str = _cmd_history.get_prev();
-            		consoleLayer->add_string(_cmd_str.c_str());
-
+            		consoleLayer->append_string(_cmd_str.c_str());
+            		refresh_console();
             	}else if (p2 == TransKey::KeyCode::ArrowDown){
             		consoleLayer->remove_to_head();
             		_cmd_str = _cmd_history.get_next();
-            		consoleLayer->add_string(_cmd_str.c_str());
+            		consoleLayer->append_string(_cmd_str.c_str());
+            		refresh_console();
             	}else if (p2 == TransKey::KeyCode::ArrowLeft){
             		consoleLayer->cursor_show(false);
             		consoleLayer->cursor_move_left();
             		repaint_cmd();
+            		refresh_console();
             	}else if (p2 == TransKey::KeyCode::ArrowRight){
+            
             		consoleLayer->cursor_show(false);
             		consoleLayer->cursor_move_right();
             		repaint_cmd();
+            		refresh_console();
             	}else{
 
 					uchar c = OS.translate_keycode(p2);
 	           		if(c) {
-	           			_cmd_str << c;
-	           			//if(_cmd_str.insert(_cmd_str_idx, c)) ++_cmd_str_idx;
-	           			consoleLayer->add_char(c);
-	            	
+
+	           			_cmd_str.insert(consoleLayer->cursor_char_offset(), c);
+	           			consoleLayer->cursor_show(false);
+	           			repaint_cmd();
+	           			consoleLayer->cursor_move_right();
+
 	            	}
-	            }
-	       
-	            consoleLayer->refresh();
-
-
+	            	refresh_console();
+	            }	       
             }
 		}
-
 	}
-
 }
 
 

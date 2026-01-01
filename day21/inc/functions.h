@@ -136,6 +136,12 @@ public:
 		}
 		return true;
 	}
+	bool remove_char(uint at){
+		if(at >= _idx) return false;
+		for(uint i = at; i < _idx; ++i) _buf[i] = _buf[i+1];
+		--_idx;
+		return true;
+	}
 
 
 	char operator [] (uint ix) const {return _buf[ix];}

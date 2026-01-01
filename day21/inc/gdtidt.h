@@ -80,6 +80,7 @@ private:
 };
 
 #define AR_CODE32_ER 0x409a
+#define AR_DATA32_RW 0x4092
 
 
 #endif

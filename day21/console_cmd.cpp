@@ -30,7 +30,7 @@
 #define ATA_CMD_READ_PIO_EXT 0x24
 #define ATA_CMD_IDENTIFY    0xEC
 
-
+void start_app(uint reg_eip, uint reg_cs, uint reg_ds, uint reg_esp);
 
 
 static void ata_wait_bsy() {
@@ -78,7 +78,30 @@ int ata_lba28_read(uint lba, uint16* buffer, uint8 slavebit ) {
     return 0;
 }
 
+void console_mem(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
 
+	uint param_num = cmd.size();
+	if(param_num == 1){
+			cout_str <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
+				<<"free:" << OS.p_mem_mgr->get_mem_free() /1024 << " KB\n";
+	}else if(param_num == 2 ){
+
+		if(cmd[1] =="all"){
+			OS.p_mem_mgr->print(cout_str);
+		}else if(cmd[1] == "big"){
+			OS.p_mem_mgr_big->print(cout_str);
+		}else{
+			goto mem_explain;
+		}
+
+	}else{
+
+	mem_explain:
+		cout_str <<"mem [all|big]\n";
+	}
+
+}
 void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd)
 {
 	
@@ -195,12 +218,77 @@ void console_run_at(stringbuf<>& cout_str, const Cmd_Parser& cmd)
 
 }
 
+void console_run(stringbuf<>& cout_s, const Cmd_Parser& cmd)
+{
+	constexpr uint code_size = 4 * 1024;
+	constexpr uint data_size = 4 * 1024;
+	constexpr uint stack_size = data_size;
 
-// __declspec(naked)
-// void __stdcall far_call_ex(uint eip, uint cs, uint ds, int esp)
-// {
+	uint param_num = cmd.size();
+
+	if( param_num != 2){
+		cout_s << "run [sector]\n";
+		return;
+	}
+		
+	uint lba = cmd[1].to_uint();
+
+	uint code_addr = OS.p_mem_mgr_big->malloc(code_size);
+	uint data_addr = OS.p_mem_mgr_big->malloc(data_size);
 	
-// }
+	if( code_addr == 0) return;
+	ata_lba28_read(lba, (uint16*)code_addr, 0);
+	GDTIDT gdt;
+	gdt[GDT_APP_CS]->set(code_size -1, code_addr, AR_CODE32_ER);
+	gdt[GDT_APP_DS]->set(data_size -1, data_addr, AR_DATA32_RW);
+	start_app(0, GDT_APP_CS <<3, GDT_APP_DS << 3, stack_size);
+
+	OS.p_mem_mgr_big->free(code_addr, code_size);
+	OS.p_mem_mgr_big->free(data_addr, data_size);
+}
+
+uint SYSTEM_ESP  = 0;
+__declspec(naked)
+void start_app(uint reg_eip, uint reg_cs, uint reg_ds, uint reg_esp)
+{
+	__asm{
+		pushad
+		mov eax, [esp + 36] // reg_eip
+		mov ecx, [esp + 40] // reg_cs
+		mov edx, [esp + 44] // reg_ds
+		mov ebx, [esp + 48] // reg_esp
+		mov [SYSTEM_ESP], esp
+		cli
+		mov ds, dx
+		mov es, dx
+		mov fs, dx
+		mov gs, dx
+		mov ss, dx
+		mov esp, ebx
+		sti
+		mov edx, cs
+		push edx
+		lea edx, here
+		push edx
+		push ecx
+		push eax
+		retf
+
+here:
+		mov edx, 2*8
+		cli
+		mov ds, dx
+		mov es, dx
+		mov fs, dx
+		mov gs, dx
+		mov edx, 3*8
+		mov ss, dx
+		mov esp, [SYSTEM_ESP]
+		sti
+		popad
+		ret
+	}
+}
 
 
 
@@ -210,7 +298,7 @@ ConsoleLayer* cur_ConsoleLayer;
 
 void __stdcall console_print_char(uchar c)
 {
-	cur_ConsoleLayer->add_char(c);
+	cur_ConsoleLayer->append_char(c);
 	cur_ConsoleLayer->refresh();
 	API_Entry[9] = 0;
 }

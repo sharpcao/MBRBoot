@@ -73,8 +73,13 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
 {
     const uint big_memory_size = 256 * 1024;
     p_mem_mgr = &mem_mgr;
-    CMEM_MGR* big_memory_addr = (CMEM_MGR*) p_mem_mgr->malloc(big_memory_size);
-    p_mem_mgr_big = new(big_memory_addr) CMEM_MGR((uint)big_memory_addr, big_memory_size, p_mem_mgr);
+    //CMEM_MGR* big_memory_addr = (CMEM_MGR*) p_mem_mgr->malloc(big_memory_size);
+    uint big_memory_addr = p_mem_mgr->malloc(big_memory_size);
+
+    p_mem_mgr_big = (CMEM_MGR*)p_mem_mgr->malloc(sizeof(CMEM_MGR));
+    new(p_mem_mgr_big)  CMEM_MGR(big_memory_addr, big_memory_size, p_mem_mgr);
+
+    //p_mem_mgr_big = new(big_memory_addr) CMEM_MGR((uint)big_memory_addr, big_memory_size, p_mem_mgr);
 
 
     vga.init(pbi);

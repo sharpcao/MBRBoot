@@ -5,10 +5,15 @@
 
 
 __declspec(naked) extern "C"
-void __stdcall api_call_func();
+void __stdcall api_jmp_func();
 
 __declspec(naked) extern "C"
 void __stdcall api_print_char1(uchar c);
+
+
+__declspec(naked) extern "C"
+void __stdcall api_print_char2(uchar c);
+
 
 typedef uint  API_ADDR;
 

@@ -64,6 +64,7 @@ void CMEM_MGR::sort_up(uint nitem)
 
 void CMEM_MGR::free(uint addr, uint size)
 {
+	if (addr == 0) return;
 	int left = -1, right = -1;
 	MEM_FREE_REC rec(addr,size);
 	for(uint i = 0; i< _last; ++i){
