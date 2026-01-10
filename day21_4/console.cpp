@@ -191,6 +191,9 @@ void ConsoleWindow::cmd_enter(const stringbuf<>& cmd_str)
 		}else if(cmd[0] == "run"){
 			console_run(cout_s, cmd);
 		}else if(cmd[0]=="test"){
+			extern void __stdcall (*p_func1)(uchar c);
+			extern  API_ADDR API_Entry[];
+			cout_s << (uint)&API_Entry[0] << " " << (uint)p_func1;
 
 		}else{
 			cout_s << cmd_str.c_str();
@@ -298,7 +301,7 @@ void ConsoleWindow::repaint_cmd()
 void ConsoleWindow::Run()
 {
 	//active();
-	
+	this_task = OS.p_task_mgr->get_cur_task();
 	ConsoleLayer* consoleLayer =  reinterpret_cast<ConsoleLayer*>(win_layer);
 	cur_ConsoleLayer = consoleLayer;
 	
@@ -403,3 +406,19 @@ void ConsoleWindow::redraw()
 	reinterpret_cast<ConsoleLayer*>(win_layer)->load_img(0);
 }
 
+
+extern void console_end_app();
+extern uint SYSTEM_ESP;
+void ConsoleWindow::terminate()
+{
+	Disable_Interrupt lock;
+	TSS32* tss = &this_task->tss;
+	//if (tss->cs != 1*8) {
+		tss->cs = 1*8;
+		tss->ds = 2*8;
+		tss->ss = 3*8;
+		tss->eip = (uint)console_end_app;
+		tss->esp = SYSTEM_ESP;
+	//}
+	
+}

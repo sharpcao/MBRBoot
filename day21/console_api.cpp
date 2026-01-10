@@ -1,10 +1,10 @@
 #include "inc\console_api.h"
-
+#include "inc\console.h"
 
 API_ADDR API_Entry[10] ={
 	(API_ADDR)api_jmp_func,
-	(API_ADDR)api_print_char2,
-	(API_ADDR)api_print_char2,
+	(API_ADDR)api_print_char,
+
 };
 
 __declspec(naked) extern "C"
@@ -29,21 +29,9 @@ void  __stdcall api_jmp_func()   //@ecx = api_idx
 extern void* p_func1;
 extern uint SYSTEM_ESP ;
 
-__declspec(naked) 
-void  __stdcall api_print_char1(uchar c)
-{
-	__asm{
-		mov eax, [esp + 8]
-		and eax, 0xff
-		mov ecx, p_func1
-		push eax
-		call ecx
-		retf 4
-	}
-}
 
 __declspec(naked)
-void __stdcall api_print_char2(uchar c)
+void __stdcall api_print_char(uchar c)
 {
 	
 	__asm{
@@ -75,4 +63,16 @@ void __stdcall api_print_char2(uchar c)
 
 	}
 
+}
+
+
+extern ConsoleLayer* cur_ConsoleLayer;
+
+uint int03_print_message()
+{
+	if (cur_ConsoleLayer){
+		cur_ConsoleLayer->append_string("#0D,General Protected Exception\n");
+		//cur_ConsoleLayer->append_prefix(true);
+	}
+	return 1;
 }

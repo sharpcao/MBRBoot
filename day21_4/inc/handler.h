@@ -13,19 +13,7 @@ void int2c_handler();
 void int7_handler(); //clear TS
 void int0a_handler(uint int_num);
 
-__declspec (naked)
-void int40_handler() 
-{ 
-    __asm{
-        push ds
-        mov ax, 0x08 * 2
-        mov ds, ax
-        mov eax, API_Entry
-        pop ds
-        iretd
-    }
-}
-
+__declspec (naked) void int40_handler();
 __declspec (naked) void int0d_handler();
 
 

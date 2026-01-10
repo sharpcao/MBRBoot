@@ -1,0 +1,309 @@
+#include "inc\functions.h"
+#include "inc\os_io.h"
+#include "inc\console.h"
+#include "inc\console_api.h"
+
+#define ATA_DATA        0x1F0
+#define ATA_ERROR       0x1F1
+#define ATA_FEATURES    0x1F1
+#define ATA_SECTOR_COUNT 0x1F2
+#define ATA_LBA_LOW     0x1F3
+#define ATA_LBA_MID     0x1F4
+#define ATA_LBA_HIGH    0x1F5
+#define ATA_DRIVE_HEAD  0x1F6
+#define ATA_STATUS      0x1F7
+#define ATA_COMMAND     0x1F7
+
+// 状态寄存器位
+#define ATA_SR_BSY      0x80
+#define ATA_SR_DRDY     0x40
+#define ATA_SR_DF       0x20
+#define ATA_SR_DSC      0x10
+#define ATA_SR_DRQ      0x08
+#define ATA_SR_CORR     0x04
+#define ATA_SR_IDX      0x02
+#define ATA_SR_ERR      0x01
+#define ATA_ALT_STATUS          0x3F6
+
+// 命令
+#define ATA_CMD_READ_PIO    0x20
+#define ATA_CMD_READ_PIO_EXT 0x24
+#define ATA_CMD_IDENTIFY    0xEC
+
+void start_app(uint reg_eip, uint reg_cs, uint reg_ds, uint reg_esp, uint* esp0, uint* ret_esp0);
+
+
+static void ata_wait_bsy() {
+    while (io_in8(ATA_STATUS) & ATA_SR_BSY);
+}
+
+static void ata_wait_drq() {
+    while (!(io_in8(ATA_STATUS) & ATA_SR_DRQ));
+}
+
+static inline void ata_io_delay(void) {
+    io_in8(ATA_ALT_STATUS);  // 通过读取状态寄存器实现延迟
+}
+
+using uint16 = short unsigned int;
+using uint8 = unsigned char;
+
+// LBA28读取单个扇区 https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
+int ata_lba28_read(uint lba, uint16* buffer, uint8 slavebit ) {
+    ata_wait_bsy();
+    
+    // 选择驱动器和LBA地址的高4位
+    io_out8(ATA_DRIVE_HEAD, 0xE0 | (slavebit  << 4) | ((lba >> 24) & 0x0F));
+    
+    // 设置扇区数量
+    io_out8(ATA_SECTOR_COUNT, 1);
+    
+    // 设置LBA地址
+    io_out8(ATA_LBA_LOW, lba & 0xFF);
+    io_out8(ATA_LBA_MID, (lba >> 8) & 0xFF);
+    io_out8(ATA_LBA_HIGH, (lba >> 16) & 0xFF);
+    
+    // 发送读取命令
+    io_out8(ATA_COMMAND, ATA_CMD_READ_PIO);
+    
+    // 等待数据就绪
+    ata_wait_bsy();
+    ata_wait_drq();
+    
+    // 读取数据
+    for (int i = 0; i < 256; i++) {
+        buffer[i] = io_in16(ATA_DATA);
+    }
+    
+    return 0;
+}
+
+void console_mem(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
+
+	uint param_num = cmd.size();
+	if(param_num == 1){
+			cout_str <<  OS.p_mem_mgr->get_mem_total() /1024 << " KB, "
+				<<"free:" << OS.p_mem_mgr->get_mem_free() /1024 << " KB\n";
+	}else if(param_num == 2 ){
+
+		if(cmd[1] =="all"){
+			OS.p_mem_mgr->print(cout_str);
+		}else if(cmd[1] == "big"){
+			OS.p_mem_mgr_big->print(cout_str);
+		}else{
+			goto mem_explain;
+		}
+
+	}else{
+
+	mem_explain:
+		cout_str <<"mem [all|big]\n";
+	}
+
+}
+void console_dump(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
+	
+	uint dump_size;
+	uint param_num = cmd.size();
+	if (param_num == 3){
+		dump_size = cmd[2].to_uint();
+		if (dump_size == 0){
+			cout_str <<"dumpsize is illegal!\n";
+			return;
+		}
+	}else if (param_num == 2)
+	{
+		dump_size = 16;
+	}else{
+
+		cout_str <<"dump [0x_address] [size = 16]\n";
+		return;
+	}
+
+	stringbuf<> saddr = cmd[1];
+	saddr << stringbuf<>::flag::hex;
+
+	uint addr = saddr.to_uint();
+
+	cout_str << stringbuf<>::flag::hex;
+
+	cout_str << saddr <<":" ;
+
+	for(uint i = 0; i < dump_size; ++i){
+		uchar c = ((uchar*) addr)[i];
+		cout_str << (uint)c <<" ";
+	}
+
+}
+
+void console_readhd(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
+
+	uint byte_size;
+	uint param_num = cmd.size();
+	if (param_num == 3){
+		byte_size = cmd[2].to_uint();
+		if (byte_size == 0){
+			cout_str <<"bytesize is illegal!\n";
+			return;
+		}
+	}else if (param_num == 2)
+	{
+		byte_size = 16;
+	}else{
+
+		cout_str <<"readhd [sector] [bytesize = 16]\n";
+		return;
+	}
+	uint lba = cmd[1].to_uint();
+	uint16 buf[256];
+	ata_lba28_read(lba, buf, 0);
+
+	cout_str << stringbuf<>::flag::hex;
+	for(uint i = 0; i < byte_size; ++i){
+		uchar c = ((uchar*) buf)[i];
+		cout_str << (uint)c <<" ";
+	}
+
+}
+
+void console_loadhd(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
+
+	uint mem_addr;
+	uint param_num = cmd.size();
+	if (param_num == 3){
+		stringbuf<> saddr = cmd[2];
+		saddr << stringbuf<>::flag::hex;
+		mem_addr = saddr.to_uint();
+		if (mem_addr == 0){
+			cout_str <<"bytesize is illegal!\n";
+			return;
+		}
+	}else{
+
+		cout_str <<"Loadhd [sector] [0x_memory]\n";
+		return;
+	}
+	uint lba = cmd[1].to_uint();
+
+	ata_lba28_read(lba, (uint16*)mem_addr, 0);
+
+	cout_str << "load done!\n" ;
+
+}
+
+
+constexpr uint GDT_CONSOLE_INDEX_START = Task_mgr::task_gdt_start + Task_mgr::max_tasks;
+constexpr uint GDT_APP_CS = GDT_CONSOLE_INDEX_START;
+constexpr uint GDT_APP_DS = GDT_CONSOLE_INDEX_START + 1;
+
+void console_run_at(stringbuf<>& cout_str, const Cmd_Parser& cmd)
+{
+	uint param_num = cmd.size();
+	if (param_num == 2){
+		stringbuf<> saddr = cmd[1];
+		saddr << stringbuf<>::flag::hex;
+		uint mem_addr = saddr.to_uint();
+		GDTIDT gdtidt;
+		gdtidt[GDT_APP_CS]->set(4*1024 - 1, mem_addr, AR_CODE32_ER);
+		far_call(0,GDT_APP_CS*8);
+
+	}else{
+		cout_str <<"runat [0x_memory]\n";
+		return;
+	}
+
+}
+
+
+uint SYSTEM_ESP  = 0;
+
+void console_run(stringbuf<>& cout_s, const Cmd_Parser& cmd)
+{
+	constexpr uint code_size = 4 * 1024;
+	constexpr uint data_size = 4 * 1024;
+	constexpr uint stack_size = data_size;
+
+	static bool is_app_run = false;
+
+	uint param_num = cmd.size();
+
+	if( param_num != 2){
+		cout_s << "run [sector]\n";
+		return;
+	}
+		
+	uint lba = cmd[1].to_uint();
+
+	uint code_addr = OS.p_mem_mgr_big->malloc(code_size);
+	uint data_addr = OS.p_mem_mgr_big->malloc(data_size);
+	
+	if( code_addr == 0) return;
+	ata_lba28_read(lba, (uint16*)code_addr, 0);
+	GDTIDT gdt;
+	gdt[GDT_APP_CS]->set(code_size -1, code_addr, AR_CODE32_ER + 0x60);
+	gdt[GDT_APP_DS]->set(data_size -1, data_addr, AR_DATA32_RW + 0x60);
+
+
+	TaskItem* cur_task = OS.p_task_mgr->get_cur_task();
+	start_app(0, GDT_APP_CS <<3, GDT_APP_DS << 3, stack_size, (uint*)&(cur_task->tss.esp0), &SYSTEM_ESP);
+
+	OS.p_mem_mgr_big->free(code_addr, code_size);
+	OS.p_mem_mgr_big->free(data_addr, data_size);
+}
+
+
+__declspec(naked)
+void start_app(uint reg_eip, uint reg_cs, uint reg_ds, uint reg_esp, uint* esp0, uint* ret_esp0)
+{
+	__asm{
+		pushad
+		mov eax, [esp + 36] // reg_eip
+		mov ecx, [esp + 40] // reg_cs
+		mov edx, [esp + 44] // reg_ds
+		mov ebx, [esp + 48] // reg_esp
+		mov ebp, [esp + 52] // &esp0
+		mov esi, [esp + 56] // &ret_esp0;
+		mov [esi], esp
+		//mov [SYSTEM_ESP], esp
+		mov [ebp], esp
+		mov [ebp + 4], ss
+
+		mov ds, dx
+		mov es, dx
+		mov fs, dx
+		mov gs, dx
+		
+		or ecx, 3
+		or edx, 3
+		push edx	
+		push ebx
+		push ecx
+		push eax
+		retf		;jump to reg_cs:reg_eip,  ss = reg_ds + 3, esp = reg_esp
+
+	}
+}
+
+__declspec(naked)
+void console_end_app()
+{
+	__asm{
+		popad
+		ret
+	}
+}
+
+
+
+ConsoleLayer* cur_ConsoleLayer;
+
+
+
+
+
+
+

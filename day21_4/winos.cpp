@@ -69,8 +69,11 @@ void CWinOS::init_task_mgr(CMEM_MGR& mem_mgr)
     
 }
 
+
+//extern void test_init();
 void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
 {
+    //test_init();
     const uint big_memory_size = 256 * 1024;
     p_mem_mgr = &mem_mgr;
     //CMEM_MGR* big_memory_addr = (CMEM_MGR*) p_mem_mgr->malloc(big_memory_size);
@@ -103,7 +106,7 @@ void CWinOS::init(const BOOTINFO *pbi, CMEM_MGR& mem_mgr)
     gdtidt.add_idt_handler(0x0d, int0d_handler); //default blue screen
 
 
-    gdtidt.add_idt_handler(0x40, int40_handler);
+    gdtidt.add_idt_handler(0x40, int40_handler, false);
 
 
 

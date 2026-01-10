@@ -8,6 +8,7 @@
 #include "inc\winos.h"
 #include "inc\timer_kit.h"
 #include "inc\winform.h"
+#include "inc\console.h"
 
 
 Task_Message_mgr EventList;
@@ -167,10 +168,11 @@ void handle_message()
                 uint2str(s1,p2);
                 OS.layers.p_txt_key->set_text(s1,*OS.p_layerMgr);
                 OS.layers.p_input->add_key(p2,*OS.p_layerMgr);
-
+          
                 auto act_w = Window::get_active();
-                if(act_w) {
-                    
+                if(act_w) { 
+                    const uint KEY_ESC = 129;
+                    if(p2== KEY_ESC) act_w->terminate();   
                     act_w->push_message(p1,p2);
             
                 }
@@ -244,6 +246,38 @@ void int0d_handler()
         popad
         sti
         ret
+
+    }
+}
+
+
+extern  API_ADDR* API_Entry;
+__declspec (naked)
+void int40_handler() 
+{ 
+    __asm{
+        ;sti
+        push ds
+        push es
+        mov ax, 0x08 * 2
+        mov ds, ax
+        mov es, ax
+        cmp  ecx, 1
+        je  call_func     
+        jmp exit_app
+call_func:
+        push    edx                 //edx = data
+        shl     ecx, 2
+        lea     edx, dword ptr API_Entry
+        add     edx, ecx
+        mov     ecx, [edx]
+        call    ecx
+        pop es
+        pop ds
+        iretd
+exit_app:
+
+
 
     }
 }

@@ -1,0 +1,2 @@
+del *.lock
+"D:/Program Files/Bochs-2.8/bochsdbg.exe" 

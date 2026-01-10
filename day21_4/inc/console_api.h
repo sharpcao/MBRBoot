@@ -15,7 +15,7 @@ void __stdcall api_print_char(uchar c);
 typedef uint  API_ADDR;
 
 
-extern API_ADDR API_Entry[10];
+//extern  API_ADDR API_Entry[10];
 
 
 extern uint int03_print_message();
